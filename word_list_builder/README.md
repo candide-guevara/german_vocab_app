@@ -12,6 +12,10 @@ There are several sources that need to be joined in order to get a complete set 
   * AFAIK there are no official lists for the more advanced levels
 * List of words to their synonyms from openthesaurus.de
 
+```
+bash download.sh
+```
+
 ## Anki (deprecated)
 
 The word source is an Anki set called [A Frequency Dictionary of German][0], which is based on a [real dictionary][1].
