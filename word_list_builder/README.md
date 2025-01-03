@@ -14,6 +14,7 @@ There are several sources that need to be joined in order to get a complete set 
 
 ```
 bash download.sh
+python merge_json_files.py
 ```
 
 ## Anki (deprecated)

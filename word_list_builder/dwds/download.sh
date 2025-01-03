@@ -2,18 +2,18 @@
 
 download() {
   [[ -f "${1}" ]] && return
-  wget -O $1 $2
+  wget --quiet -O $1 $2
 }
 
 download_and_compress() {
   [[ -f "${1}.bz2" ]] && return
-  wget -O $1 $2
+  wget --quiet -O $1 $2
   bzip2 $1
 }
 
 download_synonyms() {
   [[ -f $1.mysql.tar.bz2 ]] && return
-  wget -O $1.mysql.tar.bz2 "$2"
+  wget --quiet -O $1.mysql.tar.bz2 "$2"
   tar xf $1.mysql.tar.bz2 openthesaurus_dump.sql
   gawk -f __mysql2sqlite.sh openthesaurus_dump.sql | sqlite3 $1.sqlite
   rm openthesaurus_dump.sql
