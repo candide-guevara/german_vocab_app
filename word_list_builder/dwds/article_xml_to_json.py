@@ -23,8 +23,9 @@ def get_outfile(infile):
   return in_path.with_name(tmp_path_stem(in_path, ".json.bz2"))
 
 class Handler(xml.sax.handler.ContentHandler):
-  meaning_rx = re.compile(r'.+%(\d+)$')
+  meaning_rx = re.compile(r'%(\d+)$')
   word_form = 'WordForm'
+  lexical_entry = 'LexicalEntry'
   lemma = 'Lemma'
   feat = 'feat'
   at_type = 'partOfSpeech'
@@ -41,46 +42,54 @@ class Handler(xml.sax.handler.ContentHandler):
 
   def __init__(self):
     self.result = []
-    self.reset_state()
-
-  def reset_state(self):
-    self.word_entry = None
-    self.is_noun = False
-    self.is_in_lemma = False
-    self.is_word_form = False
+    self.elt_stack = []
     self.meaning_index = 0
+    self.reset_word_entry()
+
+  def is_lemma(self, depth=-1):
+    return self.elt_stack[depth] == Handler.lemma
+
+  def is_lexical_entry(self):
+    return self.elt_stack[-1] == Handler.lexical_entry
+
+  def is_word_form(self, depth=-1):
+    return self.elt_stack[depth] == Handler.word_form
+
+  def reset_word_entry(self):
+    self.word_entry = {
+      "articles" : [],
+      "sch" : [],
+    }
+    self.is_noun = False
 
   def endElement(self, name):
-    if name == Handler.word_form:
+    if self.is_word_form():
       if self.is_noun: self.result.append(self.word_entry)
-      self.reset_state()
-    elif name == Handler.lemma: self.is_in_lemma = False
+    if self.is_lexical_entry():
+      self.meaning_index = 0
+    self.elt_stack.pop()
 
   def startElement(self, name, attrs):
-    if name == Handler.word_form:
-      self.is_word_form = True
-      self.word_entry = {
-        "articles" : [],
-        "sch" : [],
-      }
-    else: self.is_in_lemma |= (name == Handler.lemma)
+    self.elt_stack.append(name)
+    if self.is_word_form():
+      self.reset_word_entry()
     self.dispatch(name, attrs)
 
   def dispatch(self, name, attrs):
     if name != Handler.feat: return
     key = attrs.get(Handler.at_key)
     val = attrs.get(Handler.at_val)
-    if self.is_word_form and key == Handler.at_type:
+    if self.is_word_form(-2) and key == Handler.at_type:
       self.is_noun = val == Handler.enum_noun
-    elif self.is_word_form and key == Handler.at_gender:
+    elif self.is_word_form(-2) and key == Handler.at_gender:
       self.word_entry['articles'].append(Handler.enum_gender[val])
-    elif self.is_word_form and key == Handler.at_lemma:
+    elif self.is_word_form(-2) and key == Handler.at_lemma:
       self.word_entry['sch'].append({
         "hidx" : self.meaning_index,
         "lemma" : val,
       })
-    elif self.is_in_lemma and key == Handler.at_lemma:
-      m = Handler.meaning_rx.match(val)
+    elif self.is_lemma(-2) and key == Handler.at_lemma:
+      m = Handler.meaning_rx.search(val)
       if m: self.meaning_index = int(m.group(1))
 
 def load_xml(xml_p):
