@@ -68,6 +68,26 @@ class Merged:
     }
     return stats
 
+  def write_merged(self, outpath):
+    entries = []
+    index_url = {}
+    index_word = {}
+    for k,v in self.url_to_obj.items():
+      index_url[k.split('/')[-1]] = len(entries)
+      for spell in v['sch']:
+        index_word.setdefault(spell['lemma'], []).append(len(entries))
+      entries.append(v)
+    for k,v in index_word.items():
+      if len(set(v)) != len(v):
+        raise Exception("Malformed word index entry: %s -> %r" % (k, v))
+    with bz2.open(outpath, "wt") as f:
+      f.write(json.dumps({
+        "entries"    : entries,
+        "url_root"   : "https://www.dwds.de/wb/",
+        "index_url"  : index_url,
+        "index_word" : index_word,
+      }))
+
   def write_fiaschi(self, outpath):
     if outpath.is_file(): outpath.unlink()
     with bz2.open(outpath, "wt") as f:
@@ -237,7 +257,7 @@ def merge_prufung_levels(paths, merged):
 
       for spell in sch:
         word = spell["lemma"]
-        idx = spell["hidx"] or 0
+        idx = int(spell["hidx"]) if spell["hidx"] else 0
         obj = merged.get_obj(word, idx, wtype, "merge_prufung_levels")
         if not obj: continue
         if url not in merged.url_to_obj:
@@ -249,12 +269,6 @@ def merge_prufung_levels(paths, merged):
 def validate_merged(schema_path, merged):
   for k,v in merged.items():
     jsonschema.validate(instance=v, schema=schema_path)
-
-def write_merged(outpath, merged):
-  with bz2.open(outpath, "wt") as f:
-    f.write(json.dumps({
-      "entries": list(merged.url_to_obj.values()),
-    }))
 
 def main(args):
   root = pathlib.Path('.').resolve()
@@ -268,9 +282,9 @@ def main(args):
       ('b1', root.joinpath('__words_to_b1_level.json.bz2')),
     ], merged)
   #validate_merged(root.joinpath('words.jsonschema'), merged)
-  print(json.dumps(merged.calculate_stats(), indent=4))
   merged.write_fiaschi(root.joinpath('__fiaschi.json.bz2'))
-  #write_merged(root.joinpath('__words.json.bz2'), merged)
+  merged.write_merged(root.joinpath('__words.json.bz2'))
+  print(json.dumps(merged.calculate_stats(), indent=4))
 
 if __name__ == "__main__":
   main(sys.argv)
