@@ -1,3 +1,4 @@
+import argparse
 import bz2
 import json
 import jsonschema
@@ -5,6 +6,25 @@ import pathlib
 import re
 import sys
 import urllib
+
+class Filter():
+  @classmethod
+  def build(k, args):
+    if not args.freq_thres and not args.wtype_filter:
+      class NopFilter:
+        def ok(self, entry): return True
+      return NopFilter()
+
+    f = k()
+    f.freq_thres = args.freq_thres or -2
+    f.wtype_filter = args.wtype_filter.split(',') if args.wtype_filter else []
+    return f
+
+  def ok(self, entry):
+    if entry["freq"] < self.freq_thres: return False
+    if self.wtype_filter and entry["pos"] not in self.wtype_filter:
+      return False
+    return True
 
 class Merged:
   def __init__(self):
@@ -68,11 +88,13 @@ class Merged:
     }
     return stats
 
-  def write_merged(self, outpath):
+  def write_merged(self, outpath, args):
     entries = []
     index_url = {}
     index_word = {}
+    filter = Filter.build(args)
     for k,v in self.url_to_obj.items():
+      if not filter.ok(v): continue
       index_url[k.split('/')[-1]] = len(entries)
       for spell in v['sch']:
         index_word.setdefault(spell['lemma'], []).append(len(entries))
@@ -166,7 +188,9 @@ def merge_frequencies(freq_path, merged):
   for v in load_json(freq_path):
     wtype = v.get("pos")
     freq = v.get("freq")
-    if freq == 'n/a': freq = None
+    if freq == 'n/a': freq = -1
+    elif isinstance(freq, str):
+      raise Exception("Invalid frequency for: %s -> %r" % (word, v))
     word = v["lemma"]
     idx = extract_superscript(word)
     url_idx = get_url_idx(v["url"])
@@ -174,8 +198,6 @@ def merge_frequencies(freq_path, merged):
       if idx != url_idx:
         raise Exception("Meaning index mismatch: %s -> %r" % (word, v))
       word = word[:-1]
-    if freq and freq < 0:
-      raise Exception("Invalid frequency for: %s -> %r" % (word, v))
     obj = merged.get_obj(word, url_idx, wtype, "merge_frequencies")
     if not obj: continue
     obj["freq"] = freq
@@ -271,21 +293,47 @@ def validate_merged(schema_path, merged):
     jsonschema.validate(instance=v, schema=schema_path)
 
 def main(args):
-  root = pathlib.Path('.').resolve()
-  merged = build_url_to_obj(root.joinpath('__words_to_url.json.bz2'))
-  merge_frequencies(root.joinpath('__words_to_freq.json.bz2'), merged)
-  merge_genders(root.joinpath('__words_to_gender.json.bz2'), merged)
-  merge_synonyms(root.joinpath('__words_to_synonyms.json.bz2'), merged)
+  in_root = pathlib.Path(args.in_root).resolve()
+  out_root = pathlib.Path(args.out_root).resolve()
+
+  merged = build_url_to_obj(in_root.joinpath('__words_to_url.json.bz2'))
+  merge_frequencies(in_root.joinpath('__words_to_freq.json.bz2'), merged)
+  merge_genders(in_root.joinpath('__words_to_gender.json.bz2'), merged)
+  merge_synonyms(in_root.joinpath('__words_to_synonyms.json.bz2'), merged)
   merge_prufung_levels([
-      ('a1', root.joinpath('__words_to_a1_level.json.bz2')),
-      ('a2', root.joinpath('__words_to_a2_level.json.bz2')),
-      ('b1', root.joinpath('__words_to_b1_level.json.bz2')),
+      ('a1', in_root.joinpath('__words_to_a1_level.json.bz2')),
+      ('a2', in_root.joinpath('__words_to_a2_level.json.bz2')),
+      ('b1', in_root.joinpath('__words_to_b1_level.json.bz2')),
     ], merged)
-  #validate_merged(root.joinpath('words.jsonschema'), merged)
-  merged.write_fiaschi(root.joinpath('__fiaschi.json.bz2'))
-  merged.write_merged(root.joinpath('__words.json.bz2'))
-  print(json.dumps(merged.calculate_stats(), indent=4))
+  #validate_merged(in_root.joinpath('words.jsonschema'), merged)
+  merged.write_fiaschi(out_root.joinpath('__fiaschi.json.bz2'))
+  merged.write_merged(out_root.joinpath('__words.json.bz2'), args)
+  print('DONE, stats', json.dumps(merged.calculate_stats(), indent=4))
 
 if __name__ == "__main__":
-  main(sys.argv)
+  parser = argparse.ArgumentParser(description="See https://github.com/candide-guevara/german_vocab_app")
+  parser.add_argument(
+      '--wtype_filter',
+      type=str,
+      help='Comma separated list of word types to include [Substantiv|Verb|Adjektiv|Adverb|Partikel|Pronomen]'
+  )
+  parser.add_argument(
+      '--freq_thres',
+      type=int,
+      help='Output only words equal or above that frequency [0-5]'
+  )
+  parser.add_argument(
+      '--out_root',
+      type=str,
+      default='.',
+      help='Directory where to output files'
+  )
+  parser.add_argument(
+      '--in_root',
+      type=str,
+      default='.',
+      help='Directory where the source files are'
+  )
+  main(parser.parse_args())
+
 
