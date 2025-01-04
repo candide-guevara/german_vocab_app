@@ -27,3 +27,40 @@ def get_url_idx(url):
   unescaped = urllib.parse.unquote(url)
   return extract_superscript(unescaped)
 
+POS_UNKNOWN = 0
+POS_SUBSTANTIV = 29
+enum_pos = {
+  'UNKNOWN' : POS_UNKNOWN,
+  'Adjektiv': 1,
+  'Adverb': 2,
+  'Affix': 3,
+  'bestimmter Artikel': 4,
+  'Bruchzahl': 5,
+  'Demonstrativpronomen': 6,
+  'Eigenname': 7,
+  'Imperativ': 8,
+  'Indefinitpronomen': 9,
+  'Interjektion': 10,
+  'Interrogativpronomen': 11,
+  'Kardinalzahl': 12,
+  'Komparativ': 13,
+  'Konjunktion': 14,
+  'Mehrwortausdruck': 15,
+  'Ordinalzahl': 16,
+  'Partikel': 17,
+  'partizipiales Adjektiv': 18,
+  'partizipiales Adverb': 19,
+  'Personalpronomen': 20,
+  'Possessivpronomen': 21,
+  'Präposition': 22,
+  'Präposition + Artikel': 23,
+  'Pronomen': 24,
+  'Pronominaladverb': 25,
+  'Reflexivpronomen': 26,
+  'Relativpronomen': 27,
+  'reziprokes Pronomen': 28,
+  'Substantiv': POS_SUBSTANTIV,
+  'Superlativ': 30,
+  'Verb': 31,
+}
+

@@ -90,10 +90,13 @@ class Merged:
     if outpath.is_file(): outpath.unlink()
     with bz2.open(outpath, "wt") as f:
       f.write(json.dumps({
+        "missing_len" : len(self.missing),
         "missing" : self.missing,
+        "gender_file_funny_entries_len" : len(self.gender_file_funny_entries),
         "gender_file_funny_entries" : self.gender_file_funny_entries,
+        "prufung_file_funny_entries_len" : len(self.prufung_file_funny_entries),
         "prufung_file_funny_entries" : self.prufung_file_funny_entries,
+        "mismatches_len" : len(self.mismatches),
         "mismatches" : self.mismatches,
       }, indent=2))
-
 

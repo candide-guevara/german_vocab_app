@@ -49,7 +49,7 @@ def merge_frequencies(freq_path, merged):
   }
   """
   for v in load_json(freq_path):
-    wtype = v.get("pos")
+    pos = enum_pos.get(v.get("pos"), POS_UNKNOWN)
     freq = v.get("freq")
     if freq == 'n/a': freq = -1
     elif isinstance(freq, str):
@@ -62,10 +62,10 @@ def merge_frequencies(freq_path, merged):
         raise Exception("Meaning index mismatch: %s -> %r" % (word, v))
       word = word[:-1]
     obj = merged.get_obj(word, url_idx, "merge_frequencies",
-                         expect={'pos' : wtype})
+                         expect={'pos' : pos})
     if not obj: continue
     obj["freq"] = freq
-    if wtype: obj["pos"] = wtype
+    if pos: obj["pos"] = pos
 
 def merge_genders(gender_path, merged):
   """
@@ -81,6 +81,7 @@ def merge_genders(gender_path, merged):
   }
   """
   for v in load_json(gender_path):
+    pos = enum_pos.get("Substantiv", POS_UNKNOWN)
     articles = v.get("articles")
     sch = v.get("sch")
     if not sch:
@@ -92,10 +93,10 @@ def merge_genders(gender_path, merged):
       word = spell["lemma"]
       idx = spell["hidx"]
       obj = merged.get_obj(word, idx, "merge_genders",
-                           expect={'pos' : "Substantiv"})
+                           expect={'pos' : pos})
       if not obj: continue
       obj["articles"] = sorted(set(articles + obj["articles"]))
-      obj["pos"] = "Substantiv"
+      obj["pos"] = pos
 
 def merge_prufung_levels(paths, merged):
   """
@@ -128,14 +129,14 @@ def merge_prufung_levels(paths, merged):
     for v in load_json(path):
       articles = v.get("articles")
       sch = v.get("sch")
-      wtype = v.get("pos")
-      url = v.get("url")
+      pos = enum_pos.get(v.get("pos"), POS_UNKNOWN)
+      url = get_url_suffix(v.get("url"))
       if not sch:
         raise Exception("Expecting spelling")
       if not url:
         merged.prufung_file_funny_entries.append(v)
         continue
-      if wtype == 'Substantiv' and not articles:
+      if pos == POS_SUBSTANTIV and not articles:
         if v.get('onlypl') == "nur im Plural":
           articles = [ 'die' ]
         else:
@@ -146,10 +147,10 @@ def merge_prufung_levels(paths, merged):
         word = spell["lemma"]
         idx = int(spell["hidx"]) if spell["hidx"] else 0
         obj = merged.get_obj(word, idx, "merge_prufung_levels",
-                             expect={'pos' : wtype, 'url' : get_url_suffix(url)})
+                             expect={'pos' : pos, 'url' : url})
         if not obj: continue
         obj["articles"] = sorted(articles)
-        obj["pos"] = wtype
+        obj["pos"] = pos
         obj["prufung"] = lvl
 
 def validate_merged(schema_path, merged):
