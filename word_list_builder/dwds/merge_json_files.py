@@ -80,20 +80,24 @@ def merge_genders(gender_path, merged):
     ],
   }
   """
+  # Words ending with these suffixes are always plural and may not contain gender hints.
+  ignore_suffixes_rx = re.compile(r'..(leute|kosten|verhältnisse|sachen|daten|mittel|\.|[ -]?[jJ]ahre)$')
   for v in load_json(gender_path):
     pos = enum_pos.get("Substantiv", POS_UNKNOWN)
     articles = v.get("articles")
     sch = v.get("sch")
     if not sch:
       raise Exception("Expecting spelling")
-    if not articles:
-      merged.gender_file_funny_entries.append(v)
-      continue
     for spell in sch:
       word = spell["lemma"]
       idx = spell["hidx"]
       obj = merged.get_obj(word, idx, "merge_genders",
                            expect={'pos' : pos})
+      if not articles and ignore_suffixes_rx.search(word):
+        articles = [ 'die' ]
+      if not articles and len(word) > 2 and word.upper() != word:
+        merged.gender_file_funny_entries.setdefault(word, []).append(idx)
+        continue
       if not obj: continue
       obj["articles"] = sorted(set(articles + obj["articles"]))
       obj["pos"] = pos

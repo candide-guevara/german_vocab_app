@@ -5,7 +5,7 @@ class Merged:
     self.url_set = set()
     self.wordidx_to_obj = {}
     self.missing = {}
-    self.gender_file_funny_entries = []
+    self.gender_file_funny_entries = {}
     self.prufung_file_funny_entries = []
     self.mismatches = {}
 
@@ -19,7 +19,7 @@ class Merged:
       prev_val = obj[k]
       if not prev_val or prev_val == v: continue
       prev = self.mismatches.setdefault(word, [])
-      self.mismatches[word] = sorted(set(prev + ["%s:%s/%s" % (k, prev_val, v)]))
+      self.mismatches[word] = sorted(set(prev + ["%s:%s:%s/%s" % (ctx, k, prev_val, v)]))
     return obj
 
   def filter_words(self, wfilter):
