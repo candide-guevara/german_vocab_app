@@ -6,6 +6,8 @@ import subprocess
 import sys
 import xml.sax
 
+from merge_json_utils import *
+
 def tmp_path_stem(p, suffix):
   return "__%s%s" % (p.stem.lstrip('_').split('.')[0], suffix)
 
@@ -44,6 +46,7 @@ class Handler(xml.sax.handler.ContentHandler):
     self.result = []
     self.elt_stack = []
     self.meaning_index = 0
+    self.pos = None # Note: word type can be in several places
     self.reset_word_entry()
 
   def is_lemma(self, depth=-1):
@@ -56,15 +59,14 @@ class Handler(xml.sax.handler.ContentHandler):
     return self.elt_stack[depth] == Handler.word_form
 
   def reset_word_entry(self):
-    self.word_entry = {
-      "articles" : [],
-      "sch" : [],
-    }
-    self.is_noun = False
+    self.pos = None
+    self.word_entry = { "articles" : [], }
 
   def endElement(self, name):
     if self.is_word_form():
-      if self.is_noun: self.result.append(self.word_entry)
+      if self.pos != POS_UNKNOWN:
+        self.word_entry['pos'] = self.pos
+        self.result.append(self.word_entry)
     if self.is_lexical_entry():
       self.meaning_index = 0
     self.elt_stack.pop()
@@ -79,15 +81,13 @@ class Handler(xml.sax.handler.ContentHandler):
     if name != Handler.feat: return
     key = attrs.get(Handler.at_key)
     val = attrs.get(Handler.at_val)
-    if self.is_word_form(-2) and key == Handler.at_type:
-      self.is_noun = val == Handler.enum_noun
+    if key == Handler.at_type:
+      self.pos = enum_part_of_speech.get(val, POS_UNKNOWN)
     elif self.is_word_form(-2) and key == Handler.at_gender:
       self.word_entry['articles'].append(Handler.enum_gender[val])
     elif self.is_word_form(-2) and key == Handler.at_lemma:
-      self.word_entry['sch'].append({
-        "hidx" : self.meaning_index,
-        "lemma" : val,
-      })
+      self.word_entry["hidx"] = self.meaning_index
+      self.word_entry["lemma"] = val
     elif self.is_lemma(-2) and key == Handler.at_lemma:
       m = Handler.meaning_rx.search(val)
       if m: self.meaning_index = int(m.group(1))

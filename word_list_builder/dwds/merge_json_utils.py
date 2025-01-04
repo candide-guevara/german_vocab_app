@@ -7,6 +7,9 @@ def load_json(path):
   with bz2.open(path, "rb") as f:
     return json.load(f)
 
+# If a word contains these chars then it is likely not important.
+funky_chars = re.compile(u'[\u00b9\u00b2\u00b3.]')
+
 # Note u'' strings deal with unicode codepoints.
 # Ex: \u00b2 is the code point for superscript 1.
 #     but \uc2b2 is the utf8 encode for codepoint \u00b2.
@@ -27,12 +30,16 @@ def get_url_idx(url):
   unescaped = urllib.parse.unquote(url)
   return extract_superscript(unescaped)
 
+FREQ_UNKNOWN = -1
 POS_UNKNOWN = 0
+POS_ADJECTIV = 1
+POS_ADVERB = 2
 POS_SUBSTANTIV = 29
+POS_VERB = 31
 enum_pos = {
   'UNKNOWN' : POS_UNKNOWN,
-  'Adjektiv': 1,
-  'Adverb': 2,
+  'Adjektiv': POS_ADJECTIV,
+  'Adverb': POS_ADVERB,
   'Affix': 3,
   'bestimmter Artikel': 4,
   'Bruchzahl': 5,
@@ -61,6 +68,14 @@ enum_pos = {
   'reziprokes Pronomen': 28,
   'Substantiv': POS_SUBSTANTIV,
   'Superlativ': 30,
-  'Verb': 31,
+  'Verb': POS_VERB,
+}
+
+enum_part_of_speech = {
+  'UNKNOWN' : POS_UNKNOWN,
+  'N' : POS_SUBSTANTIV,
+  'V' : POS_VERB,
+  'ADJ' : POS_ADJECTIV,
+  'ADV' : POS_ADVERB,
 }
 

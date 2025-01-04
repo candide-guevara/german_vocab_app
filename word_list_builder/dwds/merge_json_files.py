@@ -51,7 +51,7 @@ def merge_frequencies(freq_path, merged):
   for v in load_json(freq_path):
     pos = enum_pos.get(v.get("pos"), POS_UNKNOWN)
     freq = v.get("freq")
-    if freq == 'n/a': freq = -1
+    if freq == 'n/a': freq = FREQ_UNKNOWN
     elif isinstance(freq, str):
       raise Exception("Invalid frequency for: %s -> %r" % (word, v))
     word = v["lemma"]
@@ -71,36 +71,34 @@ def merge_genders(gender_path, merged):
   """
   # Root object: array
   # Note1 `sch` stands for schreibung (in case there are different spellings)
-  # Note2 words with different meanings will have separate entries sharing the same `sch.lemma`
-  # however `sch.hidx` will index the different entries (start at 1, 0 means there is only a single meaning).
+  # Note2 words with different meanings will have separate entries sharing the same `lemma`
+  # however `hidx` will index the different entries (start at 1, 0 means there is only a single meaning).
   words_to_gender = {
     "articles" : [ "die" ],
-    "sch" : [
-       { "hidx" : null, "lemma" : "Abfahrt" }
-    ],
+     "hidx" : 0,
+     "lemma" : "Abfahrt",
+     "pos" : 29
   }
   """
   # Words ending with these suffixes are always plural and may not contain gender hints.
-  ignore_suffixes_rx = re.compile(r'..(leute|kosten|verhältnisse|sachen|daten|mittel|\.|[ -]?[jJ]ahre)$')
+  always_plural_rx = re.compile(
+    r'..(beschwerden|trümmer|ferien|spesen|leute|kosten|verhältnisse|sachen|daten|mittel|dinger?|[ -]?[jJ]ahre)$')
   for v in load_json(gender_path):
-    pos = enum_pos.get("Substantiv", POS_UNKNOWN)
+    pos = v.get('pos', POS_UNKNOWN)
+    if pos != POS_SUBSTANTIV: continue
     articles = v.get("articles")
-    sch = v.get("sch")
-    if not sch:
-      raise Exception("Expecting spelling")
-    for spell in sch:
-      word = spell["lemma"]
-      idx = spell["hidx"]
-      obj = merged.get_obj(word, idx, "merge_genders",
-                           expect={'pos' : pos})
-      if not articles and ignore_suffixes_rx.search(word):
-        articles = [ 'die' ]
-      if not articles and len(word) > 2 and word.upper() != word:
-        merged.gender_file_funny_entries.setdefault(word, []).append(idx)
-        continue
-      if not obj: continue
-      obj["articles"] = sorted(set(articles + obj["articles"]))
-      obj["pos"] = pos
+    word = v["lemma"]
+    idx = v["hidx"]
+    obj = merged.get_obj(word, idx, "merge_genders",
+                         expect={'pos' : pos})
+    if not articles and always_plural_rx.search(word):
+      articles = [ 'die' ]
+    if not articles and len(word) > 2 and word.upper() != word and not funky_chars.search(word):
+      merged.gender_file_funny_entries.setdefault(word, []).append(idx)
+      continue
+    if not obj: continue
+    obj["articles"] = sorted(set(articles + obj["articles"]))
+    obj["pos"] = pos
 
 def merge_prufung_levels(paths, merged):
   """

@@ -11,7 +11,7 @@ class WordFilter():
       return NopFilter()
 
     f = k()
-    f.freq_thres = config.get('freq_thres') or -2
+    f.freq_thres = config.get('freq_thres') or FREQ_UNKNOWN
     f.pos_filter = config.get('pos_filter') or []
     if f.pos_filter:
       f.pos_filter = [ enum_pos[k] for k in f.pos_filter ]

@@ -11,10 +11,10 @@ class Merged:
 
   def get_obj(self, word, idx, ctx=None, expect={}):
     obj = self.wordidx_to_obj.get((word, idx))
-    if not obj:
+    if not obj and len(word) > 1 and not funky_chars.search(word):
       d = self.missing.setdefault("%s_%s" % (word, idx), {})
       d[ctx] = d.get(ctx, 0) + 1
-      return None
+    if not obj: return None
     for k,v in expect.items():
       prev_val = obj[k]
       if not prev_val or prev_val == v: continue
@@ -59,7 +59,7 @@ class Merged:
     cnt_has_several_spellings = 0
     cnt_has_several_meanings = sum( (t[1] > 1) for t in self.wordidx_to_obj.keys() )
     for v in self.wordidx_to_obj.values():
-      cnt_has_freq += (v['freq'] != None)
+      cnt_has_freq += (v.get('freq', FREQ_UNKNOWN) >= 0)
       cnt_has_prufung += (v['prufung'] != None)
       cnt_has_gender += (len(v['articles']) > 0)
       cnt_has_several_spellings += (len(v['sch']) > 1)
