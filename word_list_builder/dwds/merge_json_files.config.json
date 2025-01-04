@@ -1,0 +1,5 @@
+{
+  "freq_thres" : 3,
+  "wtype_filter" : [ "Substantiv", "Verb", "Adjektiv", "Adverb" ]
+}
+
