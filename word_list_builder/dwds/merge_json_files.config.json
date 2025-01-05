@@ -2,6 +2,14 @@
   "filter_freq_thres_greater_or_eq" : 3,
   "filter_include_pos" : [ "Substantiv", "Verb", "Adjektiv", "Adverb" ],
   "filter_words_with_non_german_chars" : 1,
-  "filter_words_shorter_than": 2
+  "filter_words_shorter_than": 2,
+  "filter_rx_blacklist": [
+    "[gG]?[hH][zZ]",
+    "[pP][dD][fF]",
+    "[eE]-?[mM][aA][iI][lL]",
+    "[oO][kK]|[oO][kK][aA][yY]",
+    "[b-df-hj-np-tv-xzßB-DF-HJ-NP-TV-XZ]+",
+    "A[cglmrstu]|B[aehikr]|C[adelorsu]|D[syb]|E[rsu]|F[elmr]|G[ade]|H[efgos]|I[rn]|K[r]|L[airu]|M[cdgnot]|N[aep]|O[gs]|P[abdmst]|R[abefghnu]|S[bcegimnr]|T[abcehilmnr]|U[uh]|V[su]|W[sn]|X[e]|Y[b]|Z[nr]"
+  ]
 }
 

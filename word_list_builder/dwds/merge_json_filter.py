@@ -1,3 +1,5 @@
+import re
+
 from merge_json_utils import *
 
 class WordFilter():
@@ -16,10 +18,13 @@ class WordFilter():
     f.pos_filter = config.get('filter_include_pos', [])
     f.chars_filter = config.get('filter_words_with_non_german_chars', False)
     f.min_len = config.get('filter_words_shorter_than', 0)
+    f.blacklist = config.get('filter_rx_blacklist', [])
     if f.pos_filter:
       f.pos_filter = [ enum_pos[k] for k in f.pos_filter ]
       if any( p == POS_UNKNOWN for p in f.pos_filter):
         raise Exception("Bad POS filter: %r", f.pos_filter)
+    if f.blacklist:
+      f.blacklist = [ re.compile(r) for r in f.blacklist ]
     return f
 
   def is_noop(self): return False
@@ -27,6 +32,8 @@ class WordFilter():
   def word_ok(self, word):
     if len(word) < self.min_len: return False
     if self.chars_filter and not german_chars_rx.search(word):
+      return False
+    if any( r.fullmatch(word) for r in self.blacklist ):
       return False
     return True
 
