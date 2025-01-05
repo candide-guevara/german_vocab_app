@@ -1,3 +1,4 @@
+import gzip
 import json
 import jsonschema
 
@@ -123,7 +124,7 @@ class Merged:
         e.instance = "TRUNCATED"
         e.schema = "See %s" % schema_path
         raise
-    with bz2.open(outpath, "wt") as f:
+    with gzip.open(outpath, "wt") as f:
       f.write(json.dumps(to_write))
 
   def write_fiaschi(self, outpath):

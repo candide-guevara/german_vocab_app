@@ -179,6 +179,8 @@ def merge_prufung_levels(paths, merged):
 def main(args):
   in_root = pathlib.Path(args.in_root).resolve()
   out_root = pathlib.Path(args.out_root).resolve()
+  outfile = out_root.joinpath('words.json.gz')
+  install_path = pathlib.Path(args.install_root).resolve().joinpath('app/assets', outfile.name)
   with open(pathlib.Path(args.config), 'rt') as f: config = json.load(f)
 
   merged = build_url_to_obj(in_root.joinpath('__words_to_url.json.bz2'))
@@ -196,9 +198,10 @@ def main(args):
   WordTagger(config).add_tags(merged)
   merged.filter_words(WordFilter.build(config))
 
-  merged.write_merged(out_root.joinpath('__words.json.bz2'),
+  merged.write_merged(outfile,
                       in_root.joinpath('words.schema.json'))
   merged.write_fiaschi(out_root.joinpath('__fiaschi.json.bz2'))
+  install_path.write_bytes(outfile.read_bytes())
   print('DONE, stats', json.dumps(merged.calculate_stats(), indent=4))
 
 if __name__ == "__main__":
@@ -208,6 +211,12 @@ if __name__ == "__main__":
       type=str,
       default='./merge_json_files.config.json',
       help='Fullpath to configuration file'
+  )
+  parser.add_argument(
+      '--install_root',
+      type=str,
+      default='../..',
+      help='Directory root for the flutter app where the assets should be installed'
   )
   parser.add_argument(
       '--out_root',

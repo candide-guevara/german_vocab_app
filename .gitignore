@@ -28,4 +28,6 @@ doc/api/
 
 # My stuff
 __*
+**/words.json.bz2
+**/words.json.gz
 
