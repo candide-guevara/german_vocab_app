@@ -67,23 +67,39 @@ def merge_frequencies(freq_path, merged):
     obj["freq"] = freq
     if pos: obj["pos"] = pos
 
-def merge_genders(gender_path, merged):
+def merge_alternate_spellings(root, merged):
   """
-  # Root object: array
+  # Root object: dict
+  spellings = { alternate_spellings: {
+  "Apartment" : {
+       "0" : [
+          "Apartment",
+          "App.",
+          "Appartement"
+       ]
+  }}
+  """
+  for idxs in root['alternate_spellings'].values():
+    for idx, spells in idxs.items():
+      merged.add_spellings(idx, set(spells))
+
+def merge_genders(gender_json, merged):
+  """
+  # Root object: dict
   # Note1 `sch` stands for schreibung (in case there are different spellings)
   # Note2 words with different meanings will have separate entries sharing the same `lemma`
   # however `hidx` will index the different entries (start at 1, 0 means there is only a single meaning).
-  words_to_gender = {
+  words_to_gender = { entries: [{
     "articles" : [ "die" ],
      "hidx" : 0,
      "lemma" : "Abfahrt",
      "pos" : 29
-  }
+  }]}
   """
   # Words ending with these suffixes are always plural and may not contain gender hints.
   always_plural_rx = re.compile(
     r'..(beschwerden|trümmer|ferien|spesen|leute|kosten|verhältnisse|sachen|daten|mittel|dinger?|[ -]?[jJ]ahre)$')
-  for v in load_json(gender_path):
+  for v in gender_json['entries']:
     pos = v.get('pos', POS_UNKNOWN)
     if pos != POS_SUBSTANTIV: continue
     articles = v.get("articles")
@@ -145,15 +161,19 @@ def merge_prufung_levels(paths, merged):
           merged.prufung_file_funny_entries.append(v)
           continue
 
+      spellings = {}
       for spell in sch:
         word = spell["lemma"]
-        idx = int(spell["hidx"]) if spell["hidx"] else 0
+        idx = int(spell.get("hidx") or 0)
+        spellings.setdefault(idx, set()).add(word)
         obj = merged.get_obj(word, idx, "merge_prufung_levels",
                              expect={'pos' : pos, 'url' : url})
         if not obj: continue
         obj["articles"] = sorted(articles)
         obj["pos"] = pos
         obj["prufung"] = lvl
+      for idx, spells in spellings.items():
+        merged.add_spellings(idx, spells)
 
 def validate_merged(schema_path, merged):
   for k,v in merged.items():
@@ -166,13 +186,16 @@ def main(args):
 
   merged = build_url_to_obj(in_root.joinpath('__words_to_url.json.bz2'))
   merge_frequencies(in_root.joinpath('__words_to_freq.json.bz2'), merged)
-  merge_genders(in_root.joinpath('__words_to_gender.json.bz2'), merged)
-  merge_synonyms(in_root.joinpath('__words_to_synonyms.json.bz2'), merged)
+  gender_and_spelling_json = load_json(
+    in_root.joinpath('__words_to_gender_and_spellings.json.bz2'))
+  merge_genders(gender_and_spelling_json, merged)
+  merge_alternate_spellings(gender_and_spelling_json, merged)
   merge_prufung_levels([
       ('a1', in_root.joinpath('__words_to_a1_level.json.bz2')),
       ('a2', in_root.joinpath('__words_to_a2_level.json.bz2')),
       ('b1', in_root.joinpath('__words_to_b1_level.json.bz2')),
     ], merged)
+  #merge_synonyms(in_root.joinpath('__words_to_synonyms.json.bz2'), merged)
   #validate_merged(in_root.joinpath('words.jsonschema'), merged)
   merged.filter_words(WordFilter.build(config))
   merged.write_merged(out_root.joinpath('__words.json.bz2'))

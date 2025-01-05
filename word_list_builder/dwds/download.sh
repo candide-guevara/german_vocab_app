@@ -21,7 +21,7 @@ download_synonyms() {
   python3 openthesaurus_extract_synsets.py $1.sqlite.bz2
 }
 
-download_genders() {
+download_genders_and_spellings() {
   download_and_compress $1 "$2"
   python3 article_xml_to_json.py $1.bz2
 }
@@ -30,8 +30,8 @@ download_and_compress \
   __words_to_url.json https://www.dwds.de/dwds_static/wb/dwdswb-headwords.json
 download_and_compress \
   __words_to_freq.json https://www.dwds.de/lemma/json
-download_genders \
-  __words_to_gender.xml https://www.dwds.de/dwds_static/wb/dwdswb-headwords.lmf.xml
+download_genders_and_spellings \
+  __words_to_gender_and_spellings.xml https://www.dwds.de/dwds_static/wb/dwdswb-headwords.lmf.xml
 download_and_compress \
   __words_to_a1_level.json https://www.dwds.de/api/lemma/goethe/A1.json
 download_and_compress \

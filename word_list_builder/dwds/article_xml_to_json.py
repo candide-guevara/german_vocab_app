@@ -43,11 +43,14 @@ class Handler(xml.sax.handler.ContentHandler):
   }
 
   def __init__(self):
-    self.result = []
+    self.entries = []
+    self.alternate_spellings = {}
     self.elt_stack = []
-    self.meaning_index = 0
-    self.pos = None # Note: word type can be in several places
     self.reset_word_entry()
+    self.reset_lexical_entry()
+
+  def result(self):
+    return { 'entries' : self.entries, 'alternate_spellings': self.alternate_spellings, }
 
   def is_lemma(self, depth=-1):
     return self.elt_stack[depth] == Handler.lemma
@@ -58,17 +61,23 @@ class Handler(xml.sax.handler.ContentHandler):
   def is_word_form(self, depth=-1):
     return self.elt_stack[depth] == Handler.word_form
 
+  def reset_lexical_entry(self):
+    self.meaning_index = 0
+    self.pos = None # Note: word type can be in several places
+    self.spellings = {}
+    self.reset_word_entry()
+
   def reset_word_entry(self):
-    self.pos = None
     self.word_entry = { "articles" : [], }
 
   def endElement(self, name):
     if self.is_word_form():
       if self.pos != POS_UNKNOWN:
         self.word_entry['pos'] = self.pos
-        self.result.append(self.word_entry)
+        self.entries.append(self.word_entry)
     if self.is_lexical_entry():
-      self.meaning_index = 0
+      self.add_spellings()
+      self.reset_lexical_entry()
     self.elt_stack.pop()
 
   def startElement(self, name, attrs):
@@ -85,12 +94,26 @@ class Handler(xml.sax.handler.ContentHandler):
       self.pos = enum_part_of_speech.get(val, POS_UNKNOWN)
     elif self.is_word_form(-2) and key == Handler.at_gender:
       self.word_entry['articles'].append(Handler.enum_gender[val])
-    elif self.is_word_form(-2) and key == Handler.at_lemma:
-      self.word_entry["hidx"] = self.meaning_index
-      self.word_entry["lemma"] = val
-    elif self.is_lemma(-2) and key == Handler.at_lemma:
-      m = Handler.meaning_rx.search(val)
-      if m: self.meaning_index = int(m.group(1))
+    elif key == Handler.at_lemma:
+      if self.is_word_form(-2):
+        self.spellings.setdefault(self.meaning_index, set()).add(val)
+        self.word_entry["hidx"] = self.meaning_index
+        self.word_entry["lemma"] = val
+      elif self.is_lemma(-2):
+        m = Handler.meaning_rx.search(val)
+        if m:
+          self.meaning_index = int(m.group(1))
+          self.spellings.setdefault(self.meaning_index, set()).add(val[:val.rfind('%')])
+        else:
+          self.spellings.setdefault(self.meaning_index, set()).add(val)
+
+  def add_spellings(self):
+    for idx, spells in self.spellings.items():
+      if len(spells) < 2: continue
+      for spell in spells:
+        all_spells = self.alternate_spellings.setdefault(spell, {}).setdefault(idx, [])
+        self.alternate_spellings[spell][idx] = sorted(spells.union(all_spells))
+
 
 def load_xml(xml_p):
   '''
@@ -144,16 +167,16 @@ def load_xml(xml_p):
   '''
   handler = Handler()
   xml.sax.parse(xml_p, handler)
-  return handler.result
+  return handler.result()
 
 
 def main(args):
   outpath = get_outfile(args[1])
   xml_p = decompress_infile(args[1])
-  xml_doc = load_xml(xml_p)
+  json_doc = load_xml(xml_p)
   if outpath.is_file(): outpath.unlink()
   with bz2.open(outpath, "wt") as f:
-    f.write(json.dumps(xml_doc))
+    f.write(json.dumps(json_doc))
   if xml_p.is_file(): xml_p.unlink()
 
 if __name__ == "__main__":

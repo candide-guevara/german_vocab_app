@@ -4,6 +4,11 @@ class Merged:
   def __init__(self):
     self.url_set = set()
     self.wordidx_to_obj = {}
+    # Example for words: (Appartment, 0) and (Apartment, 0)
+    # There will be 2 entries in `self.alternate_spellings`:
+    # { ("Appartment", 0) : [ "Appartment", "Apartment" ],
+    #   ("Apartment", 0) : [ "Appartment", "Apartment" ], }
+    self.alternate_spellings = {}
     self.missing = {}
     self.gender_file_funny_entries = {}
     self.prufung_file_funny_entries = []
@@ -22,16 +27,34 @@ class Merged:
       self.mismatches[word] = sorted(set(prev + ["%s:%s:%s/%s" % (ctx, k, prev_val, v)]))
     return obj
 
+  def add_spellings(self, idx, spells):
+    if len(spells) < 2: return
+    for spell in spells:
+      all_spells = self.alternate_spellings.setdefault(spell, {}).setdefault(idx, [])
+      self.alternate_spellings[spell][idx] = sorted(spells.union(all_spells))
+
   def filter_words(self, wfilter):
     if wfilter.is_noop(): return
     new_url_set = set()
     new_wordidx_to_obj = {}
+    new_alternate_spellings = {}
+
     for k,v in self.wordidx_to_obj.items():
       if not wfilter.ok(v): continue
       new_wordidx_to_obj[k] = v
       new_url_set.add(v['url'])
+
+    words_to_include = set( t[0] for t in new_wordidx_to_obj.keys() )
+    for k,idxs in self.alternate_spellings.items():
+      filter_idxs = {}
+      for idx, spells in idxs.items():
+        new_spells = [ s for s in spells if s in words_to_include ]
+        if len(new_spells) > 1: filter_idxs[idx] = new_spells
+      if filter_idxs: new_alternate_spellings[k] = filter_idxs
+
     self.url_set = new_url_set
     self.wordidx_to_obj = new_wordidx_to_obj
+    self.alternate_spellings = new_alternate_spellings
 
   def new_word_obj(self, url, word_idx):
     url_suffix = get_url_suffix(url)
@@ -40,9 +63,8 @@ class Merged:
       "pos" : None,
       "freq" : None,
       "prufung" : None,
-      "sch" : [
-         { "hidx" : word_idx[1], "lemma" : word_idx[0] }
-      ],
+      "hidx" : word_idx[1],
+      "lemma" : word_idx[0],
       'url' : url_suffix,
     }
     if url_suffix in self.url_set:
@@ -56,13 +78,11 @@ class Merged:
     cnt_has_freq = 0
     cnt_has_prufung = 0
     cnt_has_gender = 0
-    cnt_has_several_spellings = 0
     cnt_has_several_meanings = sum( (t[1] > 1) for t in self.wordidx_to_obj.keys() )
     for v in self.wordidx_to_obj.values():
       cnt_has_freq += (v.get('freq', FREQ_UNKNOWN) >= 0)
       cnt_has_prufung += (v['prufung'] != None)
       cnt_has_gender += (len(v['articles']) > 0)
-      cnt_has_several_spellings += (len(v['sch']) > 1)
     missing_per_ctx = {}
     for m in self.missing.values():
       for k,v in m.items():
@@ -73,8 +93,8 @@ class Merged:
       "has_freq" : stat_tuple(cnt_has_freq),
       "has_gender" : stat_tuple(cnt_has_gender),
       "has_prufung" : stat_tuple(cnt_has_prufung),
-      "has_several_spellings" : stat_tuple(cnt_has_several_spellings),
-      "has_several_meanings" : stat_tuple(cnt_has_several_meanings),
+      "several_meanings" : stat_tuple(cnt_has_several_meanings),
+      "alternate_spellings" : stat_tuple(len(self.alternate_spellings)),
       "missing_per_ctx" : missing_per_ctx,
     }
     return stats
@@ -83,6 +103,7 @@ class Merged:
     with bz2.open(outpath, "wt") as f:
       f.write(json.dumps({
         "entries"    : list(self.wordidx_to_obj.values()),
+        "alternate_spellings" : self.alternate_spellings,
         "url_root"   : "https://www.dwds.de/wb/",
       }))
 
