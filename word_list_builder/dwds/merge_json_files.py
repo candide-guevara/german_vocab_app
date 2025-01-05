@@ -1,6 +1,5 @@
 import argparse
 import json
-import jsonschema
 import pathlib
 import sys
 
@@ -177,10 +176,6 @@ def merge_prufung_levels(paths, merged):
       for idx, spells in spellings.items():
         merged.add_spellings(idx, spells)
 
-def validate_merged(schema_path, merged):
-  for k,v in merged.items():
-    jsonschema.validate(instance=v, schema=schema_path)
-
 def main(args):
   in_root = pathlib.Path(args.in_root).resolve()
   out_root = pathlib.Path(args.out_root).resolve()
@@ -201,8 +196,8 @@ def main(args):
   WordTagger(config).add_tags(merged)
   merged.filter_words(WordFilter.build(config))
 
-  #validate_merged(in_root.joinpath('words.jsonschema'), merged)
-  merged.write_merged(out_root.joinpath('__words.json.bz2'))
+  merged.write_merged(out_root.joinpath('__words.json.bz2'),
+                      in_root.joinpath('words.schema.json'))
   merged.write_fiaschi(out_root.joinpath('__fiaschi.json.bz2'))
   print('DONE, stats', json.dumps(merged.calculate_stats(), indent=4))
 

@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/candide-guevara/german_vocab_app",
+  "title": "Schema for dictionary of german words",
+  "description": "See word_list_builder/README.md",
+  "type": "object",
+  "properties" : {
+    "alternate_spellings" : {
+      "type": "object",
+      "additionalProperties" : {
+        "patternProperties" : {
+          "[0-9]" : { "type" : "array", "items" : { "type" : "string" } }
+        }
+      }
+    },
+    "entries" : {
+      "type": "array",
+      "items" : {
+        "type": "object",
+        "properties" : {
+          "articles" : { "type" : "array", "items" : { "type" : "string" } },
+          "freq" : { "type" : "number" },
+          "hidx" : { "type" : "number" },
+          "lemma" : { "type" : "string" },
+          "pos" : { "type" : "number" },
+          "prufung" : { "type" : "string" },
+          "tags" : { "type" : "array", "items" : { "type" : "number" } },
+          "url" : { "type" : "string" }
+        },
+        "additionalProperties": false,
+        "required": [ "articles", "freq", "hidx", "lemma", "pos", "tags", "url" ]
+      }
+    },
+    "url_root" : { "type": "string" }
+  },
+  "additionalProperties": false,
+  "required": [ "alternate_spellings", "entries", "url_root" ]
+}
+

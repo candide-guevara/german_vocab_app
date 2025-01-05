@@ -1,3 +1,6 @@
+import json
+import jsonschema
+
 from merge_json_utils import *
 
 class Merged:
@@ -30,6 +33,8 @@ class Merged:
     return obj
 
   def add_spellings(self, idx, spells):
+    # Because `self.alternate_spellings` needs to be a valid json object, the keys must be strings
+    idx = str(idx)
     if len(spells) < 2: return
     for spell in spells:
       all_spells = self.alternate_spellings.setdefault(spell, {}).setdefault(idx, [])
@@ -64,9 +69,9 @@ class Merged:
     url_suffix = get_url_suffix(url)
     obj = {
       "articles" : [],
-      "pos" : None,
-      "freq" : None,
-      "prufung" : None,
+      "pos" : POS_UNKNOWN,
+      "freq" : FREQ_UNKNOWN,
+      #"prufung" : None,
       "hidx" : word_idx[1],
       "lemma" : word_idx[0],
       'url' : url_suffix,
@@ -89,7 +94,7 @@ class Merged:
     cnt_has_several_meanings = sum( (t[1] > 1) for t in self.wordidx_to_obj.keys() )
     for v in self.wordidx_to_obj.values():
       cnt_has_freq += (v.get('freq', FREQ_UNKNOWN) >= 0)
-      cnt_has_prufung += (v['prufung'] != None)
+      cnt_has_prufung += (v.get('prufung') != None)
       cnt_has_gender += (len(v['articles']) > 0)
       cnt_pos[v['pos']] += 1
       for t in v['tags']: cnt_has_tags[t] += 1
@@ -105,13 +110,21 @@ class Merged:
     }
     return stats
 
-  def write_merged(self, outpath):
+  def write_merged(self, outpath, schema_path):
+    to_write = {
+      "entries"    : list(self.wordidx_to_obj.values()),
+      "alternate_spellings" : self.alternate_spellings,
+      "url_root"   : "https://www.dwds.de/wb/",
+    }
+    with open(schema_path, 'rt') as schema_f:
+      schema = json.load(schema_f)
+      try: jsonschema.validate(instance=to_write, schema=schema)
+      except jsonschema.ValidationError as e:
+        e.instance = "TRUNCATED"
+        e.schema = "See %s" % schema_path
+        raise
     with bz2.open(outpath, "wt") as f:
-      f.write(json.dumps({
-        "entries"    : list(self.wordidx_to_obj.values()),
-        "alternate_spellings" : self.alternate_spellings,
-        "url_root"   : "https://www.dwds.de/wb/",
-      }))
+      f.write(json.dumps(to_write))
 
   def write_fiaschi(self, outpath):
     if outpath.is_file(): outpath.unlink()
