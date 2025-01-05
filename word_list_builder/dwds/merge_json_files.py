@@ -109,7 +109,7 @@ def merge_genders(gender_json, merged):
                          expect={'pos' : pos})
     if not articles and always_plural_rx.search(word):
       articles = [ 'die' ]
-    if not articles and len(word) > 2 and word.upper() != word and not funky_chars.search(word):
+    if not articles and len(word) > 2 and word.upper() != word and german_chars_rx.search(word):
       merged.gender_file_funny_entries.setdefault(word, []).append(idx)
       continue
     if not obj: continue

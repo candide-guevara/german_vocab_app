@@ -16,7 +16,7 @@ class Merged:
 
   def get_obj(self, word, idx, ctx=None, expect={}):
     obj = self.wordidx_to_obj.get((word, idx))
-    if not obj and len(word) > 1 and not funky_chars.search(word):
+    if not obj and len(word) > 1 and german_chars_rx.search(word):
       d = self.missing.setdefault("%s_%s" % (word, idx), {})
       d[ctx] = d.get(ctx, 0) + 1
     if not obj: return None
@@ -46,6 +46,7 @@ class Merged:
 
     words_to_include = set( t[0] for t in new_wordidx_to_obj.keys() )
     for k,idxs in self.alternate_spellings.items():
+      if k not in words_to_include: continue
       filter_idxs = {}
       for idx, spells in idxs.items():
         new_spells = [ s for s in spells if s in words_to_include ]

@@ -7,8 +7,8 @@ def load_json(path):
   with bz2.open(path, "rb") as f:
     return json.load(f)
 
-# If a word contains these chars then it is likely not important.
-funky_chars = re.compile(u'[\u00b9\u00b2\u00b3.]')
+# If a word contains chars outside of this set, then it is likely not important.
+german_chars_rx = re.compile(u'^[a-zA-ZäöüÄÖÜß0-9 \-_]+$')
 
 # Note u'' strings deal with unicode codepoints.
 # Ex: \u00b2 is the code point for superscript 1.
