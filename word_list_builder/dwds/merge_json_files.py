@@ -4,9 +4,10 @@ import jsonschema
 import pathlib
 import sys
 
-from merge_json_utils import *
 from merge_json_filter import WordFilter
 from merge_json_state import Merged
+from merge_json_tag_words import WordTagger
+from merge_json_utils import *
 
 def build_url_to_obj(word_path):
   merged = Merged()
@@ -109,8 +110,9 @@ def merge_genders(gender_json, merged):
                          expect={'pos' : pos})
     if not articles and always_plural_rx.search(word):
       articles = [ 'die' ]
-    if not articles and len(word) > 2 and word.upper() != word and german_chars_rx.search(word):
-      merged.gender_file_funny_entries.setdefault(word, []).append(idx)
+    funky = is_funky(word)
+    if not articles and not funky:
+      merged.gender_file_funny_entries.append(v)
       continue
     if not obj: continue
     obj["articles"] = sorted(set(articles + obj["articles"]))
@@ -196,8 +198,10 @@ def main(args):
       ('b1', in_root.joinpath('__words_to_b1_level.json.bz2')),
     ], merged)
   #merge_synonyms(in_root.joinpath('__words_to_synonyms.json.bz2'), merged)
-  #validate_merged(in_root.joinpath('words.jsonschema'), merged)
+  WordTagger(config).add_tags(merged)
   merged.filter_words(WordFilter.build(config))
+
+  #validate_merged(in_root.joinpath('words.jsonschema'), merged)
   merged.write_merged(out_root.joinpath('__words.json.bz2'))
   merged.write_fiaschi(out_root.joinpath('__fiaschi.json.bz2'))
   print('DONE, stats', json.dumps(merged.calculate_stats(), indent=4))

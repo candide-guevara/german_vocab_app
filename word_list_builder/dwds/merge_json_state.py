@@ -3,6 +3,7 @@ from merge_json_utils import *
 class Merged:
   def __init__(self):
     self.url_set = set()
+    self.all_words = set()
     self.wordidx_to_obj = {}
     # Example for words: (Appartment, 0) and (Apartment, 0)
     # There will be 2 entries in `self.alternate_spellings`:
@@ -10,16 +11,17 @@ class Merged:
     #   ("Apartment", 0) : [ "Appartment", "Apartment" ], }
     self.alternate_spellings = {}
     self.missing = {}
-    self.gender_file_funny_entries = {}
+    self.gender_file_funny_entries = []
     self.prufung_file_funny_entries = []
     self.mismatches = {}
 
   def get_obj(self, word, idx, ctx=None, expect={}):
     obj = self.wordidx_to_obj.get((word, idx))
-    if not obj and len(word) > 1 and german_chars_rx.search(word):
+    funky = is_funky(word)
+    if not obj and not funky:
       d = self.missing.setdefault("%s_%s" % (word, idx), {})
       d[ctx] = d.get(ctx, 0) + 1
-    if not obj: return None
+    if funky or not obj: return obj
     for k,v in expect.items():
       prev_val = obj[k]
       if not prev_val or prev_val == v: continue
@@ -53,6 +55,7 @@ class Merged:
         if len(new_spells) > 1: filter_idxs[idx] = new_spells
       if filter_idxs: new_alternate_spellings[k] = filter_idxs
 
+    self.all_words = words_to_include
     self.url_set = new_url_set
     self.wordidx_to_obj = new_wordidx_to_obj
     self.alternate_spellings = new_alternate_spellings
@@ -71,32 +74,34 @@ class Merged:
     if url_suffix in self.url_set:
       raise Exception("Repeated url: %s -> %r\n%r" % (url_suffix, obj, self.wordidx_to_obj.set(word_idx)))
     self.url_set.add(url_suffix)
+    self.all_words.add(word_idx[0])
     self.wordidx_to_obj[word_idx] = obj
 
   def calculate_stats(self):
-    def stat_tuple(cnt):
-      return [cnt, round(100*cnt/len(self.wordidx_to_obj), 1)]
+    total = len(self.wordidx_to_obj)
+    def stat_tuple(cnt,tot=total):
+      return "%d, %.1f%%" % (cnt, round(100*cnt/tot, 1))
     cnt_has_freq = 0
     cnt_has_prufung = 0
     cnt_has_gender = 0
+    cnt_has_tags = { k : 0 for k in r_enum_tags.keys() }
+    cnt_pos = { k : 0 for k in r_enum_pos.keys() }
     cnt_has_several_meanings = sum( (t[1] > 1) for t in self.wordidx_to_obj.keys() )
     for v in self.wordidx_to_obj.values():
       cnt_has_freq += (v.get('freq', FREQ_UNKNOWN) >= 0)
       cnt_has_prufung += (v['prufung'] != None)
       cnt_has_gender += (len(v['articles']) > 0)
-    missing_per_ctx = {}
-    for m in self.missing.values():
-      for k,v in m.items():
-        missing_per_ctx.setdefault(k, 0)
-        missing_per_ctx[k] += 1
+      cnt_pos[v['pos']] += 1
+      for t in v['tags']: cnt_has_tags[t] += 1
     stats = {
-      "total_words" : len(self.wordidx_to_obj),
+      "total_words" : total,
       "has_freq" : stat_tuple(cnt_has_freq),
-      "has_gender" : stat_tuple(cnt_has_gender),
+      "has_gender" : stat_tuple(cnt_has_gender, cnt_pos[POS_SUBSTANTIV]),
       "has_prufung" : stat_tuple(cnt_has_prufung),
+      "has_tags" : { r_enum_tags[k] : stat_tuple(v) for k,v in cnt_has_tags.items() },
+      "cnt_pos" : { r_enum_pos[k] : stat_tuple(v) for k,v in cnt_pos.items() if v },
       "several_meanings" : stat_tuple(cnt_has_several_meanings),
       "alternate_spellings" : stat_tuple(len(self.alternate_spellings)),
-      "missing_per_ctx" : missing_per_ctx,
     }
     return stats
 

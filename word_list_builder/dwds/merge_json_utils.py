@@ -9,6 +9,8 @@ def load_json(path):
 
 # If a word contains chars outside of this set, then it is likely not important.
 german_chars_rx = re.compile(u'^[a-zA-ZäöüÄÖÜß0-9 \-_]+$')
+def is_funky(word):
+  return len(word) < 2 or word.isupper() or not german_chars_rx.search(word)
 
 # Note u'' strings deal with unicode codepoints.
 # Ex: \u00b2 is the code point for superscript 1.
@@ -70,6 +72,7 @@ enum_pos = {
   'Superlativ': 30,
   'Verb': POS_VERB,
 }
+r_enum_pos = { v:k for k,v in enum_pos.items() }
 
 enum_part_of_speech = {
   'UNKNOWN' : POS_UNKNOWN,
@@ -78,4 +81,18 @@ enum_part_of_speech = {
   'ADJ' : POS_ADJECTIV,
   'ADV' : POS_ADVERB,
 }
+
+TAG_TRIVIAL_GENDER = 1
+TAG_LIKELY_ENGLISH = 2
+TAG_FEM_PROFESSION = 3
+TAG_MAS_PROFESSION = 4
+TAG_FUNKY = 5
+r_enum_tags = {
+  TAG_TRIVIAL_GENDER : 'TAG_TRIVIAL_GENDER',
+  TAG_LIKELY_ENGLISH : 'TAG_LIKELY_ENGLISH',
+  TAG_FEM_PROFESSION : 'TAG_FEM_PROFESSION',
+  TAG_MAS_PROFESSION : 'TAG_MAS_PROFESSION',
+  TAG_FUNKY : 'TAG_FUNKY',
+}
+enum_tags = { v:k for k,v in r_enum_tags.items() }
 
