@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'home.dart';
+import 'gender_game.dart';
+import 'widgets/center_column.dart';
 import 'utils.dart';
 
 void main() {
@@ -17,5 +18,28 @@ void main() {
     theme: ThemeData.dark(),
     darkTheme: ThemeData.dark(),
   ));
+}
+
+class HomePage extends StatelessWidget {
+  const HomePage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text(kAppTitle)),
+      body: CenterColumn(
+        children: <Widget>[
+          FilledButton(
+            child: const Text(GenderGame.kPageTitle),
+            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => GenderGame())),
+          ),
+          FilledButton(
+            child: const Text("TODO"),
+            onPressed: () => {},
+          ),
+        ],
+      ),
+    );
+  }
 }
 
