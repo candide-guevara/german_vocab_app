@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'center_column.dart';
+import 'widgets/center_column.dart';
+import 'gender_game.dart';
 import 'utils.dart';
 
 class HomePage extends StatelessWidget {
@@ -11,12 +12,12 @@ class HomePage extends StatelessWidget {
       appBar: AppBar(title: Text(kAppTitle)),
       body: CenterColumn(
         children: <Widget>[
-          ElevatedButton(
-            child: const Text("coucou"),
-            onPressed: () => {},
+          FilledButton(
+            child: const Text(GenderGame.kPageTitle),
+            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => GenderGame())),
           ),
-          ElevatedButton(
-            child: const Text("salut"),
+          FilledButton(
+            child: const Text("TODO"),
             onPressed: () => {},
           ),
         ],
