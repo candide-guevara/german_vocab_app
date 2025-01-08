@@ -22,9 +22,10 @@ class GenderGame extends StatelessWidget {
 
   Widget builderAfterLoad(BuildContext context, AsyncSnapshot<bool> snapshot) {
     if (snapshot.hasData) {
-      String word = "Bundesverfassungsgericht0123";
+      //String word = "Bundesverfassungsgericht0123";
       //String word = "Bundesverfassung1234567";
       //String word = "Bundesverfassung";
+      String word = DictionaryLoader.d.byIdx(666).word;
       var state = WordGenderState(word);
       return CenterColumn(
         children: <Widget>[

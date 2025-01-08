@@ -4,12 +4,14 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:isolate';
 import 'dart:typed_data';
+import 'dictionary.dart';
 
 class DictionaryLoader {
   static final String kBundlePath = 'assets/words.json.gz';
   static bool init_called = false;
-  static Future<Map<String, dynamic>> _loadingFuture = Future.error(Exception('Uninitialized'));
-  static Map<String, dynamic> _jsonDict = <String, dynamic>{};
+  static Future<Dictionary> _loadingFuture = Future.error(Exception('Uninitialized'));
+  static Dictionary _jsonDict = Dictionary.empty();
+  static Dictionary get d => _jsonDict;
 
   static void init() {
     if (!init_called) {
@@ -22,13 +24,13 @@ class DictionaryLoader {
   }
 
   static Future<bool> isLoaded() async {
-    if(_jsonDict.isNotEmpty) return true;
+    if(!_jsonDict.isEmpty) return true;
     _jsonDict = await _loadingFuture;
     if(_jsonDict.isEmpty) throw DeferredLoadException("failed to load Dictionary at ${kBundlePath}");
     return true;
   }
 
-  static Future<Map<String, dynamic>> unmarshalCompressedJson(
+  static Future<Dictionary> unmarshalCompressedJson(
       ByteData compressedData, DictionaryLoadingStats stats) {
     stats.doneLoadBundle();
     return Isolate.run(() {
@@ -38,7 +40,7 @@ class DictionaryLoader {
       final jsonString = utf8.decode(decompressedStream);
       final Map<String, dynamic> jsonData = json.decode(jsonString);
       stats.doneUnmarshal();
-      return jsonData;
+      return Dictionary(jsonData);
     });
   }
 }
@@ -50,7 +52,7 @@ class DictionaryLoadingStats {
   int unmarshal_millis = 0;
 
   DictionaryLoadingStats(): _watch = Stopwatch() { _watch.start(); }
-  
+
   void doneLoadBundle() {
     load_bundle_millis = _watch.elapsedMilliseconds;
     _watch.reset();
