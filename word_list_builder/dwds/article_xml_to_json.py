@@ -35,12 +35,6 @@ class Handler(xml.sax.handler.ContentHandler):
   at_lemma = 'writtenForm'
   at_val = 'val'
   at_key = 'att'
-  enum_noun = 'N'
-  enum_gender = {
-    'feminine' : 'die',
-    'masculine' : 'der',
-    'neuter' : 'das',
-  }
 
   def __init__(self):
     self.entries = []
@@ -63,7 +57,7 @@ class Handler(xml.sax.handler.ContentHandler):
 
   def reset_lexical_entry(self):
     self.meaning_index = 0
-    self.pos = None # Note: word type can be in several places
+    self.pos = Pos.UNKNOWN # Note: word type can be in several places
     self.spellings = {}
     self.reset_word_entry()
 
@@ -72,8 +66,8 @@ class Handler(xml.sax.handler.ContentHandler):
 
   def endElement(self, name):
     if self.is_word_form():
-      if self.pos != POS_UNKNOWN:
-        self.word_entry['pos'] = self.pos
+      if self.pos != Pos.UNKNOWN:
+        self.word_entry['pos'] = self.pos.value
         self.entries.append(self.word_entry)
     if self.is_lexical_entry():
       self.add_spellings()
@@ -91,9 +85,9 @@ class Handler(xml.sax.handler.ContentHandler):
     key = attrs.get(Handler.at_key)
     val = attrs.get(Handler.at_val)
     if key == Handler.at_type:
-      self.pos = enum_part_of_speech.get(val, POS_UNKNOWN)
+      self.pos = part_of_speech_to_pos(val)
     elif self.is_word_form(-2) and key == Handler.at_gender:
-      self.word_entry['articles'].append(Handler.enum_gender[val])
+      self.word_entry['articles'].append(grammatical_gender_to_article(val).value)
     elif key == Handler.at_lemma:
       if self.is_word_form(-2):
         self.spellings.setdefault(self.meaning_index, set()).add(val)

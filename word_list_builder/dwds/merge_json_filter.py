@@ -20,11 +20,13 @@ class WordFilter():
     f.min_len = config.get('filter_words_shorter_than', 0)
     f.blacklist = config.get('filter_rx_blacklist', [])
     if f.pos_filter:
-      f.pos_filter = [ enum_pos[k] for k in f.pos_filter ]
-      if any( p == POS_UNKNOWN for p in f.pos_filter):
+      f.pos_filter = [ pos_name_to_enum(k).value for k in f.pos_filter ]
+      if any( p == Pos.UNKNOWN.value for p in f.pos_filter):
         raise Exception("Bad POS filter: %r", f.pos_filter)
     if f.blacklist:
       f.blacklist = [ re.compile(r) for r in f.blacklist ]
+      if config.get('filter_periodic_elt', False):
+        f.blacklist.append(periodic_elt_rx)
     return f
 
   def is_noop(self): return False

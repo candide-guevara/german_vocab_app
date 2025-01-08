@@ -11,12 +11,12 @@ class DEntry {
   final String url;
 
   DEntry.fromJson(Map<String, dynamic> json)
-      : articles = [ for (var x in json['articles']) RArticle[x] ?? Article.Unknown ],
+      : articles = [ for (var x in json['articles']) Article.values[x] ],
         frequency = json['freq'],
         meaning_idx = json['hidx'],
         word = json['lemma'],
         pos = PosType.values[json['pos']],
-        prufung = RPrunfungType[json['prufung']] ?? PrunfungType.Unknown,
+        prufung = PrunfungType.values[json['prufung']],
         tags = [ for (var x in json['tags']) TagType.values[x] ],
         url = json['url'];
 }

@@ -49,7 +49,7 @@ def merge_frequencies(freq_path, merged):
   }
   """
   for v in load_json(freq_path):
-    pos = enum_pos.get(v.get("pos"), POS_UNKNOWN)
+    pos = pos_name_to_enum(v.get("pos"))
     freq = v.get("freq")
     if freq == 'n/a': freq = FREQ_UNKNOWN
     elif isinstance(freq, str):
@@ -62,10 +62,10 @@ def merge_frequencies(freq_path, merged):
         raise Exception("Meaning index mismatch: %s -> %r" % (word, v))
       word = word[:-1]
     obj = merged.get_obj(word, url_idx, "merge_frequencies",
-                         expect={'pos' : pos})
+                         expect={'pos' : pos.value})
     if not obj: continue
     obj["freq"] = freq
-    if pos: obj["pos"] = pos
+    if pos != Pos.UNKNOWN: obj["pos"] = pos.value
 
 def merge_alternate_spellings(root, merged):
   """
@@ -90,7 +90,7 @@ def merge_genders(gender_json, merged):
   # Note2 words with different meanings will have separate entries sharing the same `lemma`
   # however `hidx` will index the different entries (start at 1, 0 means there is only a single meaning).
   words_to_gender = { entries: [{
-    "articles" : [ "die" ],
+    "articles" : [ Article.DIE.value ],
      "hidx" : 0,
      "lemma" : "Abfahrt",
      "pos" : 29
@@ -98,24 +98,24 @@ def merge_genders(gender_json, merged):
   """
   # Words ending with these suffixes are always plural and may not contain gender hints.
   always_plural_rx = re.compile(
-    r'..(beschwerden|trümmer|ferien|spesen|leute|kosten|verhältnisse|sachen|daten|mittel|dinger?|[ -]?[jJ]ahre)$')
+    r'..(eltern|beschwerden|trümmer|ferien|spesen|leute|kosten|verhältnisse|sachen|daten|mittel|dinger?|[ -]?[jJ]ahre)$')
   for v in gender_json['entries']:
-    pos = v.get('pos', POS_UNKNOWN)
-    if pos != POS_SUBSTANTIV: continue
-    articles = v.get("articles")
+    pos = pos_idx_to_enum(v.get('pos'))
+    if pos != Pos.SUBSTANTIV: continue
+    articles = [ n for n in v.get("articles", []) if n != Article.UNKNOWN.value ]
     word = v["lemma"]
     idx = v["hidx"]
     obj = merged.get_obj(word, idx, "merge_genders",
-                         expect={'pos' : pos})
+                         expect={'pos' : pos.value})
     if not articles and always_plural_rx.search(word):
-      articles = [ 'die' ]
+      articles = [ Article.DIE.value ]
     funky = is_funky(word)
-    if not articles and not funky:
+    if not articles and not funky and not periodic_elt_rx.search(word):
       merged.gender_file_funny_entries.append(v)
       continue
     if not obj: continue
     obj["articles"] = sorted(set(articles + obj["articles"]))
-    obj["pos"] = pos
+    if pos != Pos.UNKNOWN: obj["pos"] = pos.value
 
 def merge_prufung_levels(paths, merged):
   """
@@ -146,18 +146,20 @@ def merge_prufung_levels(paths, merged):
   """
   for lvl, path in paths:
     for v in load_json(path):
-      articles = v.get("articles")
+      articles = [ Article[n.upper()].value for n in v.get("articles", []) ]
+      if Article.UNKNOWN.value in articles:
+        raise Exception("Unknown article: %r" % v.get("articles", []))
       sch = v.get("sch")
-      pos = enum_pos.get(v.get("pos"), POS_UNKNOWN)
+      pos = pos_name_to_enum(v.get("pos"))
       url = get_url_suffix(v.get("url"))
       if not sch:
         raise Exception("Expecting spelling")
       if not url:
         merged.prufung_file_funny_entries.append(v)
         continue
-      if pos == POS_SUBSTANTIV and not articles:
+      if pos == Pos.SUBSTANTIV and not articles:
         if v.get('onlypl') == "nur im Plural":
-          articles = [ 'die' ]
+          articles = [ Article.DIE.value ]
         else:
           merged.prufung_file_funny_entries.append(v)
           continue
@@ -168,11 +170,11 @@ def merge_prufung_levels(paths, merged):
         idx = int(spell.get("hidx") or 0)
         spellings.setdefault(idx, set()).add(word)
         obj = merged.get_obj(word, idx, "merge_prufung_levels",
-                             expect={'pos' : pos, 'url' : url})
+                             expect={'pos' : pos.value, 'url' : url})
         if not obj: continue
-        obj["articles"] = sorted(articles)
-        obj["pos"] = pos
-        obj["prufung"] = lvl
+        obj["articles"] = sorted(set(articles + obj["articles"]))
+        if pos != Pos.UNKNOWN: obj["pos"] = pos.value
+        obj["prufung"] = lvl.value
       for idx, spells in spellings.items():
         merged.add_spellings(idx, spells)
 
@@ -190,9 +192,9 @@ def main(args):
   merge_genders(gender_and_spelling_json, merged)
   merge_alternate_spellings(gender_and_spelling_json, merged)
   merge_prufung_levels([
-      ('a1', in_root.joinpath('__words_to_a1_level.json.bz2')),
-      ('a2', in_root.joinpath('__words_to_a2_level.json.bz2')),
-      ('b1', in_root.joinpath('__words_to_b1_level.json.bz2')),
+      (Prufung.A1, in_root.joinpath('__words_to_a1_level.json.bz2')),
+      (Prufung.A2, in_root.joinpath('__words_to_a2_level.json.bz2')),
+      (Prufung.B1, in_root.joinpath('__words_to_b1_level.json.bz2')),
     ], merged)
   #merge_synonyms(in_root.joinpath('__words_to_synonyms.json.bz2'), merged)
   WordTagger(config).add_tags(merged)

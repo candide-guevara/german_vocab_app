@@ -8,8 +8,8 @@
     "[pP][dD][fF]",
     "[eE]-?[mM][aA][iI][lL]",
     "[oO][kK]|[oO][kK][aA][yY]",
-    "[b-df-hj-np-tv-xzßB-DF-HJ-NP-TV-XZ]+",
-    "A[cglmrstu]|B[aehikr]|C[adelorsu]|D[syb]|E[rsu]|F[elmr]|G[ade]|H[efgos]|I[rn]|K[r]|L[airu]|M[cdgnot]|N[aep]|O[gs]|P[abdmst]|R[abefghnu]|S[bcegimnr]|T[abcehilmnr]|U[uh]|V[su]|W[sn]|X[e]|Y[b]|Z[nr]"
-  ]
+    "[b-df-hj-np-tv-xzßB-DF-HJ-NP-TV-XZ]+"
+  ],
+  "filter_periodic_elt": true
 }
 

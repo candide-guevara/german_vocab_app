@@ -70,9 +70,9 @@ class Merged:
     url_suffix = get_url_suffix(url)
     obj = {
       "articles" : [],
-      "pos" : POS_UNKNOWN,
+      "pos" : Pos.UNKNOWN.value,
       "freq" : FREQ_UNKNOWN,
-      #"prufung" : None,
+      "prufung" : Prufung.UNKNOWN.value,
       "hidx" : word_idx[1],
       "lemma" : word_idx[0],
       'url' : url_suffix,
@@ -90,22 +90,22 @@ class Merged:
     cnt_has_freq = 0
     cnt_has_prufung = 0
     cnt_has_gender = 0
-    cnt_has_tags = { k : 0 for k in r_enum_tags.keys() }
-    cnt_pos = { k : 0 for k in r_enum_pos.keys() }
+    cnt_has_tags = { e.value : 0 for e in Tag }
+    cnt_pos = { e.value : 0 for e in Pos }
     cnt_has_several_meanings = sum( (t[1] > 1) for t in self.wordidx_to_obj.keys() )
     for v in self.wordidx_to_obj.values():
       cnt_has_freq += (v.get('freq', FREQ_UNKNOWN) >= 0)
-      cnt_has_prufung += (v.get('prufung') != None)
+      cnt_has_prufung += (v['prufung'] != Prufung.UNKNOWN.value)
       cnt_has_gender += (len(v['articles']) > 0)
       cnt_pos[v['pos']] += 1
       for t in v['tags']: cnt_has_tags[t] += 1
     stats = {
       "total_words" : total,
       "has_freq" : stat_tuple(cnt_has_freq),
-      "has_gender" : stat_tuple(cnt_has_gender, cnt_pos[POS_SUBSTANTIV]),
+      "has_gender" : stat_tuple(cnt_has_gender, cnt_pos[Pos.SUBSTANTIV.value]),
       "has_prufung" : stat_tuple(cnt_has_prufung),
-      "has_tags" : { r_enum_tags[k] : stat_tuple(v) for k,v in cnt_has_tags.items() },
-      "cnt_pos" : { r_enum_pos[k] : stat_tuple(v) for k,v in cnt_pos.items() if v },
+      "has_tags" : { tag_idx_to_enum(k).name : stat_tuple(v) for k,v in cnt_has_tags.items() },
+      "cnt_pos" : { pos_idx_to_enum(k).name : stat_tuple(v) for k,v in cnt_pos.items() if v },
       "several_meanings" : stat_tuple(cnt_has_several_meanings),
       "alternate_spellings" : stat_tuple(len(self.alternate_spellings)),
     }

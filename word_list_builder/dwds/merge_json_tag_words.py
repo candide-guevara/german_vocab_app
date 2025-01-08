@@ -32,19 +32,19 @@ class WordTagger:
     return False
 
   def likely_english(self, word, pos):
-    if pos not in [POS_SUBSTANTIV, POS_ADJECTIV]: return False
+    if pos not in [Pos.SUBSTANTIV.value, Pos.ADJEKTIV.value]: return False
     return word.lower() in self.english_words
 
   ber_endings_rx = re.compile(u'(..+)(er|erin)$')
   def profession(self, word, pos, all_words):
-    if pos != POS_SUBSTANTIV: return False
+    if pos != Pos.SUBSTANTIV.value: return False
     m = self.ber_endings_rx.search(word)
     if not m: return None
     fem = "%ser" % m.group(1)
     mas = "%serin" % m.group(1)
     if (fem in all_words) and (mas in all_words):
-      if m.group(2) == 'er': return TAG_MAS_PROFESSION
-      return TAG_FEM_PROFESSION
+      if m.group(2) == 'er': return Tag.MAS_PROFESSION
+      return Tag.FEM_PROFESSION
     return None
 
   def add_tags(self, merged):
@@ -52,10 +52,10 @@ class WordTagger:
       word = entry["lemma"]
       tags = []
       pos = entry['pos']
-      if self.trivial_gender(word, entry['articles']): tags.append(TAG_TRIVIAL_GENDER)
-      if self.likely_english(word, pos): tags.append(TAG_LIKELY_ENGLISH)
+      if self.trivial_gender(word, entry['articles']): tags.append(Tag.TRIVIAL_GENDER.value)
+      if self.likely_english(word, pos): tags.append(Tag.LIKELY_ENGLISH.value)
       prof_tag = self.profession(word, pos, merged.all_words)
-      if prof_tag: tags.append(prof_tag)
-      if is_funky(word): tags.append(TAG_FUNKY)
+      if prof_tag: tags.append(prof_tag.value)
+      if is_funky(word): tags.append(Tag.FUNKY.value)
       entry["tags"] = sorted(tags)
 

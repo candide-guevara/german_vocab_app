@@ -40,6 +40,7 @@ enum PosType {
   Substantiv,
   Superlativ,
   Verb,
+  Symbol,
 }
 final Map<String, PosType> RPosType = { for(var v in PosType.values) v.name:v };
 

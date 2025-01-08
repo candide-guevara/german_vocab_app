@@ -18,22 +18,22 @@
       "items" : {
         "type": "object",
         "properties" : {
-          "articles" : { "type" : "array", "items" : { "type" : "string" } },
+          "articles" : { "type" : "array", "items" : { "type" : "number" } },
           "freq" : { "type" : "number" },
           "hidx" : { "type" : "number" },
           "lemma" : { "type" : "string" },
           "pos" : { "type" : "number" },
-          "prufung" : { "type" : "string" },
+          "prufung" : { "type" : "number" },
           "tags" : { "type" : "array", "items" : { "type" : "number" } },
           "url" : { "type" : "string" }
         },
         "additionalProperties": false,
-        "required": [ "articles", "freq", "hidx", "lemma", "pos", "tags", "url" ]
+        "minProperties": 8
       }
     },
     "url_root" : { "type": "string" }
   },
   "additionalProperties": false,
-  "required": [ "alternate_spellings", "entries", "url_root" ]
+  "minProperties": 3
 }
 
