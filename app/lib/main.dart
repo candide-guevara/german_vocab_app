@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'gender_game.dart';
-import 'widgets/center_column.dart';
 import 'utils.dart';
+import 'backend/dictionary_loader.dart';
+import 'widgets/center_column.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  DictionaryLoader.init();
+
   runApp(MaterialApp(
     builder: (context, child) {
       double scaleFactor = MediaQuery.of(context).size.width / kReferenceWidth;
