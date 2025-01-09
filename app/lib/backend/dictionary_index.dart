@@ -1,4 +1,4 @@
-import '../utils.dart';
+import 'utils.dart';
 
 class DIndex<K> {
   final Map<K, Set<int>> m;

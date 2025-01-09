@@ -1,4 +1,4 @@
-import '../utils.dart';
+import 'utils.dart';
 
 class GenderGameConfig {
   final int word_cnt;

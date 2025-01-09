@@ -1,7 +1,7 @@
 import 'dictionary_entry.dart';
 import 'dictionary_index.dart';
 import 'gender_game_config.dart';
-import '../utils.dart';
+import 'utils.dart';
 
 class Dictionary {
   final Map<String, dynamic> _d;

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'gender_game.dart';
-import 'utils.dart';
 import 'backend/dictionary_loader.dart';
+import 'backend/utils.dart';
 import 'widgets/center_column.dart';
 
 void main() {

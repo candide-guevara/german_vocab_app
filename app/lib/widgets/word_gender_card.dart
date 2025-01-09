@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../utils.dart';
+import '../backend/utils.dart';
 
 class WordGenderState with ChangeNotifier {
   String word;

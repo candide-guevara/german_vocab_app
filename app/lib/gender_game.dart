@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'backend/dictionary_loader.dart';
 import 'backend/gender_game_config.dart';
+import 'backend/utils.dart';
 import 'widgets/center_column.dart';
 import 'widgets/article_choice.dart';
 import 'widgets/word_gender_card.dart';
-import 'utils.dart';
 
 class GenderGame extends StatelessWidget {
   static const String kPageTitle = "GenderGame";
