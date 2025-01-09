@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'backend/dictionary_loader.dart';
+import 'backend/gender_game_config.dart';
 import 'widgets/center_column.dart';
 import 'widgets/article_choice.dart';
 import 'widgets/word_gender_card.dart';
@@ -25,7 +26,10 @@ class GenderGame extends StatelessWidget {
       //String word = "Bundesverfassungsgericht0123";
       //String word = "Bundesverfassung1234567";
       //String word = "Bundesverfassung";
-      String word = DictionaryLoader.d.byIdx(666).word;
+      //String word = DictionaryLoader.d.byIdx(666).word;
+      final conf = GenderGameConfig(10);
+      final words = DictionaryLoader.d.sampleGameWords(conf);
+      String word = words[0].word;
       var state = WordGenderState(word);
       return CenterColumn(
         children: <Widget>[

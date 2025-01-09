@@ -40,7 +40,10 @@ class DictionaryLoader {
       final jsonString = utf8.decode(decompressedStream);
       final Map<String, dynamic> jsonData = json.decode(jsonString);
       stats.doneUnmarshal();
-      return Dictionary(jsonData);
+      var d = Dictionary(jsonData);
+      stats.doneIndexing();
+      //print(stats.toString());
+      return d;
     });
   }
 }
@@ -50,6 +53,7 @@ class DictionaryLoadingStats {
   int load_bundle_millis = 0;
   int decompress_millis = 0;
   int unmarshal_millis = 0;
+  int indexing_millis = 0;
 
   DictionaryLoadingStats(): _watch = Stopwatch() { _watch.start(); }
 
@@ -65,12 +69,17 @@ class DictionaryLoadingStats {
     unmarshal_millis = _watch.elapsedMilliseconds;
     _watch.reset();
   }
+  void doneIndexing() {
+    indexing_millis = _watch.elapsedMilliseconds;
+    _watch.reset();
+  }
 
   String toString() {
     return """
     load_bundle_millis: ${load_bundle_millis},
     decompress_millis: ${decompress_millis},
     unmarshal_millis: ${unmarshal_millis},
+    indexing_millis: ${indexing_millis},
     """;
   }
 }

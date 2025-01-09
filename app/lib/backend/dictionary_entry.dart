@@ -19,5 +19,18 @@ class DEntry {
         prufung = PrunfungType.values[json['prufung']],
         tags = [ for (var x in json['tags']) TagType.values[x] ],
         url = json['url'];
+
+  String toString() {
+    return """
+    articles: ${articles},
+    frequency: ${frequency},
+    meaning_idx: ${meaning_idx},
+    word: ${word},
+    pos: ${pos},
+    prufung: ${prufung},
+    tags: ${tags},
+    url: ${url},
+    """;
+  }
 }
 

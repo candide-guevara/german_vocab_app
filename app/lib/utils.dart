@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 final kAppTitle = "German Vocab";
 final int kReferenceWidth = 300;
 
@@ -56,4 +54,6 @@ enum TagType {
   Funky,
 }
 final Map<String, TagType> RTagType = { for(var v in TagType.values) v.name:v };
+
+final int kFreqUnknown = -1;
 
