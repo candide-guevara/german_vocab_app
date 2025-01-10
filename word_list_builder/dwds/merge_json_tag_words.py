@@ -56,6 +56,6 @@ class WordTagger:
       if self.likely_english(word, pos): tags.append(Tag.LIKELY_ENGLISH.value)
       prof_tag = self.profession(word, pos, merged.all_words)
       if prof_tag: tags.append(prof_tag.value)
-      if is_funky(word): tags.append(Tag.FUNKY.value)
+      if stricter_is_funky(word): tags.append(Tag.FUNKY.value)
       entry["tags"] = sorted(tags)
 

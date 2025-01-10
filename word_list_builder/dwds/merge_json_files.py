@@ -109,8 +109,7 @@ def merge_genders(gender_json, merged):
                          expect={'pos' : pos.value})
     if not articles and always_plural_rx.search(word):
       articles = [ Article.DIE.value ]
-    funky = is_funky(word)
-    if not articles and not funky and not periodic_elt_rx.search(word):
+    if not articles and not stricter_is_funky(word):
       merged.gender_file_funny_entries.append(v)
       continue
     if not obj: continue

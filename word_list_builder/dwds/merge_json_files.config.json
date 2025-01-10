@@ -4,11 +4,9 @@
   "filter_words_with_non_german_chars" : 1,
   "filter_words_shorter_than": 2,
   "filter_rx_blacklist": [
-    "[gG]?[hH][zZ]",
     "[pP][dD][fF]",
     "[eE]-?[mM][aA][iI][lL]",
-    "[oO][kK]|[oO][kK][aA][yY]",
-    "[b-df-hj-np-tv-xzßB-DF-HJ-NP-TV-XZ]+"
+    "[oO][kK]|[oO][kK][aA][yY]"
   ],
   "filter_periodic_elt": true
 }

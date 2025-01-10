@@ -8,12 +8,29 @@ def load_json(path):
   with bz2.open(path, "rb") as f:
     return json.load(f)
 
-periodic_elt_rx = re.compile(r'^A[cglmrstu]|B[aehikr]|C[adelorsu]|D[syb]|E[rsu]|F[elmr]|G[ade]|H[efgos]|I[rn]|K[r]|L[airu]|M[cdgnot]|N[aep]|O[gs]|P[abdmst]|R[abefghnu]|S[bcegimnr]|T[abcehilmnr]|U[uh]|V[su]|W[sn]|X[e]|Y[b]|Z[nr]$')
+periodic_elt_rx = re.compile(r'^(A[cglmrstu]|B[aehikr]|C[adelorsu]|D[syb]|E[rsu]|F[elmr]|G[ade]|H[efgos]|I[rn]|K[r]|L[airu]|M[cdgnot]|N[aep]|O[gs]|P[abdmst]|R[abefghnu]|S[bcegimnr]|T[abcehilmnr]|U[uh]|V[su]|W[sn]|X[e]|Y[b]|Z[nr])$')
 
 # If a word contains chars outside of this set, then it is likely not important.
 german_chars_rx = re.compile(u'^[a-zA-ZäöüÄÖÜß0-9 \-_]+$')
 def is_funky(word):
   return len(word) < 2 or word.isupper() or not german_chars_rx.search(word)
+
+digits_rx = re.compile(u'[0-9]')
+separator_rx = re.compile(u'[ \-_]')
+unit_rx = re.compile(u'^(mg|g|kg|µg|m|mm|cm|km|µm|nm|Hz|kHz|MHz|GHz|THz)$')
+only_consonant_rx = re.compile(u'^[0-9b-df-hj-np-tv-xzßB-DF-HJ-NP-TV-XZ]+$')
+# Do not use this to filter out words from the final list, it may be too restrictive.
+def stricter_is_funky(word):
+  if is_funky(word): return True
+  if periodic_elt_rx.fullmatch(word): return True
+  if unit_rx.fullmatch(word): return True
+  if only_consonant_rx.fullmatch(word): return True
+  len_digit = len(digits_rx.findall(word))
+  len_sep = len(separator_rx.findall(word))
+  thres = len(word) / 2
+  if len_digit >= thres or len_sep >= thres: return True
+  return False
+
 
 # Note u'' strings deal with unicode codepoints.
 # Ex: \u00b2 is the code point for superscript 1.
