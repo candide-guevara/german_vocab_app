@@ -56,4 +56,9 @@ enum TagType {
 final Map<String, TagType> RTagType = { for(var v in TagType.values) v.name:v };
 
 final int kFreqUnknown = -1;
+final int kFreqMax = 6;
+final int kFreqMin = 0;
+
+final int kGameRoundsMin = 10;
+final int kGameRoundsMax = 100;
 

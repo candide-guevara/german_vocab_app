@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'gender_game.dart';
+import 'gender_game_page.dart';
+import 'gender_game_config_page.dart';
 import 'backend/dictionary_loader.dart';
 import 'backend/utils.dart';
 import 'widgets/center_column.dart';
@@ -38,8 +39,8 @@ class HomePage extends StatelessWidget {
             onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => GenderGame())),
           ),
           FilledButton(
-            child: const Text("TODO"),
-            onPressed: () => {},
+            child: const Text(GenderGameConfigPage.kPageTitle),
+            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => GenderGameConfigPage())),
           ),
         ],
       ),
