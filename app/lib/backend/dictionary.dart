@@ -26,11 +26,13 @@ class Dictionary {
                              .intersectWith<int>(_i_frequency, (i) => i >= conf.min_freq)
                              .intersectWith<TagType>(_i_tag, (t) => !conf.exclude_tags.contains(t))
                              .toList(growable: false);
-    if(candidates.length < conf.word_cnt) {
+    candidates.shuffle();
+    List<DEntry> result = candidates.map(byIdx)
+                                    .skipWhile((o) => o.articles.isEmpty)
+                                    .take(conf.word_cnt).toList();
+    if(result.length < conf.word_cnt) {
       throw Exception("GenderGameConfig are too restrictive could not get enough candidates");
     }
-    candidates.shuffle();
-    List<DEntry> result = [ for (final k in candidates.take(conf.word_cnt)) byIdx(k) ];
     watch.stop();
     //print("sampleGameWords took ${watch.elapsedMilliseconds} ms");
     return result;
