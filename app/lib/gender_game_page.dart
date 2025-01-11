@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'backend/dictionary_loader.dart';
 import 'backend/gender_game_config.dart';
+import 'backend/persistence_store.dart';
 import 'backend/utils.dart';
 import 'widgets/center_column.dart';
 import 'widgets/article_choice.dart';
@@ -15,19 +16,22 @@ class GenderGame extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: Text(kAppTitle)),
       body: FutureBuilder(
-        future: DictionaryLoader.isLoaded(),
+        future: Future.wait([
+          DictionaryLoader.isLoaded(),
+          Persistence.isLoaded(),
+        ]),
         builder: builderAfterLoad,
       ),
     );
   }
 
-  Widget builderAfterLoad(BuildContext context, AsyncSnapshot<bool> snapshot) {
-    if (snapshot.hasData) {
+  Widget builderAfterLoad(BuildContext context, AsyncSnapshot<List<bool>> snapshot) {
+    if (snapshot.hasData && snapshot.data!.every((b) => b)) {
       //String word = "Bundesverfassungsgericht0123";
       //String word = "Bundesverfassung1234567";
       //String word = "Bundesverfassung";
       //String word = DictionaryLoader.d.byIdx(666).word;
-      final conf = GenderGameConfig(10);
+      final conf = GenderGameConfig.load();
       final words = DictionaryLoader.d.sampleGameWords(conf);
       String word = words[0].word;
       var state = WordGenderState(word);
@@ -38,7 +42,7 @@ class GenderGame extends StatelessWidget {
         ],
       );
     }
-    if (snapshot.hasError) {
+    if (snapshot.hasError || snapshot.hasData) {
       return CenterColumn(
         children: <Widget>[
           const Icon( Icons.error_outline, color: Colors.red, size: 60,),
