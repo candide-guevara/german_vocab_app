@@ -14,13 +14,21 @@ AsyncWidgetBuilder<K> _builderAfterLoad<K>(String loadMsg,
                                            Widget Function(BuildContext, K) afterLoad) {
   return (BuildContext context, AsyncSnapshot<K> snapshot) {
     if (snapshot.hasData) {
+      print("snapshot.hasData\n${snapshot.data}");
       return afterLoad(context, snapshot.data!);
     }
     if (snapshot.hasError) {
       return CenterColumn(
         children: <Widget>[
-          const Icon( Icons.error_outline, color: Colors.red, size: 60,),
-          Padding( padding: const EdgeInsets.only(top: 16), child: Text('Error: ${snapshot.error}'),),
+          const Icon(
+            Icons.error_outline,
+            color: Colors.red, size: 60,),
+          Padding(
+            padding: const EdgeInsets.only(top: 16),
+            child: Text(
+              'FutureBuilder: ${snapshot.error}',
+              style: Theme.of(context).textTheme.bodySmall,),
+          ),
         ],
       );
     }
