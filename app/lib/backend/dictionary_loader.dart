@@ -15,6 +15,7 @@ class DictionaryLoader {
 
   static void init() {
     if (!init_called) {
+      init_called = true;
       // I think the rootBundle is only avalialble in the main isolate.
       // This is the reason why we chain futures.
       var stats = DictionaryLoadingStats();
