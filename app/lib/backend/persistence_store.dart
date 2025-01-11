@@ -20,6 +20,16 @@ class Persistence {
     _store = await _loadingStore;
     return true;
   }
+
+  static String dumpPersistence() {
+    var buf = StringBuffer();
+    buf.writeln('Persistence store dump:');
+    for (final k in Persistence.store.keys) {
+      buf.writeln("key: ${k} value: ${Persistence.store.get(k)}");
+    }
+    buf.writeln('Persistence store dump: END');
+    return buf.toString();
+  }
 }
 
 extension UnmarshallFromList on SharedPreferencesWithCache {
