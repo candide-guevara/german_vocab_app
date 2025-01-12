@@ -14,7 +14,6 @@ AsyncWidgetBuilder<K> _builderAfterLoad<K>(String loadMsg,
                                            Widget Function(BuildContext, K) afterLoad) {
   return (BuildContext context, AsyncSnapshot<K> snapshot) {
     if (snapshot.hasData) {
-      print("snapshot.hasData\n${snapshot.data}");
       return afterLoad(context, snapshot.data!);
     }
     if (snapshot.hasError) {

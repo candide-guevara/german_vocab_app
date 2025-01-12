@@ -5,7 +5,7 @@ class IntSlider extends StatefulWidget {
   final int max;
   final int ini_val;
   final int divisions;
-  final void Function(int) onChanged;
+  final Future<void> Function(int) onChanged;
 
   const IntSlider({super.key,
       required this.min,
@@ -33,9 +33,9 @@ class _IntSliderState extends State<IntSlider> {
       onChanged: this.onChanged,
     );
   }
-  void onChanged(double v) {
+  void onChanged(double v) async {
     setState(() { _v = v; });
-    widget.onChanged(v.round());
+    await widget.onChanged(v.round());
   }
 }
 

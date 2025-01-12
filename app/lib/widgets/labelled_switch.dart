@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class LabelledSwitch extends StatefulWidget {
   final bool ini_val;
   final String label;
-  final void Function(bool) onChanged;
+  final Future<void> Function(bool) onChanged;
   const LabelledSwitch({super.key,
                         required this.ini_val,
                         required this.label,
@@ -27,9 +27,9 @@ class _LabelledSwitchState extends State<LabelledSwitch> {
       ],
     );
   }
-  void onChanged(bool v) {
+  void onChanged(bool v) async {
     setState(() { _v = v; });
-    widget.onChanged(v);
+    await widget.onChanged(v);
   }
 }
 

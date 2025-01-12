@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'backend/dictionary_entry.dart';
 import 'backend/dictionary_loader.dart';
 import 'backend/gender_game_config.dart';
 import 'backend/persistence_store.dart';
@@ -16,20 +17,27 @@ class GenderGame extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text(kAppTitle)),
-      body: myFutureBuilder<List<bool>>(
-        Future.wait([
-          DictionaryLoader.isLoaded(),
-          Persistence.isLoaded(),
-        ]),
+      body: myFutureBuilder<(List<DEntry>,GenderGameConfig)>(
+        loadConfAndGame(),
         'Loading dictionary ...',
         builderAfterLoad,
       ),
     );
   }
 
-  Widget builderAfterLoad(BuildContext context, List<bool> _) {
-    final conf = GenderGameConfig.load();
+  Future<(List<DEntry>,GenderGameConfig)> loadConfAndGame() async {
+    await Future.wait([
+      DictionaryLoader.isLoaded(),
+      Persistence.isLoaded(),
+    ]);
+    final conf = await GenderGameConfig.load();
     final game = DictionaryLoader.d.sampleGameWords(conf);
+    return (game, conf);
+  }
+
+  Widget builderAfterLoad(BuildContext context,
+                          (List<DEntry>,GenderGameConfig) record) {
+    final (game, conf) = record;
     var state = WordGenderState(game[0].word);
     return CenterColumn(
       children: <Widget>[
