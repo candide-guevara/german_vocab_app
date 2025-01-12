@@ -24,10 +24,17 @@ class DIndex<K> {
 extension ChainMerge on Set<int> {
   Set<int> intersectWith<K>(DIndex<K> index, bool Function(K) pick) {
     final keys = index.m.keys.where(pick).toList();
-    if (keys.isEmpty || keys.length == index.m.keys.length) { return this; }
     Set<int> s = {};
     for (final k in keys) { s.addAll(index.m[k]!); }
     this.retainWhere(s.contains);
+    return this;
+  }
+  Set<int> differenceWith<K>(DIndex<K> index, bool Function(K) pick) {
+    final keys = index.m.keys.where(pick).toList();
+    if (keys.isEmpty) { return this; }
+    Set<int> s = {};
+    for (final k in keys) { s.addAll(index.m[k]!); }
+    this.removeWhere(s.contains);
     return this;
   }
 }

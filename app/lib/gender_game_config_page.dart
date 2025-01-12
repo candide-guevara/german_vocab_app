@@ -52,7 +52,10 @@ class GenderGameConfigPage extends StatelessWidget {
         key: UniqueKey(),
         ini_val: g.has(TagType.TrivialGender),
         label: "Ignore words with trivial gender:",
-        onChanged: (v) async { g.set(TagType.TrivialGender); await g.save(); }),
+        onChanged: (v) async {
+          g.set(TagType.TrivialGender, remove:!v);
+          await g.save();
+        }),
     );
     final fem_switch = ListenableBuilder(
       listenable: notify,
@@ -60,7 +63,10 @@ class GenderGameConfigPage extends StatelessWidget {
         key: UniqueKey(),
         ini_val: g.has(TagType.FemProfession),
         label: "Ignore feminine professions:",
-        onChanged: (v) async { g.set(TagType.FemProfession); await g.save(); }),
+        onChanged: (v) async {
+          g.set(TagType.FemProfession, remove:!v);
+          await g.save();
+        }),
     );
     final eng_switch = ListenableBuilder(
       listenable: notify,
@@ -68,7 +74,10 @@ class GenderGameConfigPage extends StatelessWidget {
         key: UniqueKey(),
         ini_val: g.has(TagType.LikelyEnglish),
         label: "Ignore english words (approx):",
-        onChanged: (v) async { g.set(TagType.LikelyEnglish); await g.save(); }),
+        onChanged: (v) async {
+          g.set(TagType.LikelyEnglish, remove:!v);
+          await g.save();
+        }),
     );
     final fky_switch = ListenableBuilder(
       listenable: notify,
@@ -76,7 +85,10 @@ class GenderGameConfigPage extends StatelessWidget {
         key: UniqueKey(),
         ini_val: g.has(TagType.Funky),
         label: "Ignore funky words:",
-        onChanged: (v) async { g.set(TagType.Funky); await g.save(); }),
+        onChanged: (v) async {
+          g.set(TagType.Funky, remove:!v);
+          await g.save();
+        }),
     );
     final rst_button = FilledButton(
       child: const Text("Reset config and game history"),

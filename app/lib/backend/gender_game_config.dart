@@ -22,7 +22,10 @@ class GenderGameConfig {
   }
 
   bool has(TagType t) => exclude_tags.contains(t);
-  void set(TagType t) => exclude_tags.add(t);
+  void set(TagType t, {bool remove = false}) {
+    if (remove) { exclude_tags.remove(t); }
+    else { exclude_tags.add(t); }
+  }
 
   static Future<GenderGameConfig> load() async {
     final s = Persistence.store;
