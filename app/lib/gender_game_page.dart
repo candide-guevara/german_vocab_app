@@ -38,11 +38,30 @@ class GenderGame extends StatelessWidget {
   Widget builderAfterLoad(BuildContext context,
                           (List<DEntry>,GenderGameConfig) record) {
     final (game, conf) = record;
-    var state = WordGenderState(game[0].word);
+    final notify_correct = ValueNotifier<bool?>(null);
+    final notify_index = ValueNotifier<int>(0);
+    final disable_cb = ValueNotifier<bool>(false);
+    final card = ListenableBuilder(
+      listenable: notify_correct,
+      builder: (ctx, child) => WordGenderCard(
+        word: game[notify_index.value].word,
+        expected_article: game[notify_index.value].articles[0],
+        is_correct: notify_correct.value),
+    );
     return CenterColumn(
       children: <Widget>[
-        WordGenderCard(state: state),
-        ArticleChoice(onSelectionChanged: (Article a){}),
+        card,
+        ArticleChoice(onSelectionChanged: (Article a) async {
+          if (disable_cb.value) { return; }
+          disable_cb.value = true;
+          notify_correct.value = game[notify_index.value].articles[0] == a;
+          await Future<void>.delayed(const Duration(milliseconds: 500));
+          if(notify_index.value < game.length - 1) {
+            notify_index.value++;
+            notify_correct.value = null;
+          }
+          disable_cb.value = false;
+        }),
       ],
     );
   }
