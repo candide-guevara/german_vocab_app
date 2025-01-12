@@ -3,6 +3,9 @@ import 'exception.dart';
 import 'persistence_store.dart';
 
 class GenderGameConfig {
+  static const int kWordCnt = 20;
+  static const int kMinFreq = 2;
+  static final List<TagType> kExcludeTags = List<TagType>.empty();
   int word_cnt;
   int min_freq;
   Set<TagType> exclude_tags;
@@ -10,19 +13,24 @@ class GenderGameConfig {
   GenderGameConfig(this.word_cnt, this.min_freq, List<TagType> tags)
     : exclude_tags = Set<TagType>.of(tags);
 
-  GenderGameConfig.def(): this(20, 2, []);
+  GenderGameConfig.def(): this(kWordCnt, kMinFreq, kExcludeTags);
+
+  void reset() {
+    word_cnt = kWordCnt;
+    min_freq = kMinFreq;
+    exclude_tags = kExcludeTags.toSet();
+  }
 
   bool has(TagType t) => exclude_tags.contains(t);
   void set(TagType t) => exclude_tags.add(t);
 
   static Future<GenderGameConfig> load() async {
     final s = Persistence.store;
-    final def = GenderGameConfig.def();
     try{
-      final cnt =  await s.getInt('GenderGameConfig_word_cnt') ?? def.word_cnt;
-      final frq =  await s.getInt('GenderGameConfig_min_freq') ?? def.min_freq;
+      final cnt =  await s.getInt('GenderGameConfig_word_cnt') ?? kWordCnt;
+      final frq =  await s.getInt('GenderGameConfig_min_freq') ?? kMinFreq;
       final tag =  await s.getFromInts<TagType>('GenderGameConfig_exclude_tags',
-                             (i) => TagType.values[i]) ?? def.exclude_tags.toList();
+                             (i) => TagType.values[i]) ?? kExcludeTags;
       return GenderGameConfig(cnt, frq, tag);
     }
     catch(e,st) {

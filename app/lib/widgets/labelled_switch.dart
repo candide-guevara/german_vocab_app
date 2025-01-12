@@ -4,7 +4,7 @@ class LabelledSwitch extends StatefulWidget {
   final bool ini_val;
   final String label;
   final Future<void> Function(bool) onChanged;
-  const LabelledSwitch({super.key,
+  const LabelledSwitch({required super.key,
                         required this.ini_val,
                         required this.label,
                         required this.onChanged});

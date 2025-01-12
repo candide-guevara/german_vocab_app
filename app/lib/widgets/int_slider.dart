@@ -7,7 +7,8 @@ class IntSlider extends StatefulWidget {
   final int divisions;
   final Future<void> Function(int) onChanged;
 
-  const IntSlider({super.key,
+  const IntSlider({
+      required super.key,
       required this.min,
       required this.max,
       required this.ini_val,
