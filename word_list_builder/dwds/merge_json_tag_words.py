@@ -21,14 +21,14 @@ class WordTagger:
         words.add(word)
     return words
 
-  fem_endings_rx = re.compile(u'(keit|heit|ung)$')
+  fem_endings_rx = re.compile(u'(heit|keit|schaft|tät|tion|ung)$')
   neu_endings_rx = re.compile(u'(chen)$')
-  mas_endings_rx = re.compile(u'(markt|ismus)$')
+  mas_endings_rx = re.compile(u'(markt|ismus|meister)$')
   def trivial_gender(self, word, articles):
     if len(articles) > 1: return False
-    if self.fem_endings_rx.search(word) and 'die' in articles: return True
-    if self.neu_endings_rx.search(word) and 'das' in articles: return True
-    if self.mas_endings_rx.search(word) and 'der' in articles: return True
+    if self.fem_endings_rx.search(word) and Article.DIE.value in articles: return True
+    if self.neu_endings_rx.search(word) and Article.DAS.value in articles: return True
+    if self.mas_endings_rx.search(word) and Article.DER.value in articles: return True
     return False
 
   def likely_english(self, word, pos):
