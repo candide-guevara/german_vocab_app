@@ -7,10 +7,8 @@
   "properties" : {
     "alternate_spellings" : {
       "type": "object",
-      "additionalProperties" : {
-        "patternProperties" : {
-          "[0-9]" : { "type" : "array", "items" : { "type" : "string" } }
-        }
+      "patternProperties" : {
+        "[0-9]" : { "type" : "array", "items" : { "type" : "string" } }
       }
     },
     "entries" : {

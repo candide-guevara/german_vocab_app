@@ -34,12 +34,11 @@ class Merged:
     return obj
 
   def add_spellings(self, idx, spells):
-    # Because `self.alternate_spellings` needs to be a valid json object, the keys must be strings
-    idx = str(idx)
     if len(spells) < 2: return
     for spell in spells:
-      all_spells = self.alternate_spellings.setdefault(spell, {}).setdefault(idx, [])
-      self.alternate_spellings[spell][idx] = sorted(spells.union(all_spells))
+      k = (spell, int(idx))
+      all_spells = self.alternate_spellings.setdefault(k, [])
+      self.alternate_spellings[k] = sorted(spells.union(all_spells))
 
   def filter_words(self, wfilter):
     if wfilter.is_noop(): return
@@ -53,13 +52,11 @@ class Merged:
       new_url_set.add(v['url'])
 
     words_to_include = set( t[0] for t in new_wordidx_to_obj.keys() )
-    for k,idxs in self.alternate_spellings.items():
-      if k not in words_to_include: continue
-      filter_idxs = {}
-      for idx, spells in idxs.items():
-        new_spells = [ s for s in spells if s in words_to_include ]
-        if len(new_spells) > 1: filter_idxs[idx] = new_spells
-      if filter_idxs: new_alternate_spellings[k] = filter_idxs
+    for k,spells in self.alternate_spellings.items():
+      if k[0] not in words_to_include: continue
+      new_spells = [ s for s in spells if s in words_to_include ]
+      if len(new_spells) > 1:
+        new_alternate_spellings[k] = new_spells
 
     self.all_words = words_to_include
     self.url_set = new_url_set
@@ -111,10 +108,24 @@ class Merged:
     }
     return stats
 
+  def alternate_spellings_using_entry_index(self):
+    wordidx_entry = { k:e for (e,k) in enumerate(self.wordidx_to_obj.keys()) }
+    result = { str(wordidx_entry.get(k, -1)):v for k,v in self.alternate_spellings.items() }
+    if '-1' in results: del result["-1"]
+    #if len(result) != len(self.alternate_spellings):
+    #  raise Exception("alternate_spellings missing keys got %d expected %d : %r"
+    #                  % (len(result), len(self.alternate_spellings),
+    #                     [ k for k in self.alternate_spellings.keys() if k not in wordidx_entry ]))
+    return result
+
   def write_merged(self, outpath, schema_path):
+    if not self.wordidx_to_obj:
+      raise Exception("no words")
+    if not self.alternate_spellings:
+      raise Exception("no alternate spellings")
     to_write = {
       "entries"    : list(self.wordidx_to_obj.values()),
-      "alternate_spellings" : self.alternate_spellings,
+      "alternate_spellings" : self.alternate_spellings_using_entry_index(),
       "url_root"   : "https://www.dwds.de/wb/",
     }
     with open(schema_path, 'rt') as schema_f:

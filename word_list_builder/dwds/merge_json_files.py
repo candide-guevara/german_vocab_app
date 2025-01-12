@@ -184,6 +184,9 @@ def main(args):
   install_path = pathlib.Path(args.install_root).resolve().joinpath('app/assets', outfile.name)
   with open(pathlib.Path(args.config), 'rt') as f: config = json.load(f)
 
+  # Dictionaries in python are iterated using insertion order.
+  # This is the reason why if the url file is ordered, then the resulting file willbe too.
+  # See docs.python.org/library/stdtypes.html#mapping-types-dict
   merged = build_url_to_obj(in_root.joinpath('__words_to_url.json.bz2'))
   merge_frequencies(in_root.joinpath('__words_to_freq.json.bz2'), merged)
   gender_and_spelling_json = load_json(
