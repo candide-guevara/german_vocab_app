@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'backend/dictionary_entry.dart';
 import 'backend/dictionary_loader.dart';
 import 'backend/gender_game_config.dart';
+import 'backend/gender_game_state.dart';
 import 'backend/persistence_store.dart';
 import 'backend/utils.dart';
 import 'widgets/article_choice.dart';
@@ -11,13 +12,24 @@ import 'widgets/word_gender_card.dart';
 
 class GenderGame extends StatelessWidget {
   static const String kPageTitle = "GenderGame";
-  const GenderGame({super.key});
+  final ValueNotifier<bool?> cur_correct;
+  final ValueNotifier<int> cur_index;
+  final ValueNotifier<bool> disable_cb;
+  final List<DEntry> game;
+  final GenderGameState state;
+
+  GenderGame({super.key}):
+    cur_correct = ValueNotifier<bool?>(null),
+    cur_index = ValueNotifier<int>(0),
+    disable_cb = ValueNotifier<bool>(false),
+    game = <DEntry>[],
+    state = GenderGameState();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text(kAppTitle)),
-      body: myFutureBuilder<(List<DEntry>,GenderGameConfig)>(
+      body: myFutureBuilder<bool>(
         loadConfAndGame(),
         'Loading dictionary ...',
         builderAfterLoad,
@@ -25,45 +37,46 @@ class GenderGame extends StatelessWidget {
     );
   }
 
-  Future<(List<DEntry>,GenderGameConfig)> loadConfAndGame() async {
+  Future<bool> loadConfAndGame() async {
     await Future.wait([
       DictionaryLoader.isLoaded(),
       Persistence.isLoaded(),
     ]);
     final conf = await GenderGameConfig.load();
-    final game = DictionaryLoader.d.sampleGameWords(conf);
-    return (game, conf);
+    game.clear();
+    game.addAll(DictionaryLoader.d.sampleGameWords(conf));
+    return true;
   }
 
-  Widget builderAfterLoad(BuildContext context,
-                          (List<DEntry>,GenderGameConfig) record) {
-    final (game, conf) = record;
-    final notify_correct = ValueNotifier<bool?>(null);
-    final notify_index = ValueNotifier<int>(0);
-    final disable_cb = ValueNotifier<bool>(false);
+  Widget builderAfterLoad(BuildContext context, bool _) {
     final card = ListenableBuilder(
-      listenable: notify_correct,
+      listenable: cur_correct,
       builder: (ctx, child) => WordGenderCard(
-        word: game[notify_index.value].word,
-        expected_article: game[notify_index.value].articles[0],
-        is_correct: notify_correct.value),
+        word: game[cur_index.value].word,
+        expected_article: game[cur_index.value].articles[0],
+        is_correct: cur_correct.value),
     );
     return CenterColumn(
       children: <Widget>[
         card,
-        ArticleChoice(onSelectionChanged: (Article a) async {
-          if (disable_cb.value) { return; }
-          disable_cb.value = true;
-          notify_correct.value = game[notify_index.value].articles[0] == a;
-          await Future<void>.delayed(const Duration(milliseconds: 500));
-          if(notify_index.value < game.length - 1) {
-            notify_index.value++;
-            notify_correct.value = null;
-          }
-          disable_cb.value = false;
-        }),
+        ArticleChoice(onSelectionChanged: onArticleSelected),
       ],
     );
+  }
+
+  void onArticleSelected(Article a) async {
+    if (disable_cb.value) { return; }
+    disable_cb.value = true;
+    cur_correct.value = game[cur_index.value].articles[0] == a;
+    state.add(game[cur_index.value], cur_correct.value!);
+
+    await Future<void>.delayed(const Duration(milliseconds: 500));
+
+    if(cur_index.value < game.length - 1) {
+      cur_index.value++;
+      cur_correct.value = null;
+    }
+    disable_cb.value = false;
   }
 }
 
