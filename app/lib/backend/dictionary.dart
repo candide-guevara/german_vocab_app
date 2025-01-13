@@ -5,6 +5,7 @@ import 'utils.dart';
 
 class Dictionary {
   final Map<String, dynamic> _d;
+  final Map<(String,int),int> _i_word;
   final DIndex<int> _i_frequency;
   final DIndex<PosType> _i_pos;
   final DIndex<TagType> _i_tag;
@@ -14,10 +15,22 @@ class Dictionary {
     _d = d,
     _i_frequency = DIndex.from<int>(d, (o) => o['freq']),
     _i_pos = DIndex.from<PosType>(d, (o) => PosType.values[o['pos']]),
-    _i_tag = DIndex.fromMulti<TagType>(d, (o) => [ for (final i in o['tags']) TagType.values[i] ]);
+    _i_tag = DIndex.fromMulti<TagType>(d, (o) => [ for (final i in o['tags']) TagType.values[i] ]),
+    _i_word = Dictionary.buildReverseLookUp(d);
   Dictionary.empty(): this(<String, dynamic>{});
 
+  static Map<(String,int),int> buildReverseLookUp(final Map<String, dynamic> d) {
+    final Map<(String,int),int> lu = {};
+    int i = 0;
+    for(final e in d['entries'] ?? []) {
+      lu[(e['lemma'], e['hidx'])] = i;
+      i++;
+    }
+    return lu;
+  }
+
   DEntry byIdx(int idx) => DEntry.fromJson(_d['entries'][idx]);
+  DEntry byWord(String w, int hidx) => DEntry.fromJson(_d['entries'][_i_word[(w,hidx)]]);
 
   List<DEntry> sampleGameWords(GenderGameConfig conf) {
     var watch = Stopwatch();
