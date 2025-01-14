@@ -57,13 +57,9 @@ class GenderGame extends StatelessWidget {
       children: <Widget>[
         ProgressBar(
           conf.word_cnt, good_cnt, fail_cnt),
-        ListenableBuilder(
-          listenable: cur_correct,
-          builder: (ctx, child) => WordGenderCard(
-            word: state.cur_entry.word,
-            expected_article: state.cur_entry.articles[0],
-            is_correct: cur_correct.value),
-        ),
+        WordGenderCard(
+          state: state,
+          correct: cur_correct),
         ArticleChoice(
           onSelectionChanged: onArticleSelected),
       ],
@@ -74,14 +70,15 @@ class GenderGame extends StatelessWidget {
     if (disable_cb.value) { return; }
     disable_cb.value = true;
     cur_correct.value = state.cur_entry.articles[0] == a;
-    state.advance(cur_correct.value!);
     good_cnt.value += cur_correct.value! ? 1 : 0;
     fail_cnt.value += cur_correct.value! ? 0 : 1;
 
-    await Future<void>.delayed(const Duration(milliseconds: 500));
+    await Future<void>.delayed(const Duration(milliseconds: 700));
+    state.advance(cur_correct.value!);
 
     if(!state.isDone) {
       cur_correct.value = null;
+      await Future<void>.delayed(const Duration(milliseconds: 50));
       disable_cb.value = false;
     }
     else {

@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
-import '../backend/utils.dart';
+import 'package:app/backend/dictionary_entry.dart';
+import 'package:app/backend/dictionary_loader.dart';
+import 'package:app/backend/gender_game_state.dart';
+import 'package:app/backend/utils.dart';
 
 class WordGenderCard extends StatelessWidget {
-  final String word;
-  final Article expected_article;
-  final bool? is_correct;
+  final GenderGameState state;
+  final ValueNotifier<bool?> correct;
   const WordGenderCard({super.key,
-                        required this.word,
-                        required this.expected_article,
-                        required this.is_correct});
+                        required this.state,
+                        required this.correct});
+
+  String get word => state.cur_entry.word;
+  String get article_str => state.cur_entry.articles[0].name;
 
   @override
   Widget build(BuildContext context) {
@@ -36,35 +40,38 @@ class WordGenderCard extends StatelessWidget {
     final TextStyle defStyle = Theme.of(context).textTheme.titleLarge ?? const TextStyle();
     final double fontSize = defStyle.fontSize! * (word.length > 21 ? 21.0/word.length : 1.0);
 
-    final cardText = Padding( 
+    final buildCardText = (BuildContext ctx, Widget? _) => Padding(
       child: Text(
         word,
-        style: defStyle.copyWith(fontSize: fontSize),
-      ),
+        style: defStyle.copyWith(fontSize: fontSize),),
       padding: EdgeInsets.fromLTRB(16, 8, 0, 24),
     );
     return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          buildCardIcon(context),
-          cardText,
+          ListenableBuilder(
+            listenable: correct,
+            builder: buildCardIcon,),
+          ListenableBuilder(
+            listenable: correct,
+            builder: buildCardText,),
         ],
     );
   }
 
-  Widget buildCardIcon(BuildContext ctx) {
+  Widget buildCardIcon(BuildContext ctx, Widget? _) {
     final TextStyle defStyle = Theme.of(ctx).textTheme.titleLarge ?? const TextStyle();
     Widget? icon;
-    if(is_correct == null) {
+    if(correct.value == null) {
       icon = Icon(Icons.question_mark_rounded, color: Colors.grey, size: 42,);
     }
-    else if(is_correct!) {
+    else if(correct.value!) {
       final textStyle = defStyle.copyWith(color: Colors.green, fontWeight: FontWeight.bold);
       icon = Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
           Icon(Icons.thumb_up, color: Colors.green, size: 42,),
-          Text("${expected_article.name}", style: textStyle),
+          Text(article_str, style: textStyle),
         ],
       );
     }
@@ -77,7 +84,7 @@ class WordGenderCard extends StatelessWidget {
             flipX: true,
             child: Icon(Icons.thumb_down, color: Colors.red, size: 42,),
           ),
-          Text("${expected_article.name}", style: textStyle),
+          Text(article_str, style: textStyle),
         ],
       );
     }
@@ -87,5 +94,4 @@ class WordGenderCard extends StatelessWidget {
     );
   }
 }
-
 
