@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'backend/gender_game_config.dart';
+import 'backend/gender_game_state_loader.dart';
 import 'backend/persistence_store.dart';
 import 'backend/utils.dart';
 import 'widgets/center_column.dart';
@@ -9,20 +10,33 @@ import 'widgets/labelled_switch.dart';
 
 class GenderGameConfigPage extends StatelessWidget {
   static const String kPageTitle = "GenderGameConfig";
+  final GenderGameConfig conf;
+
+  GenderGameConfigPage({super.key}):
+    conf = GenderGameConfig.def();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text(kAppTitle)),
-      body: myFutureBuilder<GenderGameConfig>(
-        Persistence.isLoaded().then( (_) => GenderGameConfig.load() ),
+      body: myFutureBuilder<bool>(
+        loadConfFuture(),
         'Loading preferences ...',
         builderAfterLoad,
       ),
     );
   }
 
-  Widget builderAfterLoad(final BuildContext context, final GenderGameConfig g) {
+  Future<bool> loadConfFuture() async {
+    await Future.wait([
+      Persistence.isLoaded(),
+      GenderGameHistoryLoader.isLoaded(),
+    ]);
+    conf.setFrom(await GenderGameConfig.load());
+    return true;
+  }
+
+  Widget builderAfterLoad(final BuildContext context, final bool _) {
     // BE CAREFUL IT IS A TRAP!
     // You need to use unique keys to force the state to be recreated when
     // the ListenableBuilder recreates teh widget.
@@ -34,8 +48,8 @@ class GenderGameConfigPage extends StatelessWidget {
         key: UniqueKey(),
         min: kGameRoundsMin,
         max: kGameRoundsMax,
-        ini_val: g.word_cnt,
-        onChanged: (v) async { g.word_cnt = v; await g.save(); }),
+        ini_val: conf.word_cnt,
+        onChanged: (v) async { conf.word_cnt = v; await conf.save(); }),
     );
     final frq_slider = ListenableBuilder(
       listenable: notify,
@@ -43,60 +57,69 @@ class GenderGameConfigPage extends StatelessWidget {
         key: UniqueKey(),
         min: kFreqMin,
         max: kFreqMax,
-        ini_val: g.min_freq,
-        onChanged: (v) async { g.min_freq = v; await g.save(); }),
+        ini_val: conf.min_freq,
+        onChanged: (v) async { conf.min_freq = v; await conf.save(); }),
     );
     final trv_switch = ListenableBuilder(
       listenable: notify,
       builder: (ctx, child) => LabelledSwitch(
         key: UniqueKey(),
-        ini_val: g.has(TagType.TrivialGender),
+        ini_val: conf.has(TagType.TrivialGender),
         label: "Ignore words with trivial gender:",
         onChanged: (v) async {
-          g.set(TagType.TrivialGender, remove:!v);
-          await g.save();
+          conf.set(TagType.TrivialGender, remove:!v);
+          await conf.save();
         }),
     );
     final fem_switch = ListenableBuilder(
       listenable: notify,
       builder: (ctx, child) => LabelledSwitch(
         key: UniqueKey(),
-        ini_val: g.has(TagType.FemProfession),
+        ini_val: conf.has(TagType.FemProfession),
         label: "Ignore feminine professions:",
         onChanged: (v) async {
-          g.set(TagType.FemProfession, remove:!v);
-          await g.save();
+          conf.set(TagType.FemProfession, remove:!v);
+          await conf.save();
         }),
     );
     final eng_switch = ListenableBuilder(
       listenable: notify,
       builder: (ctx, child) => LabelledSwitch(
         key: UniqueKey(),
-        ini_val: g.has(TagType.LikelyEnglish),
+        ini_val: conf.has(TagType.LikelyEnglish),
         label: "Ignore english words (approx):",
         onChanged: (v) async {
-          g.set(TagType.LikelyEnglish, remove:!v);
-          await g.save();
+          conf.set(TagType.LikelyEnglish, remove:!v);
+          await conf.save();
         }),
     );
     final fky_switch = ListenableBuilder(
       listenable: notify,
       builder: (ctx, child) => LabelledSwitch(
         key: UniqueKey(),
-        ini_val: g.has(TagType.Funky),
+        ini_val: conf.has(TagType.Funky),
         label: "Ignore funky words:",
         onChanged: (v) async {
-          g.set(TagType.Funky, remove:!v);
-          await g.save();
+          conf.set(TagType.Funky, remove:!v);
+          await conf.save();
         }),
     );
-    final rst_button = FilledButton(
-      child: const Text("Reset config and game history"),
-      onPressed: () async { 
-        g.reset();
-        await g.save();
-        notify.value++;
-      },
+    final rst_buttons = Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: <Widget>[
+        FilledButton(
+          child: const Text("Reset config"),
+          onPressed: () async {
+            conf.reset();
+            await conf.save();
+            notify.value++;
+          },),
+        FilledButton(
+          child: const Text("Reset history"),
+          onPressed: () async {
+            await GenderGameHistoryLoader.clear();
+          },),
+      ],
     );
     return CenterColumn(
       children: <Widget>[
@@ -110,7 +133,7 @@ class GenderGameConfigPage extends StatelessWidget {
         eng_switch,
         fky_switch,
         const Divider(),
-        rst_button,
+        rst_buttons,
       ],
     );
   }

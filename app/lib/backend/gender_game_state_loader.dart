@@ -43,6 +43,14 @@ class GenderGameHistoryLoader {
     await s.setJson('GenderGameHistory', json);
     _stats.doneSaveJson();
   }
+
+  static Future<void> clear() async {
+    _stats.start();
+    _h = GenderGameHistory.empty();
+    final s = Persistence.store;
+    await s.remove('GenderGameHistory');
+    _stats.doneClearHistory();
+  }
 }
 
 class GenderGameHistoryLoaderStats {
@@ -51,6 +59,7 @@ class GenderGameHistoryLoaderStats {
   int load_unmarshall_millis = 0;
   int save_json_millis = 0;
   int save_unmarshall_millis = 0;
+  int clear_history = 0;
 
   GenderGameHistoryLoaderStats(): _watch = Stopwatch();
 
@@ -72,6 +81,10 @@ class GenderGameHistoryLoaderStats {
     save_unmarshall_millis = _watch.elapsedMilliseconds;
     _watch.reset();
   }
+  void doneClearHistory() {
+    clear_history = _watch.elapsedMilliseconds;
+    _watch.reset();
+  }
 
   String toString() {
     final buf = StringBuffer();
@@ -79,6 +92,7 @@ class GenderGameHistoryLoaderStats {
     buf.writeln("load_unmarshall_millis: ${load_unmarshall_millis}");
     buf.writeln("save_json_millis: ${save_json_millis}");
     buf.writeln("save_unmarshall_millis: ${save_unmarshall_millis}");
+    buf.writeln("clear_history: ${clear_history}");
     return buf.toString();
   }
 }
