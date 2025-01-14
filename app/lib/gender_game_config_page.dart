@@ -117,7 +117,10 @@ class GenderGameConfigPage extends StatelessWidget {
         FilledButton(
           child: const Text("Reset history"),
           onPressed: () async {
-            await GenderGameHistoryLoader.clear();
+            bool? confirmed = await showDialog(
+              context: context,
+              builder: buildConfirmationDialog,);
+            if (confirmed ?? false) { await GenderGameHistoryLoader.clear(); }
           },),
       ],
     );
@@ -134,6 +137,22 @@ class GenderGameConfigPage extends StatelessWidget {
         fky_switch,
         const Divider(),
         rst_buttons,
+      ],
+    );
+  }
+
+  Widget buildConfirmationDialog(BuildContext context) {
+    return AlertDialog(
+      content: Text('Delete all game history?'),
+      actions: [
+        TextButton(
+          onPressed: () { Navigator.of(context).pop(false); },
+          child: Text('Cancel'),
+        ),
+        ElevatedButton(
+          onPressed: () { Navigator.of(context).pop(true); },
+          child: Text('Confirm'),
+        ),
       ],
     );
   }
