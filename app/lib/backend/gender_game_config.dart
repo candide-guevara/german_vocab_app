@@ -15,6 +15,12 @@ class GenderGameConfig {
 
   GenderGameConfig.def(): this(kWordCnt, kMinFreq, kExcludeTags);
 
+  void setFrom(GenderGameConfig other) {
+    word_cnt = other.word_cnt;
+    min_freq = other.min_freq;
+    exclude_tags = other.exclude_tags.toSet();
+  }
+
   void reset() {
     word_cnt = kWordCnt;
     min_freq = kMinFreq;
