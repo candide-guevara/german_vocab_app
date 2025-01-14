@@ -78,15 +78,21 @@ void main() {
     expect(ggh.history.length, equals(0));
     expect(ggh.past_games.length, equals(1));
 
-    ggs.add(DEntry.forTest('foo', 0), true);
-    ggs.add(DEntry.forTest('bar', 0), false);
-    ggs.add(DEntry.forTest('baz', 0), true);
+    ggs.setWords([
+      DEntry.forTest('foo', 0),
+      DEntry.forTest('bar', 0),
+      DEntry.forTest('baz', 0),
+    ]);
+    ggs.advance(true);
+    ggs.advance(false);
+    ggs.advance(true);
 
     ggh.appendFinishedGame(ggs);
     expect(ggh.history.length, equals(3));
     expect(ggh.past_games.length, equals(2));
 
-    ggs.add(DEntry.forTest('new_word', 0), true);
+    ggs.setWords([ DEntry.forTest('new_word', 0), ]);
+    ggs.advance(true);
 
     ggh.appendFinishedGame(ggs);
     expect(ggh.history.length, equals(4));

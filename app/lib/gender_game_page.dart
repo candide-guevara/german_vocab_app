@@ -16,20 +16,16 @@ class GenderGame extends StatelessWidget {
   static const String kPageTitle = "GenderGame";
   final ValueNotifier<bool?> cur_correct;
   final ValueNotifier<bool> disable_cb;
-  final ValueNotifier<int> cur_index;
   final ValueNotifier<int> good_cnt;
   final ValueNotifier<int> fail_cnt;
-  final List<DEntry> game;
   final GenderGameState state;
   final GenderGameConfig conf;
 
   GenderGame({super.key}):
     cur_correct = ValueNotifier<bool?>(null),
     disable_cb = ValueNotifier<bool>(false),
-    cur_index = ValueNotifier<int>(0),
     good_cnt = ValueNotifier<int>(0),
     fail_cnt = ValueNotifier<int>(0),
-    game = <DEntry>[],
     state = GenderGameState(),
     conf = GenderGameConfig.def();
 
@@ -52,8 +48,7 @@ class GenderGame extends StatelessWidget {
       GenderGameHistoryLoader.isLoaded(),
     ]);
     conf.setFrom(await GenderGameConfig.load());
-    game.clear();
-    game.addAll(DictionaryLoader.d.sampleGameWords(conf));
+    state.setWords(DictionaryLoader.d.sampleGameWords(conf));
     return true;
   }
 
@@ -65,8 +60,8 @@ class GenderGame extends StatelessWidget {
         ListenableBuilder(
           listenable: cur_correct,
           builder: (ctx, child) => WordGenderCard(
-            word: game[cur_index.value].word,
-            expected_article: game[cur_index.value].articles[0],
+            word: state.cur_entry.word,
+            expected_article: state.cur_entry.articles[0],
             is_correct: cur_correct.value),
         ),
         ArticleChoice(
@@ -78,15 +73,14 @@ class GenderGame extends StatelessWidget {
   void onArticleSelected(Article a) async {
     if (disable_cb.value) { return; }
     disable_cb.value = true;
-    cur_correct.value = game[cur_index.value].articles[0] == a;
-    state.add(game[cur_index.value], cur_correct.value!);
+    cur_correct.value = state.cur_entry.articles[0] == a;
+    state.advance(cur_correct.value!);
     good_cnt.value += cur_correct.value! ? 1 : 0;
     fail_cnt.value += cur_correct.value! ? 0 : 1;
 
     await Future<void>.delayed(const Duration(milliseconds: 500));
 
-    if(cur_index.value < game.length - 1) {
-      cur_index.value++;
+    if(!state.isDone) {
       cur_correct.value = null;
       disable_cb.value = false;
     }

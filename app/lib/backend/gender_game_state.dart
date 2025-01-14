@@ -1,5 +1,6 @@
 import 'dictionary.dart';
 import 'dictionary_entry.dart';
+import 'dart:math';
 
 class PastGame {
   final DateTime date;
@@ -29,19 +30,31 @@ class PastGame {
 
 class GenderGameState {
   final DateTime date;
-  List<DEntry> good;
-  List<DEntry> bad;
+  final List<DEntry> game;
+  final List<DEntry> good;
+  final List<DEntry> bad;
+  int _idx;
+
   GenderGameState():
     date = DateTime.now(),
+    game = [],
     good = [],
-    bad = [];
+    bad = [],
+    _idx = 0;
 
-  void add(DEntry entry, bool correct) {
+  DEntry get cur_entry => game[min(_idx, game.length-1)];
+  bool get isDone => game.length == _idx;
+  void setWords(List<DEntry> words) => game.addAll(words);
+
+  void advance(bool correct) {
+    if (isDone) { throw Exception("cannot advance, already at the end"); }
+    DEntry entry = game[_idx];
     if(correct) { good.add(entry); }
     else { bad.add(entry); }
+    _idx += 1;
   }
 
-  PastGame done() { return PastGame(date, good.length, bad.length); }
+  PastGame build_past_game() { return PastGame(date, good.length, bad.length); }
 }
 
 class HistoryEntry {
@@ -93,7 +106,8 @@ class GenderGameHistory {
   GenderGameHistory.empty(): history = [], past_games = [];
 
   void appendFinishedGame(final GenderGameState state) {
-    past_games.add(state.done());
+    if (!state.isDone) { throw Exception("Appending unfinished game"); }
+    past_games.add(state.build_past_game());
     final rLookUp = Map<(String, int), int>.fromEntries(history.indexed.map( (t) => MapEntry(t.$2.key(), t.$1) ));
     int i = 0;
     for (final e in state.good.followedBy(state.bad)) {
