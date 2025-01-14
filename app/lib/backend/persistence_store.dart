@@ -17,6 +17,10 @@ class Persistence {
       );
     }
   }
+  static void test_only_init(SharedPreferencesWithCache store) {
+    init_called = true;
+    _loadingStore = Future.value(store);
+  }
 
   static Future<bool> isLoaded() async {
     if (!init_called) throw DeferredLoadException("call init first");

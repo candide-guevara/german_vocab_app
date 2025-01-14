@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'gender_game_page.dart';
 import 'gender_game_config_page.dart';
 import 'backend/dictionary_loader.dart';
+import 'backend/gender_game_state_loader.dart';
 import 'backend/persistence_store.dart';
 import 'backend/utils.dart';
 import 'widgets/center_column.dart';
@@ -10,6 +11,7 @@ void main() {
   WidgetsFlutterBinding.ensureInitialized();
   DictionaryLoader.init();
   Persistence.init();
+  GenderGameHistoryLoader.init();
 
   runApp(MaterialApp(
     builder: (context, child) {
