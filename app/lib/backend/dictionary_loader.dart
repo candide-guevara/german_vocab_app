@@ -8,6 +8,7 @@ import 'dictionary.dart';
 
 class DictionaryLoader {
   static final String kBundlePath = 'assets/words.json.gz';
+  static final _stats = DictionaryLoadingStats();
   static bool init_called = false;
   static Future<Dictionary> _loadingFuture = Future.error(Exception('Uninitialized'));
   static Dictionary _jsonDict = Dictionary.empty();
@@ -16,33 +17,33 @@ class DictionaryLoader {
   static void init() {
     if (!init_called) {
       init_called = true;
+      _stats.start();
       // I think the rootBundle is only avalialble in the main isolate.
       // This is the reason why we chain futures.
-      var stats = DictionaryLoadingStats();
       _loadingFuture = rootBundle.load(kBundlePath)
-        .then((data) => DictionaryLoader.unmarshalCompressedJson(data, stats));
+        .then((data) => DictionaryLoader.unmarshalCompressedJson(data));
     }
   }
 
   static Future<bool> isLoaded() async {
+    if (!init_called) throw DeferredLoadException("call init first");
     if(!_jsonDict.isEmpty) return true;
     _jsonDict = await _loadingFuture;
     if(_jsonDict.isEmpty) throw DeferredLoadException("failed to load Dictionary at ${kBundlePath}");
     return true;
   }
 
-  static Future<Dictionary> unmarshalCompressedJson(
-      ByteData compressedData, DictionaryLoadingStats stats) {
-    stats.doneLoadBundle();
+  static Future<Dictionary> unmarshalCompressedJson(ByteData compressedData) {
+    _stats.doneLoadBundle();
     return Isolate.run(() {
       final Uint8List compressedBytes = compressedData.buffer.asUint8List();
       final decompressedStream = GZipCodec().decoder.convert(compressedBytes);
-      stats.doneDecompress();
+      _stats.doneDecompress();
       final jsonString = utf8.decode(decompressedStream);
       final Map<String, dynamic> jsonData = json.decode(jsonString);
-      stats.doneUnmarshal();
+      _stats.doneUnmarshal();
       var d = Dictionary(jsonData);
-      stats.doneIndexing();
+      _stats.doneIndexing();
       //print(stats.toString());
       return d;
     });
@@ -56,7 +57,9 @@ class DictionaryLoadingStats {
   int unmarshal_millis = 0;
   int indexing_millis = 0;
 
-  DictionaryLoadingStats(): _watch = Stopwatch() { _watch.start(); }
+  DictionaryLoadingStats(): _watch = Stopwatch();
+
+  void start() => _watch.start();
 
   void doneLoadBundle() {
     load_bundle_millis = _watch.elapsedMilliseconds;
@@ -76,12 +79,12 @@ class DictionaryLoadingStats {
   }
 
   String toString() {
-    return """
-    load_bundle_millis: ${load_bundle_millis},
-    decompress_millis: ${decompress_millis},
-    unmarshal_millis: ${unmarshal_millis},
-    indexing_millis: ${indexing_millis},
-    """;
+    final buf = StringBuffer();
+    buf.writeln("load_bundle_millis: ${load_bundle_millis}");
+    buf.writeln("decompress_millis: ${decompress_millis}");
+    buf.writeln("unmarshal_millis: ${unmarshal_millis}");
+    buf.writeln("indexing_millis: ${indexing_millis}");
+    return buf.toString();
   }
 }
 
