@@ -3,7 +3,7 @@ import 'backend/dictionary_entry.dart';
 import 'backend/dictionary_loader.dart';
 import 'backend/gender_game_config.dart';
 import 'backend/gender_game_state.dart';
-import 'backend/gender_game_state_loader.dart';
+import 'backend/gender_game_history_loader.dart';
 import 'backend/persistence_store.dart';
 import 'backend/utils.dart';
 import 'widgets/article_choice.dart';

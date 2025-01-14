@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:meta/meta.dart';
-import 'gender_game_state.dart';
+import 'gender_game_history.dart';
 import 'persistence_store.dart';
 
 class GenderGameHistoryLoader {

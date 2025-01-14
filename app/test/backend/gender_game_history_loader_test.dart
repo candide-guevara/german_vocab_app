@@ -1,7 +1,8 @@
 import 'package:test/test.dart';
 import 'package:matcher/expect.dart';
+import 'package:app/backend/gender_game_history.dart';
+import 'package:app/backend/gender_game_history_loader.dart';
 import 'package:app/backend/gender_game_state.dart';
-import 'package:app/backend/gender_game_state_loader.dart';
 import 'package:app/backend/persistence_store.dart';
 import 'shared_preferences_fake.dart';
 
