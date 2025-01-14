@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:app/backend/dictionary_entry.dart';
 import 'package:app/backend/gender_game_state.dart';
 import 'package:test/test.dart';
 import 'package:matcher/expect.dart';
@@ -29,6 +30,18 @@ void main() {
     compareJsonStr(new_json, ini_json);
   });
 
+  test('HistoryEntry_truncate', () {
+    final entry = HistoryEntry.empty('word', 1);
+    final dt = DateTime.now();
+    for (var i = 0; i < HistoryEntry.kMaxLen * 2; i++) {
+      entry.goods.add(dt);
+      entry.fails.add(dt);
+    }
+    entry.truncate();
+    expect(entry.goods.length, equals(HistoryEntry.kMaxLen));
+    expect(entry.fails.length, equals(HistoryEntry.kMaxLen));
+  });
+
   test('PastGame_fromJson_and_toJson', () {
     final pg = PastGame(DateTime(2020, 12, 12), 6, 7);
     final jsonObj = pg.toJson();
@@ -39,7 +52,7 @@ void main() {
 
   test('GenderGameHistory_fromJson_and_toJson', () {
     final ggh = GenderGameHistory.empty();
-    ggh.history.add(HistoryEntry.empty());
+    ggh.history.add(HistoryEntry.empty('bla', 4));
     ggh.past_games.add(PastGame(DateTime(2020, 12, 12), 6, 7));
     final jsonObj = ggh.toJson();
     final jsonStr = json.encode(jsonObj);
@@ -55,6 +68,29 @@ void main() {
     final jsonStr = json.encode(jsonObj);
     final new_ggh = GenderGameHistory.fromJson(json.decode(jsonStr));
     expect(new_ggh.toString(), equals(ggh.toString()));
+  });
+
+  test('GenderGameHistory_appendFinishedGame', () {
+    final ggh = GenderGameHistory.empty();
+    final ggs = GenderGameState();
+
+    ggh.appendFinishedGame(ggs);
+    expect(ggh.history.length, equals(0));
+    expect(ggh.past_games.length, equals(1));
+
+    ggs.add(DEntry.forTest('foo', 0), true);
+    ggs.add(DEntry.forTest('bar', 0), false);
+    ggs.add(DEntry.forTest('baz', 0), true);
+
+    ggh.appendFinishedGame(ggs);
+    expect(ggh.history.length, equals(3));
+    expect(ggh.past_games.length, equals(2));
+
+    ggs.add(DEntry.forTest('new_word', 0), true);
+
+    ggh.appendFinishedGame(ggs);
+    expect(ggh.history.length, equals(4));
+    //expect(ggh.toString(), equals(''));
   });
 }
 

@@ -3,6 +3,7 @@ import 'backend/dictionary_entry.dart';
 import 'backend/dictionary_loader.dart';
 import 'backend/gender_game_config.dart';
 import 'backend/gender_game_state.dart';
+import 'backend/gender_game_state_loader.dart';
 import 'backend/persistence_store.dart';
 import 'backend/utils.dart';
 import 'widgets/article_choice.dart';
@@ -41,6 +42,7 @@ class GenderGame extends StatelessWidget {
     await Future.wait([
       DictionaryLoader.isLoaded(),
       Persistence.isLoaded(),
+      GenderGameHistoryLoader.isLoaded(),
     ]);
     final conf = await GenderGameConfig.load();
     game.clear();
@@ -75,8 +77,12 @@ class GenderGame extends StatelessWidget {
     if(cur_index.value < game.length - 1) {
       cur_index.value++;
       cur_correct.value = null;
+      disable_cb.value = false;
     }
-    disable_cb.value = false;
+    else {
+      GenderGameHistoryLoader.h.appendFinishedGame(state);
+      GenderGameHistoryLoader.save();
+    }
   }
 }
 

@@ -12,7 +12,7 @@ void main() {
     GenderGameHistoryLoader.init();
     await GenderGameHistoryLoader.isLoaded();
     final ggh = GenderGameHistoryLoader.h;
-    ggh.history.add(HistoryEntry.empty());
+    ggh.history.add(HistoryEntry.empty('word', 3));
     ggh.past_games.add(PastGame(DateTime(2020, 12, 12), 6, 7));
     final gghStr = ggh.toString();
     await GenderGameHistoryLoader.save();

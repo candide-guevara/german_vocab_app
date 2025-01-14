@@ -1,3 +1,4 @@
+import 'package:meta/meta.dart';
 import 'utils.dart';
 
 class DEntry {
@@ -9,6 +10,19 @@ class DEntry {
   final PrunfungType prufung;
   final List<TagType> tags;
   final String url;
+
+  (String, int) key() => (word, meaning_idx);
+
+  @visibleForTesting
+  DEntry.forTest(lemma, hidx)
+    : articles = [],
+      frequency = 0,
+      meaning_idx = hidx,
+      word = lemma,
+      pos = PosType.Unknown,
+      prufung = PrunfungType.Unknown,
+      tags = [],
+      url = 'url';
 
   DEntry.fromJson(Map<String, dynamic> json)
       : articles = [ for (final x in json['articles']) Article.values[x] ],
