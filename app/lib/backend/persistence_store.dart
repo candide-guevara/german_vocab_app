@@ -1,4 +1,7 @@
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
 
 class Persistence {
   static bool init_called = false;
@@ -16,6 +19,7 @@ class Persistence {
   }
 
   static Future<bool> isLoaded() async {
+    if (!init_called) throw DeferredLoadException("call init first");
     if(_store != null) return true;
     _store = await _loadingStore;
     return true;
@@ -41,6 +45,22 @@ extension UnmarshallFromList on SharedPreferencesWithCache {
   }
   Future<void> setIntList(String key, List<int> ints) {
     return this.setString(key, ints.map((i) => i.toString()).join(','));
+  }
+
+  Map<String, dynamic>? getJson(String key) {
+    String? base64Encoded = this.getString(key);
+    if (base64Encoded == null) { return null; }
+    final decodedBytes = base64.decode(base64Encoded!);
+    final decompressedBytes = gzip.decode(decodedBytes);
+    final jsonString = utf8.decode(decompressedBytes);
+    return json.decode(jsonString);
+  }
+  Future<void> setJson(String key, Map<String, dynamic> jsonObj) {
+    final jsonString = json.encode(jsonObj);
+    final utf8Bytes = utf8.encode(jsonString);
+    final compressedBytes = gzip.encode(utf8Bytes);
+    final base64Encoded = base64.encode(compressedBytes);
+    return this.setString(key, base64Encoded);
   }
 }
 
