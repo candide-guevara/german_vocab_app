@@ -7,6 +7,8 @@ class PastGame {
   final int fail;
   PastGame(this.date, this.good, this.fail);
 
+  int get word_cnt => good+fail;
+
   PastGame.fromJson(Map<String, dynamic> json):
     date = DateTime.fromMillisecondsSinceEpoch(json['date']),
     good = json['good'],

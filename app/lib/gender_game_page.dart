@@ -33,7 +33,7 @@ class GenderGamePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(kAppTitle)),
+      appBar: AppBar(title: Text(kPageTitle)),
       body: myFutureBuilder<bool>(
         loadConfAndGame(),
         'Loading dictionary ...',
