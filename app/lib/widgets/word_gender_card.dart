@@ -56,7 +56,11 @@ class WordGenderCard extends StatelessWidget {
           ListenableBuilder(
             listenable: correct,
             builder: buildCardText,),
-          buildWebLinks(context),
+          // Ideally we should refresh the links only when changing words
+          // (aka when `correct` transitions to null)
+          ListenableBuilder(
+            listenable: correct,
+            builder: (ctx,_) => buildWebLinks(ctx),),
         ],
     );
   }
