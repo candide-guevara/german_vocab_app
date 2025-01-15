@@ -55,7 +55,7 @@ class GenderGameHistory {
     past_games.add(state.build_past_game());
     final rLookUp = Map<(String, int), int>.fromEntries(history.indexed.map( (t) => MapEntry(t.$2.key(), t.$1) ));
     int i = 0;
-    for (final e in state.good.followedBy(state.bad)) {
+    for (final e in state.good.followedBy(state.fail)) {
       HistoryEntry? h;
       if (rLookUp.containsKey(e.key())) { h = history[rLookUp[e.key()]!]; }
       else { h = HistoryEntry.empty(e.word, e.meaning_idx); history.add(h!); }

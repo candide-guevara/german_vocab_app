@@ -14,7 +14,7 @@ class GenderGameResultPage extends StatelessWidget {
                                         fontFamily: 'monospace');
     final goodStyle = defStyle.copyWith(color: Colors.green.shade600,
                                         fontFamily: 'monospace');
-    final fail_words = state.bad.map((e) => "${e.articles[0].name.toUpperCase()}   ${e.word}")
+    final fail_words = state.fail.map((e) => "${e.articles[0].name.toUpperCase()}   ${e.word}")
                                 .join('\n');
     final good_words = state.good.map((e) => "${e.articles[0].name.toUpperCase()}   ${e.word}")
                                  .join('\n');
