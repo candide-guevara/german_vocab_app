@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 
 class CenterColumn extends StatelessWidget {
   final List<Widget> children;
-  const CenterColumn({super.key, required this.children});
+  final MainAxisAlignment align;
+  const CenterColumn({super.key,
+                      required this.children,
+                      this.align = MainAxisAlignment.center});
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +22,7 @@ class CenterColumn extends StatelessWidget {
       child: Padding(
         padding: EdgeInsets.fromLTRB(lRMargin, 0, lRMargin, 0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: align,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           spacing: spacing,
           children: children,

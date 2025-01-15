@@ -54,6 +54,7 @@ class GenderGame extends StatelessWidget {
 
   Widget builderAfterLoad(BuildContext context, bool _) {
     return CenterColumn(
+      align: MainAxisAlignment.spaceAround,
       children: <Widget>[
         ProgressBar(
           conf.word_cnt, good_cnt, fail_cnt),
