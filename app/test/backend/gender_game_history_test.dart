@@ -1,7 +1,7 @@
 import 'dart:convert';
-import 'package:app/backend/dictionary_entry.dart';
-import 'package:app/backend/gender_game_history.dart';
-import 'package:app/backend/gender_game_state.dart';
+import 'package:german_vocab_app/backend/dictionary_entry.dart';
+import 'package:german_vocab_app/backend/gender_game_history.dart';
+import 'package:german_vocab_app/backend/gender_game_state.dart';
 import 'package:test/test.dart';
 import 'package:matcher/expect.dart';
 import 'utils.dart';

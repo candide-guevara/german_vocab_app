@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:test/test.dart';
-import 'package:app/backend/dictionary_entry.dart';
-import 'package:app/backend/utils.dart';
+import 'package:german_vocab_app/backend/dictionary_entry.dart';
+import 'package:german_vocab_app/backend/utils.dart';
 import 'utils.dart';
 
 void main() {

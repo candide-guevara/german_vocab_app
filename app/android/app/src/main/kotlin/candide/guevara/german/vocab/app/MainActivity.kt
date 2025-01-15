@@ -1,4 +1,4 @@
-package com.example.app
+package candide.guevara.german.vocab.app
 
 import io.flutter.embedding.android.FlutterActivity
 

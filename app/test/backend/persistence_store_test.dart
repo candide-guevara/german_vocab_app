@@ -1,4 +1,4 @@
-import 'package:app/backend/persistence_store.dart';
+import 'package:german_vocab_app/backend/persistence_store.dart';
 import 'package:matcher/expect.dart';
 import 'package:test/test.dart';
 import 'shared_preferences_fake.dart';

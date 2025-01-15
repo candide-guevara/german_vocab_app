@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:app/backend/gender_game_state.dart';
+import 'package:german_vocab_app/backend/gender_game_state.dart';
 
 class ProgressBar extends StatelessWidget {
   static final double kHeight = 24;
