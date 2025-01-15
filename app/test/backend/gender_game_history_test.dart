@@ -7,6 +7,32 @@ import 'package:matcher/expect.dart';
 import 'utils.dart';
 
 void main() {
+  test('HistoryEntry_rank', () {
+    final int good_dt = 123 << HistoryEntry.kBaseShift;
+    final int fail_dt = 321 << HistoryEntry.kBaseShift;
+    final String word = "chocolat";
+    final int fail_score = (fail_dt >> (HistoryEntry.kBaseShift + HistoryEntry.shifts[0]))
+                         + (fail_dt >> (HistoryEntry.kBaseShift + HistoryEntry.shifts[1]))
+                         + (fail_dt >> (HistoryEntry.kBaseShift + HistoryEntry.shifts[2]))
+                         + (fail_dt >> (HistoryEntry.kBaseShift + HistoryEntry.shifts[3]))
+                         + (fail_dt >> (HistoryEntry.kBaseShift + HistoryEntry.shifts[4]));
+    final int good_score = (good_dt >> (HistoryEntry.kBaseShift + HistoryEntry.shifts[0]))
+                         + (good_dt >> (HistoryEntry.kBaseShift + HistoryEntry.shifts[1]))
+                         + (good_dt >> (HistoryEntry.kBaseShift + HistoryEntry.shifts[2]))
+                         + (good_dt >> (HistoryEntry.kBaseShift + HistoryEntry.shifts[3]))
+                         + (good_dt >> (HistoryEntry.kBaseShift + HistoryEntry.shifts[4]));
+    final int score = fail_score - (HistoryEntry.kGoodShrink * good_score).round();
+    final int rank_expect = (score << HistoryEntry.kStrShift) + (word.hashCode & HistoryEntry.kStrHashMask);
+    String ini_json = """{
+       "goods" : [ ${good_dt}, ${good_dt}, ${good_dt}, ${good_dt}, ${good_dt} ],
+       "fails" : [ ${fail_dt}, ${fail_dt}, ${fail_dt}, ${fail_dt}, ${fail_dt} ],
+       "hidx" : 2,
+       "lemma" : "${word}"
+    }""";
+    final entry = HistoryEntry.fromJson(json.decode(ini_json));
+    expect(entry.rank(), equals(rank_expect));
+  });
+
   test('HistoryEntry_fromJson_and_toJson', () {
     String ini_json = """{
        "goods" : [ ${DateTime.now().millisecondsSinceEpoch} ],
@@ -69,6 +95,8 @@ void main() {
 
     ggh.appendFinishedGame(ggs);
     expect(ggh.history.length, equals(0));
+    expect(ggh.rlook_up.length, equals(0));
+    expect(ggh.rank_idx.length, equals(0));
     expect(ggh.past_games.length, equals(1));
 
     ggs.setWords([
@@ -82,6 +110,8 @@ void main() {
 
     ggh.appendFinishedGame(ggs);
     expect(ggh.history.length, equals(3));
+    expect(ggh.rlook_up.length, equals(3));
+    expect(ggh.rank_idx.length, equals(3));
     expect(ggh.past_games.length, equals(2));
 
     ggs.setWords([ DEntry.forTest('new_word', 0), ]);
@@ -89,6 +119,12 @@ void main() {
 
     ggh.appendFinishedGame(ggs);
     expect(ggh.history.length, equals(4));
+    expect(ggh.rlook_up.length, equals(4));
+    expect(ggh.rlook_up.values, everyElement(inInclusiveRange(0,3)));
+    expect(ggh.rank_idx.length, equals(4));
+    expect(ggh.rank_idx.values, everyElement(inInclusiveRange(0,3)));
+    expect(ggh.rank_idx.keys, everyElement(isNonZero));
+    //print(ggh.rank_idx);
     //expect(ggh.toString(), equals(''));
   });
 }

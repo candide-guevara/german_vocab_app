@@ -4,6 +4,12 @@ import 'gender_game_state.dart';
 
 class HistoryEntry {
   static const int kMaxLen = 10;
+  static const int kBaseShift = 24;
+  static const int kStrShift = 20;
+  static const int kStrHashMask = (1 << kStrShift) - 1;
+  static const double kGoodShrink = 0.7;
+  // `shifts.length` should be kMaxLen;
+  static const List<int> shifts = [0,0,1,1,1,2,2,2,2,2];
   final List<DateTime> goods;
   final List<DateTime> fails;
   final String word;
@@ -12,6 +18,18 @@ class HistoryEntry {
   HistoryEntry.empty(this.word, this.meaning_idx): goods = [], fails = [];
 
   (String, int) key() => (word, meaning_idx);
+
+  int _dateToScore(final int acc, final (int, DateTime) t) {
+    final (i,dt) = t;
+    return acc + (dt.millisecondsSinceEpoch >> (kBaseShift + shifts[i]));
+  }
+  // Best effort uniqueness per word, this is why we fill the lower bits with the hash.
+  int rank() {
+    final int fail_score = fails.indexed.take(kMaxLen).fold(0, _dateToScore);
+    final int good_score = goods.indexed.take(kMaxLen).fold(0, _dateToScore);
+    final int shifted_score = (fail_score - (kGoodShrink * good_score).round()) << kStrShift;
+    return shifted_score + (word.hashCode & kStrHashMask);
+  }
 
   void truncate() {
     int until = goods.length > kMaxLen ? (goods.length-kMaxLen) : 0;
@@ -46,31 +64,51 @@ class HistoryEntry {
 }
 
 class GenderGameHistory {
-  List<HistoryEntry> history;
-  List<PastGame> past_games;
-  GenderGameHistory.empty(): history = [], past_games = [];
+  final List<HistoryEntry> history;
+  final List<PastGame> past_games;
+  final Map<(String, int), int> rlook_up;
+  final Map<int, int> rank_idx;
+  GenderGameHistory.empty(): history = [], past_games = [], rlook_up = {}, rank_idx = {};
+
+  void appendGamesTo(final bool isCorrect, final DateTime date, final List<DEntry> entries) {
+    for (final e in entries) {
+      HistoryEntry? h;
+      int? idx = rlook_up[e.key()];
+      if (idx != null) { h = history[idx]; }
+      else {
+        idx = history.length;
+        h = HistoryEntry.empty(e.word, e.meaning_idx);
+        history.add(h!);
+        rlook_up[h!.key()] = idx!;
+      }
+
+      final prev_rank = h!.rank();
+      if (isCorrect) { h!.goods.add(date); }
+      else { h!.fails.add(date); }
+      rank_idx.remove(prev_rank);
+      rank_idx[h!.rank()] = idx!;
+
+      // We assume `date` is more recent than previous entries in `h`
+      // This keeps history for the word in chrono order.
+      h.truncate();
+    }
+  }
 
   void appendFinishedGame(final GenderGameState state) {
     if (!state.isDone) { throw Exception("Appending unfinished game"); }
     past_games.add(state.build_past_game());
-    final rLookUp = Map<(String, int), int>.fromEntries(history.indexed.map( (t) => MapEntry(t.$2.key(), t.$1) ));
-    int i = 0;
-    for (final e in state.good.followedBy(state.fail)) {
-      HistoryEntry? h;
-      if (rLookUp.containsKey(e.key())) { h = history[rLookUp[e.key()]!]; }
-      else { h = HistoryEntry.empty(e.word, e.meaning_idx); history.add(h!); }
-      // We assume `state.date` is more recent than previous entries in `h`
-      // This keeps history for the word in chrono order.
-      if (i < state.good.length) { h!.goods.add(state.date); }
-      else { h!.fails.add(state.date); }
-      h.truncate();
-      i += 1;
-    }
+    appendGamesTo(true,  state.date, state.good);
+    appendGamesTo(false, state.date, state.fail);
   }
 
   GenderGameHistory.fromJson(Map<String, dynamic> json):
     history = (json?['history'] ?? []).map<HistoryEntry>((d) => HistoryEntry.fromJson(d)).toList(),
-    past_games = (json?['past_games'] ?? []).map<PastGame>((d) => PastGame.fromJson(d)).toList();
+    past_games = (json?['past_games'] ?? []).map<PastGame>((d) => PastGame.fromJson(d)).toList(),
+    rlook_up = {},
+    rank_idx = {} {
+      rank_idx.addEntries(history.indexed.map( (t) => MapEntry(t.$2.rank(), t.$1) ));
+      rlook_up.addEntries(history.indexed.map( (t) => MapEntry(t.$2.key(), t.$1) ));
+  }
 
   Map<String, dynamic> toJson() => {
     'history' :  [ for(final h in history) h.toJson() ],
