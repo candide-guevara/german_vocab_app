@@ -31,6 +31,7 @@ class Dictionary {
 
   DEntry byIdx(int idx) => DEntry.fromJson(_d['entries'][idx]);
   DEntry byWord(String w, int hidx) => DEntry.fromJson(_d['entries'][_i_word[(w,hidx)]]);
+  String wordUrl(DEntry entry) => "${_d['url_root']}${entry.word}";
 
   List<DEntry> sampleGameWords(GenderGameConfig conf) {
     var watch = Stopwatch();

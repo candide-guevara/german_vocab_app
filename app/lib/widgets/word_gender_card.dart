@@ -3,6 +3,7 @@ import 'package:app/backend/dictionary_entry.dart';
 import 'package:app/backend/dictionary_loader.dart';
 import 'package:app/backend/gender_game_state.dart';
 import 'package:app/backend/utils.dart';
+import 'package:app/widgets/open_web_content.dart';
 
 class WordGenderCard extends StatelessWidget {
   final GenderGameState state;
@@ -44,7 +45,7 @@ class WordGenderCard extends StatelessWidget {
       child: Text(
         word,
         style: defStyle.copyWith(fontSize: fontSize),),
-      padding: EdgeInsets.fromLTRB(16, 8, 0, 24),
+      padding: EdgeInsets.fromLTRB(16, 8, 0, 12),
     );
     return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -55,7 +56,34 @@ class WordGenderCard extends StatelessWidget {
           ListenableBuilder(
             listenable: correct,
             builder: buildCardText,),
+          buildWebLinks(context),
         ],
+    );
+  }
+
+  Widget buildWebLinks(BuildContext context) {
+    final TextStyle defStyle = Theme.of(context).textTheme.labelLarge ?? const TextStyle();
+    final textStyle = defStyle.copyWith(color: Colors.blue.shade600);
+    final deepl_button = TextButton(
+      onPressed: buildCallDeepLCb(context, word),
+      child: Text(
+        'translation',
+        style: textStyle),
+    );
+    final dwds_button = TextButton(
+      onPressed: buildOpenWebViewCb(
+        context,
+        word,
+        DictionaryLoader.d.wordUrl(state.cur_entry)),
+      child: Text(
+        'definition',
+        style: textStyle),
+    );
+    return Padding(
+      padding: EdgeInsets.fromLTRB(0,0,12,16),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: <Widget>[deepl_button, dwds_button]),
     );
   }
 
