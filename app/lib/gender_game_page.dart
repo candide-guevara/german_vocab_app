@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'gender_game_result_page.dart';
 import 'backend/dictionary_entry.dart';
 import 'backend/dictionary_loader.dart';
 import 'backend/gender_game_config.dart';
@@ -62,12 +63,12 @@ class GenderGamePage extends StatelessWidget {
           state: state,
           correct: cur_correct),
         ArticleChoice(
-          onSelectionChanged: onArticleSelected),
+          onSelectionChanged: (a) => onArticleSelected(context, a)),
       ],
     );
   }
 
-  void onArticleSelected(Article a) async {
+  void onArticleSelected(BuildContext context, Article a) async {
     if (disable_cb.value) { return; }
     disable_cb.value = true;
     cur_correct.value = state.cur_entry.articles[0] == a;
@@ -85,6 +86,10 @@ class GenderGamePage extends StatelessWidget {
     else {
       GenderGameHistoryLoader.h.appendFinishedGame(state);
       GenderGameHistoryLoader.save();
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (ctx) => GenderGameResultPage(GenderGameState.clone(state)))
+      );
     }
   }
 }

@@ -40,7 +40,7 @@ class HomePage extends StatelessWidget {
         children: <Widget>[
           FilledButton(
             child: const Text(GenderGamePage.kPageTitle),
-            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => GenderGamePage())),
+            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (ctx) => GenderGamePage())),
           ),
           FilledButton(
             child: const Text(GenderGameConfigPage.kPageTitle),

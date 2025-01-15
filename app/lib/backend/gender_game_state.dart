@@ -41,6 +41,13 @@ class GenderGameState {
     bad = [],
     _idx = 0;
 
+  GenderGameState.clone(GenderGameState other):
+    date = other.date,
+    game = other.game.toList(),
+    good = other.good.toList(),
+    bad = other.bad.toList(),
+    _idx = other._idx;
+
   DEntry get cur_entry => game[min(_idx, game.length-1)];
   bool get isDone => game.length == _idx;
   void setWords(List<DEntry> words) => game.addAll(words);
