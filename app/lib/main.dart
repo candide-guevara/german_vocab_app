@@ -39,8 +39,8 @@ class HomePage extends StatelessWidget {
       body: CenterColumn(
         children: <Widget>[
           FilledButton(
-            child: const Text(GenderGame.kPageTitle),
-            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => GenderGame())),
+            child: const Text(GenderGamePage.kPageTitle),
+            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => GenderGamePage())),
           ),
           FilledButton(
             child: const Text(GenderGameConfigPage.kPageTitle),

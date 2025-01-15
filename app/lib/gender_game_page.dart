@@ -12,7 +12,7 @@ import 'widgets/future_builder.dart';
 import 'widgets/progress_bar.dart';
 import 'widgets/word_gender_card.dart';
 
-class GenderGame extends StatelessWidget {
+class GenderGamePage extends StatelessWidget {
   static const String kPageTitle = "GenderGame";
   final ValueNotifier<bool?> cur_correct;
   final ValueNotifier<bool> disable_cb;
@@ -21,7 +21,7 @@ class GenderGame extends StatelessWidget {
   final GenderGameState state;
   final GenderGameConfig conf;
 
-  GenderGame({super.key}):
+  GenderGamePage({super.key}):
     cur_correct = ValueNotifier<bool?>(null),
     disable_cb = ValueNotifier<bool>(false),
     good_cnt = ValueNotifier<int>(0),
