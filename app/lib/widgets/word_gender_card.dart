@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:app/backend/dictionary_entry.dart';
-import 'package:app/backend/dictionary_loader.dart';
-import 'package:app/backend/gender_game_state.dart';
-import 'package:app/backend/utils.dart';
-import 'package:app/widgets/open_web_content.dart';
+import 'package:german_vocab_app/backend/dictionary_entry.dart';
+import 'package:german_vocab_app/backend/dictionary_loader.dart';
+import 'package:german_vocab_app/backend/gender_game_state.dart';
+import 'package:german_vocab_app/backend/utils.dart';
+import 'package:german_vocab_app/widgets/open_web_content.dart';
 
 class WordGenderCard extends StatelessWidget {
   final GenderGameState state;

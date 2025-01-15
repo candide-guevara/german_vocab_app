@@ -1,4 +1,4 @@
-import 'package:app/widgets/int_slider.dart';
+import 'package:german_vocab_app/widgets/int_slider.dart';
 
 void main() {}
 

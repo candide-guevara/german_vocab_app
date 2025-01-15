@@ -11,7 +11,7 @@ class ExceptionAndStack implements Exception {
   String framesStr() {
     final List<StackFrame> frames = StackFrame.fromStackTrace(trace);
     return frames
-      .skipWhile((s) => !s.source.contains('package:app'))
+      .skipWhile((s) => !s.source.contains('package:german_vocab_app'))
       .take(3)
       .map((s) => "${s.source}").join("\n");
   }
