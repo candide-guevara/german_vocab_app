@@ -93,7 +93,9 @@ class GenderGameHistory {
     }
   }
 
-  Iterable<(String, int)> failWordsByRank() => rank_idx.entries.map((kv) => history[kv.value].key());
+  Iterable<(String, int)> failWordsByRank() => rank_idx.entries.where((kv) => kv.key > 0)
+                                                               .map((kv) => history[kv.value])
+                                                               .map((h) => h.key());
 
   void appendFinishedGame(final GenderGameState state) {
     if (!state.isDone) { throw Exception("Appending unfinished game"); }

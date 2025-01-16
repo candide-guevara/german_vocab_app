@@ -1,6 +1,7 @@
 import 'dictionary_entry.dart';
 import 'dictionary_index.dart';
 import 'gender_game_config.dart';
+import 'gender_game_history.dart';
 import 'utils.dart';
 
 class Dictionary {
@@ -33,17 +34,23 @@ class Dictionary {
   DEntry byWord(String w, int hidx) => DEntry.fromJson(_d['entries'][_i_word[(w,hidx)]]);
   String wordUrl(DEntry entry) => "${_d['url_root']}${entry.word}";
 
-  List<DEntry> sampleGameWords(GenderGameConfig conf) {
-    var watch = Stopwatch();
+  List<DEntry> sampleGameWords(GenderGameConfig conf, GenderGameHistory history) {
+    final watch = Stopwatch();
     watch.start();
     final candidates = _i_pos.clone(PosType.Substantiv)
                              .intersectWith<int>(_i_frequency, (i) => i >= conf.min_freq)
                              .differenceWith<TagType>(_i_tag, (t) => conf.exclude_tags.contains(t))
                              .toList(growable: false);
     candidates.shuffle();
-    List<DEntry> result = candidates.map(byIdx)
-                                    .where((o) => o.articles.isNotEmpty)
-                                    .take(conf.word_cnt).toList();
+    final failed_idx = history.failWordsByRank().map((k) => _i_word[k]!)
+                                                .take(conf.inc_fail)
+                                                .toSet();
+    final new_idx = candidates.where((i) => !failed_idx.contains(i));
+    final result = failed_idx.followedBy(new_idx)
+                             .map(byIdx)
+                             .where((o) => o.articles.isNotEmpty)
+                             .take(conf.word_cnt)
+                             .toList(growable: false);
     if(result.length < conf.word_cnt) {
       throw Exception("GenderGameConfig are too restrictive could not get enough candidates");
     }
