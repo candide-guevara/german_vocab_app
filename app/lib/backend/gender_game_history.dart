@@ -1,4 +1,4 @@
-import 'dictionary.dart';
+import 'dart:collection';
 import 'dictionary_entry.dart';
 import 'gender_game_state.dart';
 
@@ -51,8 +51,6 @@ class HistoryEntry {
     'lemma' : word,
   };
 
-  DEntry entry(final Dictionary d) => d.byWord(word,meaning_idx);
-
   String toString() {
     final buf = StringBuffer();
     buf.writeln("goods: ${goods},");
@@ -66,9 +64,10 @@ class HistoryEntry {
 class GenderGameHistory {
   final List<HistoryEntry> history;
   final List<PastGame> past_games;
+  final SplayTreeMap<int, int> rank_idx;
   final Map<(String, int), int> rlook_up;
-  final Map<int, int> rank_idx;
-  GenderGameHistory.empty(): history = [], past_games = [], rlook_up = {}, rank_idx = {};
+  GenderGameHistory.empty():
+    history = [], past_games = [], rank_idx = SplayTreeMap<int, int>(), rlook_up = {};
 
   void appendGamesTo(final bool isCorrect, final DateTime date, final List<DEntry> entries) {
     for (final e in entries) {
@@ -94,6 +93,8 @@ class GenderGameHistory {
     }
   }
 
+  Iterable<(String, int)> failWordsByRank() => rank_idx.entries.map((kv) => history[kv.value].key());
+
   void appendFinishedGame(final GenderGameState state) {
     if (!state.isDone) { throw Exception("Appending unfinished game"); }
     past_games.add(state.build_past_game());
@@ -104,8 +105,8 @@ class GenderGameHistory {
   GenderGameHistory.fromJson(Map<String, dynamic> json):
     history = (json?['history'] ?? []).map<HistoryEntry>((d) => HistoryEntry.fromJson(d)).toList(),
     past_games = (json?['past_games'] ?? []).map<PastGame>((d) => PastGame.fromJson(d)).toList(),
-    rlook_up = {},
-    rank_idx = {} {
+    rank_idx = SplayTreeMap<int, int>(),
+    rlook_up = {} {
       rank_idx.addEntries(history.indexed.map( (t) => MapEntry(t.$2.rank(), t.$1) ));
       rlook_up.addEntries(history.indexed.map( (t) => MapEntry(t.$2.key(), t.$1) ));
   }

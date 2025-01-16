@@ -1,3 +1,4 @@
+import 'dart:collection';
 import 'dart:convert';
 import 'package:german_vocab_app/backend/dictionary_entry.dart';
 import 'package:german_vocab_app/backend/gender_game_history.dart';
@@ -126,6 +127,16 @@ void main() {
     expect(ggh.rank_idx.keys, everyElement(isNonZero));
     //print(ggh.rank_idx);
     //expect(ggh.toString(), equals(''));
+  });
+
+  test('SplayTreeMap_is_sorted', () {
+    final m = SplayTreeMap<int, int>();
+    m[2] = 3;
+    m[4] = 2;
+    expect(m.keys, orderedEquals([2,4]));
+    m[3] = 3;
+    m[1] = 4;
+    expect(m.keys, orderedEquals([1,2,3,4]));
   });
 }
 
