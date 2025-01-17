@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'backend/dictionary_entry.dart';
 import 'backend/gender_game_state.dart';
 import 'widgets/center_column.dart';
 
@@ -8,16 +9,22 @@ class GenderGameResultPage extends StatelessWidget {
 
   GenderGameResultPage(this.state, {super.key});
 
+  List<DEntry> sortedEntries(final Iterable<DEntry> entries) {
+    final sorted_entries = entries.toList();
+    sorted_entries.sort((e1,e2) => e1.word.compareTo(e2.word));
+    return sorted_entries;
+  }
+
   List<(String, TextStyle)> richTextFromGameWords(BuildContext context) {
     final TextStyle defStyle = Theme.of(context).textTheme.bodyLarge ?? const TextStyle();
     final failStyle = defStyle.copyWith(color: Colors.red.shade600,
                                         fontFamily: 'monospace');
     final goodStyle = defStyle.copyWith(color: Colors.green.shade600,
                                         fontFamily: 'monospace');
-    final fail_words = state.fail.map((e) => "${e.articles[0].name.toUpperCase()}   ${e.word}")
-                                .join('\n');
-    final good_words = state.good.map((e) => "${e.articles[0].name.toUpperCase()}   ${e.word}")
-                                 .join('\n');
+    final fail_words = sortedEntries(state.fail).map((e) => "${e.articles[0].name.toUpperCase()}   ${e.word}")
+                                                .join('\n');
+    final good_words = sortedEntries(state.good).map((e) => "${e.articles[0].name.toUpperCase()}   ${e.word}")
+                                                .join('\n');
     return <(String, TextStyle)>[
       (fail_words, failStyle),
       ('\n  \n', defStyle),
