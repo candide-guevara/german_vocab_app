@@ -51,6 +51,7 @@ class Dictionary {
                              .where((o) => o.articles.isNotEmpty)
                              .take(conf.word_cnt)
                              .toList(growable: false);
+    result.shuffle();
     if(result.length < conf.word_cnt) {
       throw Exception("GenderGameConfig are too restrictive could not get enough candidates");
     }

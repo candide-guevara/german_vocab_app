@@ -13,7 +13,7 @@ class IntSlider extends StatefulWidget {
       required this.max,
       required this.ini_val,
       required this.onChanged}):
-    divisions = (max - min) > 9 ? 9 : (max - min - 1);
+    divisions = (max - min) > 9 ? 9 : (max - min);
 
   @override
   State<IntSlider> createState() => _IntSliderState(ini_val);
