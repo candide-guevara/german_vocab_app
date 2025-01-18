@@ -34,6 +34,7 @@ class Dictionary {
   DEntry byWord(String w, int hidx) => DEntry.fromJson(_d['entries'][_i_word[(w,hidx)]]);
   String wordUrl(DEntry entry) => "${_d['url_root']}${entry.url}";
 
+  List<DEntry> sampleVocabGameWords(VocabGameConfig conf, GenderGameHistory history) => [];
   List<DEntry> sampleGameWords(GenderGameConfig conf, GenderGameHistory history) {
     final watch = Stopwatch();
     watch.start();

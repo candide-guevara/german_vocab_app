@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'gender_game_page.dart';
 import 'gender_game_config_page.dart';
 import 'gender_game_history_page.dart';
+import 'vocab_game_page.dart';
 import 'vocab_game_config_page.dart';
 import 'backend/dictionary_loader.dart';
 import 'backend/game_history_loader.dart';
@@ -14,6 +15,7 @@ void main() {
   DictionaryLoader.init();
   Persistence.init();
   GenderGameHistoryLoader.init();
+  VocabGameHistoryLoader.init();
 
   runApp(MaterialApp(
     builder: (context, child) {
@@ -63,6 +65,11 @@ class HomePage extends StatelessWidget {
             onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => GenderGameConfigPage())),
           ),
           const Divider(),
+          FilledButton(
+            child: const Text(VocabGamePage.kPageTitle),
+            style: vocabStyle,
+            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => VocabGamePage())),
+          ),
           FilledButton(
             child: const Text(VocabGameConfigPage.kPageTitle),
             style: vocabStyle,
