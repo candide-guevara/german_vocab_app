@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'gender_game_result_page.dart';
 import 'backend/dictionary_entry.dart';
 import 'backend/dictionary_loader.dart';
-import 'backend/gender_game_config.dart';
+import 'backend/game_config.dart';
 import 'backend/gender_game_state.dart';
 import 'backend/gender_game_history_loader.dart';
 import 'backend/persistence_store.dart';

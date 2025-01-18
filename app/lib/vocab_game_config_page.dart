@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'backend/vocab_game_config.dart';
+import 'backend/game_config.dart';
 import 'backend/persistence_store.dart';
 import 'backend/utils.dart';
 import 'widgets/center_column.dart';

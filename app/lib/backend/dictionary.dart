@@ -1,6 +1,6 @@
 import 'dictionary_entry.dart';
 import 'dictionary_index.dart';
-import 'gender_game_config.dart';
+import 'game_config.dart';
 import 'gender_game_history.dart';
 import 'utils.dart';
 
