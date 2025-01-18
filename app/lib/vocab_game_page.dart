@@ -10,7 +10,7 @@ import 'widgets/article_choice.dart';
 import 'widgets/center_column.dart';
 import 'widgets/future_builder.dart';
 import 'widgets/progress_bar.dart';
-import 'widgets/word_gender_card.dart';
+import 'widgets/word_vocab_card.dart';
 
 class VocabGamePage extends StatelessWidget {
   static const String kPageTitle = "VocabGame";
@@ -59,6 +59,7 @@ class VocabGamePage extends StatelessWidget {
       children: <Widget>[
         ProgressBar(
           conf.word_cnt, good_cnt, fail_cnt),
+        WordVocabCard(state, cur_correct),
       ],
     );
   }

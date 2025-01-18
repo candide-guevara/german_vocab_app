@@ -2,6 +2,7 @@ import 'dictionary_entry.dart';
 import 'dictionary_index.dart';
 import 'game_config.dart';
 import 'gender_game_history.dart';
+import 'vocab_game_history.dart';
 import 'utils.dart';
 
 class Dictionary {
@@ -34,7 +35,7 @@ class Dictionary {
   DEntry byWord(String w, int hidx) => DEntry.fromJson(_d['entries'][_i_word[(w,hidx)]]);
   String wordUrl(DEntry entry) => "${_d['url_root']}${entry.url}";
 
-  List<DEntry> sampleVocabGameWords(VocabGameConfig conf, GenderGameHistory history) => [];
+  List<DEntry> sampleVocabGameWords(VocabGameConfig conf, VocabGameHistory history) => <DEntry>[byIdx(123), byIdx(345), byIdx(567),];
   List<DEntry> sampleGameWords(GenderGameConfig conf, GenderGameHistory history) {
     final watch = Stopwatch();
     watch.start();
