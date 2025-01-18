@@ -10,6 +10,8 @@ import 'widgets/labelled_switch.dart';
 
 class GenderGameConfigPage extends StatelessWidget {
   static const String kPageTitle = "GenderGameConfig";
+  static final int kFailCntMin = 0;
+  static final int kFailCntMax = 10;
   final GenderGameConfig conf;
 
   GenderGameConfigPage({super.key}):
@@ -59,6 +61,15 @@ class GenderGameConfigPage extends StatelessWidget {
         max: kFreqMax,
         ini_val: conf.min_freq,
         onChanged: (v) async { conf.min_freq = v; await conf.save(); }),
+    );
+    final fal_slider = ListenableBuilder(
+      listenable: notify,
+      builder: (ctx, child) => IntSlider(
+        key: UniqueKey(),
+        min: kFailCntMin,
+        max: kFailCntMax,
+        ini_val: conf.inc_fail,
+        onChanged: (v) async { conf.inc_fail = v; await conf.save(); }),
     );
     final trv_switch = ListenableBuilder(
       listenable: notify,
@@ -130,7 +141,8 @@ class GenderGameConfigPage extends StatelessWidget {
         cnt_slider,
         const Text('Word frequency:'),
         frq_slider,
-        const Divider(),
+        const Text('Include failed:'),
+        fal_slider,
         trv_switch,
         fem_switch,
         eng_switch,
