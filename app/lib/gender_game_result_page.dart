@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'backend/dictionary_entry.dart';
 import 'backend/gender_game_state.dart';
 import 'widgets/center_column.dart';
+import 'widgets/scrollable_styled_text.dart';
 
 class GenderGameResultPage extends StatelessWidget {
   static const String kPageTitle = "GenderGame results";
@@ -43,37 +44,13 @@ class GenderGameResultPage extends StatelessWidget {
         children: <Widget>[
           const Divider(),
           Text(title, style: titleStyle),
-          ScrollableStyledText(richTextFromGameWords(context)),
+          Expanded(child: ScrollableStyledText(richTextFromGameWords(context))),
           const Padding(
             padding: EdgeInsets.fromLTRB(0, 0, 0, 32),
             child: const Divider(),),
         ],
       ),
     );
-  }
-}
-
-class ScrollableStyledText extends StatelessWidget {
-  final List<(String, TextStyle)> text_and_style;
-
-  ScrollableStyledText(this.text_and_style, {super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final List<TextSpan> spans = text_and_style.map((kv) {
-      final (msg, style) = kv;
-      return TextSpan(text: msg, style: style);
-    }).toList();
-
-    final text_spans = RichText(
-      text: TextSpan(
-        children: spans,
-        style: DefaultTextStyle.of(context).style,),
-    );
-    return Expanded(child: SingleChildScrollView(
-      child: text_spans,
-      scrollDirection: Axis.vertical,
-    ));
   }
 }
 
