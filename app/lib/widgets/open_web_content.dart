@@ -41,7 +41,18 @@ class WebViewScreen extends StatelessWidget {
       ..loadRequest(Uri.parse(url));
     return Scaffold(
       appBar: AppBar(title: Text(title)),
-      body: WebViewWidget(controller: controller),);
+      body: ColorFiltered(
+        colorFilter: ColorFilter.matrix(
+          <double>[
+            -1,  0,  0,  0, 255, // Red
+             0, -1,  0,  0, 255, // Green
+             0,  0, -1,  0, 255, // Blue
+             0,  0,  0,  1,   0, // Alpha
+          ],
+        ),
+        child: WebViewWidget(controller: controller),
+      ),
+    );
   }
 }
 
