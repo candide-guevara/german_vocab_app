@@ -35,8 +35,33 @@ class Dictionary {
   DEntry byWord(String w, int hidx) => DEntry.fromJson(_d['entries'][_i_word[(w,hidx)]]);
   String wordUrl(DEntry entry) => "${_d['url_root']}${entry.url}";
 
-  List<DEntry> sampleVocabGameWords(VocabGameConfig conf, VocabGameHistory history) => <DEntry>[byIdx(123), byIdx(345), byIdx(567),];
-  List<DEntry> sampleGameWords(GenderGameConfig conf, GenderGameHistory history) {
+  List<DEntry> sampleVocabGameWords(VocabGameConfig conf, VocabGameHistory history) {
+    final watch = Stopwatch();
+    watch.start();
+    final include_type = [PosType.Substantiv, PosType.Verb, PosType.Adjektiv, PosType.Adverb,];
+    final candidates = _i_pos.cloneMatching((k) => include_type.contains(k))
+                             .intersectWith<int>(_i_frequency, (i) => i >= conf.min_freq)
+                             .differenceWith<TagType>(_i_tag, (t) => conf.exclude_tags.contains(t))
+                             .toList(growable: false);
+    candidates.shuffle();
+    final failed_idx = history.failWordsByRank().map((k) => _i_word[k]!)
+                                                .take(conf.inc_fail)
+                                                .toSet();
+    final new_idx = candidates.where((i) => !failed_idx.contains(i));
+    final result = failed_idx.followedBy(new_idx)
+                             .map(byIdx)
+                             .take(conf.word_cnt)
+                             .toList(growable: false);
+    result.shuffle();
+    if(result.length < conf.word_cnt) {
+      throw Exception("VocabGameConfig are too restrictive could not get enough candidates");
+    }
+    watch.stop();
+    //print("sampleVocabGameWords took ${watch.elapsedMilliseconds} ms");
+    return result;
+  }
+
+  List<DEntry> sampleGenderGameWords(GenderGameConfig conf, GenderGameHistory history) {
     final watch = Stopwatch();
     watch.start();
     final candidates = _i_pos.clone(PosType.Substantiv)
@@ -58,7 +83,7 @@ class Dictionary {
       throw Exception("GenderGameConfig are too restrictive could not get enough candidates");
     }
     watch.stop();
-    //print("sampleGameWords took ${watch.elapsedMilliseconds} ms");
+    //print("sampleGenderGameWords took ${watch.elapsedMilliseconds} ms");
     return result;
   }
 }

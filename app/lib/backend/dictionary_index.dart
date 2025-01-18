@@ -5,6 +5,12 @@ class DIndex<K> {
   const DIndex(this.m);
   Set<int> clone(K k) { return Set<int>.of(m[k]!); }
 
+  Set<int> cloneMatching(bool Function(K) pick) {
+    Set<int> keys = {};
+    for(final k in m.keys.where(pick)) { keys.addAll(m[k]!); }
+    return keys;
+  }
+
   static DIndex<T> from<T>(Map<String, dynamic> d,
                            T Function(Map<String, dynamic>) f) {
     return DIndex.fromMulti<T>(d, (o) => <T>[f(o)]);

@@ -3,6 +3,7 @@ import 'package:test/test.dart';
 import 'package:german_vocab_app/backend/dictionary.dart';
 import 'package:german_vocab_app/backend/game_config.dart';
 import 'package:german_vocab_app/backend/gender_game_history.dart';
+import 'package:german_vocab_app/backend/vocab_game_history.dart';
 import 'package:german_vocab_app/backend/utils.dart';
 
 final kTestJsonDict = """ {
@@ -119,7 +120,7 @@ final kHistJson = """{
 }""";
 
 void main() {
-  test("sampleGameWords", () {
+  test("sampleGenderGameWords", () {
     final Map<String, dynamic> dictJson = json.decode(kTestJsonDict);
     final tot_nouns = 5;
     final fail_words = ["Erscheinungsdatum", "Anlagemöglichkeit"];
@@ -132,11 +133,30 @@ void main() {
 
     // Try several samples.
     for (var i = 0; i < 10; i++) {
-      final words = d.sampleGameWords(conf, history);
+      final words = d.sampleGenderGameWords(conf, history);
       expect(words.length, equals(conf.word_cnt));
       expect(words.map((e) => e.word).toSet().length, equals(conf.word_cnt));
       expect(words.map((e) => e.word), containsAll(fail_words));
     }
+  });
+
+  test("sampleVocabGameWords_noFails", () {
+    final Map<String, dynamic> dictJson = json.decode(kTestJsonDict);
+    final Map<String, dynamic> histJson = json.decode(kHistJson);
+    final history = VocabGameHistory.fromJson(histJson);
+
+    final conf = VocabGameConfig(3, 0, 0, []);
+    final d = Dictionary(dictJson);
+
+    var containDiffType = false;
+    // Try several samples.
+    for (var i = 0; i < 10; i++) {
+      final words = d.sampleVocabGameWords(conf, history);
+      expect(words.length, equals(conf.word_cnt));
+      expect(words.map((e) => e.word).toSet().length, equals(conf.word_cnt));
+      if (words.any((e) => e.pos != PosType.Substantiv)) { containDiffType = true; }
+    }
+    expect(containDiffType, equals(true));
   });
 }
 

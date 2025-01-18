@@ -11,7 +11,7 @@ class WordVocabCard extends StatelessWidget {
   const WordVocabCard(this.state, this.correct, {super.key});
 
   String get word => state.cur_entry.word;
-  String get article_str => state.cur_entry.articles[0].name;
+  String get article_str => state.cur_entry.articles.isEmpty ? "" : state.cur_entry.articles[0].name;
   int get hidx => state.cur_entry.meaning_idx;
 
   @override

@@ -50,7 +50,7 @@ class GenderGamePage extends StatelessWidget {
     ]);
     conf.setFrom(await GenderGameConfig.load());
     state.setWords(
-      DictionaryLoader.d.sampleGameWords(conf, GenderGameHistoryLoader.h));
+      DictionaryLoader.d.sampleGenderGameWords(conf, GenderGameHistoryLoader.h));
     return true;
   }
 
