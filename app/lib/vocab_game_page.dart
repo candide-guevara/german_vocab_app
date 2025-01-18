@@ -60,7 +60,29 @@ class VocabGamePage extends StatelessWidget {
         ProgressBar(
           conf.word_cnt, good_cnt, fail_cnt),
         WordVocabCard(state, cur_correct),
+        YesNoButtonBar(context),
       ],
+    );
+  }
+
+  Widget YesNoButtonBar(BuildContext context) {
+    final defStyle = Theme.of(context).filledButtonTheme.style ?? ButtonStyle();
+    final borderColor = Theme.of(context).colorScheme.outline;
+    final buttonStyle = defStyle.copyWith(
+      side: MaterialStateProperty.resolveWith<BorderSide>((s) => BorderSide(color: borderColor, width: 2))
+    );
+    final yesButton = Expanded(child: OutlinedButton(
+      child: const Text('Yes'),
+      onPressed: () => onGuessSelected(context, true),
+      style: buttonStyle,
+    ));
+    final noButton = Expanded(child: OutlinedButton(
+      child: const Text('No'),
+      onPressed: () => onGuessSelected(context, false),
+      style: buttonStyle,
+    ));
+    return Row(
+      children: <Widget>[ yesButton, noButton, ],
     );
   }
 
@@ -71,7 +93,7 @@ class VocabGamePage extends StatelessWidget {
     good_cnt.value += cur_correct.value! ? 1 : 0;
     fail_cnt.value += cur_correct.value! ? 0 : 1;
 
-    await Future<void>.delayed(const Duration(milliseconds: 700));
+    await Future<void>.delayed(const Duration(milliseconds: 250));
     state.advance(cur_correct.value!);
 
     if(!state.isDone) {

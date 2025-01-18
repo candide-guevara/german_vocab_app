@@ -27,39 +27,36 @@ class WordVocabCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
       ),
     );
+    final backNull = isDarkMode ? Colors.teal.shade900 : Colors.lightGreen.shade800;
+    final backGood = isDarkMode ? Colors.teal.shade700 : Colors.lightGreen.shade700;
+    final backFail = isDarkMode ? Colors.lime.shade800 : Colors.red.shade500;
 
-    return Card(
-      child: buildCardContents(context),
-      color: isDarkMode ? Colors.teal.shade900 : Colors.lightGreen.shade800,
-      elevation: 10,
-      shape: cardTheme.shape,
+    return ListenableBuilder(
+      listenable: correct,
+      builder: (ctx,_) => Card(
+        child: buildCardContents(context),
+        color: correct.value == null ? backNull : (correct.value!? backGood:backFail),
+        elevation: 10,
+        shape: cardTheme.shape,),
     );
   }
 
   Widget buildCardContents(BuildContext context) {
     final TextStyle defStyle = Theme.of(context).textTheme.titleLarge ?? const TextStyle();
+    final double fontSize = defStyle.fontSize! * (word.length > 21 ? 21.0/word.length : 1.0);
+    final word_and_idx = hidx > 1 ? "${article_str} ${word} [${hidx}]" : "${article_str} ${word}";
 
-    final buildCardText = (BuildContext ctx, Widget? _) {
-      final double fontSize = defStyle.fontSize! * (word.length > 21 ? 21.0/word.length : 1.0);
-      final word_and_idx = hidx > 1 ? "${article_str} ${word} [${hidx}]" : "${article_str} ${word}";
-      return Padding(
-        child: Text(
-          word_and_idx,
-          style: defStyle.copyWith(fontSize: fontSize),),
-        padding: EdgeInsets.fromLTRB(16, 16, 0, 8),
-      );
-    };
+    final cardText = Padding(
+      child: Text(
+        word_and_idx,
+        style: defStyle.copyWith(fontSize: fontSize),),
+      padding: EdgeInsets.fromLTRB(16, 16, 0, 8),
+    );
     return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          ListenableBuilder(
-            listenable: correct,
-            builder: buildCardText,),
-          // Ideally we should refresh the links only when changing words
-          // (aka when `correct` transitions to null)
-          ListenableBuilder(
-            listenable: correct,
-            builder: (ctx,_) => buildWebLinks(ctx),),
+          cardText,
+          buildWebLinks(context),
         ],
     );
   }
