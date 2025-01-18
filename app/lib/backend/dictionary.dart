@@ -32,7 +32,7 @@ class Dictionary {
 
   DEntry byIdx(int idx) => DEntry.fromJson(_d['entries'][idx]);
   DEntry byWord(String w, int hidx) => DEntry.fromJson(_d['entries'][_i_word[(w,hidx)]]);
-  String wordUrl(DEntry entry) => "${_d['url_root']}${entry.word}";
+  String wordUrl(DEntry entry) => "${_d['url_root']}${entry.url}";
 
   List<DEntry> sampleGameWords(GenderGameConfig conf, GenderGameHistory history) {
     final watch = Stopwatch();
@@ -48,7 +48,7 @@ class Dictionary {
     final new_idx = candidates.where((i) => !failed_idx.contains(i));
     final result = failed_idx.followedBy(new_idx)
                              .map(byIdx)
-                             .where((o) => o.articles.isNotEmpty)
+                             .where((o) => o.articles.isNotEmpty && o.meaning_idx < 2)
                              .take(conf.word_cnt)
                              .toList(growable: false);
     result.shuffle();
