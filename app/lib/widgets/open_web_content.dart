@@ -11,7 +11,7 @@ VoidCallback buildOpenWebViewCb(BuildContext context, title, url) {
 }
 
 VoidCallback buildCallDeepLCb(BuildContext context, word) {
-  final url = Uri.encodeFull("https://www.deepl.com/translator#de/en/${word}");
+  final url = Uri.encodeFull("https://www.deepl.com/en/translator#de/en/${word}");
   return () => Navigator.push(
       context,
       MaterialPageRoute(
