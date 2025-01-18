@@ -1,7 +1,7 @@
 import 'package:test/test.dart';
 import 'package:matcher/expect.dart';
 import 'package:german_vocab_app/backend/gender_game_history.dart';
-import 'package:german_vocab_app/backend/gender_game_history_loader.dart';
+import 'package:german_vocab_app/backend/game_history_loader.dart';
 import 'package:german_vocab_app/backend/gender_game_state.dart';
 import 'package:german_vocab_app/backend/persistence_store.dart';
 import 'shared_preferences_fake.dart';

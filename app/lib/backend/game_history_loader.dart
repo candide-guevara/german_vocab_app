@@ -1,11 +1,62 @@
 import 'dart:async';
 import 'package:meta/meta.dart';
 import 'gender_game_history.dart';
+import 'vocab_game_history.dart';
 import 'persistence_store.dart';
+
+class VocabGameHistoryLoader {
+  static bool init_called = false;
+  static final _stats = GameHistoryLoaderStats();
+  static Future<VocabGameHistory> _loadingFuture = Future.error(Exception('Uninitialized'));
+  static VocabGameHistory? _h;
+  static get h => _h!;
+
+  static void init() {
+    if (init_called) { return; }
+    init_called = true;
+    _loadingFuture = Persistence.isLoaded().then( (_) => load() );
+  }
+
+  static Future<bool> isLoaded() async {
+    if (!init_called) throw DeferredLoadException("call init first");
+    if(_h != null) return true;
+    _h = await _loadingFuture;
+    return true;
+  }
+
+  @visibleForTesting
+  static Future<VocabGameHistory> load() {
+    _stats.start();
+    final s = Persistence.store;
+    final Map<String, dynamic>? json = s.getJson('VocabGameHistory');
+    _stats.doneLoadJson();
+    if (json == null) { return Future.value(VocabGameHistory.empty()); }
+    final tmp_h = VocabGameHistory.fromJson(json);
+    _stats.doneLoadUnmarshal();
+    return Future.value(tmp_h);
+  }
+
+  static Future<void> save() async {
+    _stats.start();
+    final json = h.toJson();
+    _stats.doneSaveUnmarshal();
+    final s = Persistence.store;
+    await s.setJson('VocabGameHistory', json);
+    _stats.doneSaveJson();
+  }
+
+  static Future<void> clear() async {
+    _stats.start();
+    _h = VocabGameHistory.empty();
+    final s = Persistence.store;
+    await s.remove('VocabGameHistory');
+    _stats.doneClearHistory();
+  }
+}
 
 class GenderGameHistoryLoader {
   static bool init_called = false;
-  static final _stats = GenderGameHistoryLoaderStats();
+  static final _stats = GameHistoryLoaderStats();
   static Future<GenderGameHistory> _loadingFuture = Future.error(Exception('Uninitialized'));
   static GenderGameHistory? _h;
   static get h => _h!;
@@ -53,7 +104,7 @@ class GenderGameHistoryLoader {
   }
 }
 
-class GenderGameHistoryLoaderStats {
+class GameHistoryLoaderStats {
   final Stopwatch _watch;
   int load_json_millis = 0;
   int load_unmarshall_millis = 0;
@@ -61,7 +112,7 @@ class GenderGameHistoryLoaderStats {
   int save_unmarshall_millis = 0;
   int clear_history = 0;
 
-  GenderGameHistoryLoaderStats(): _watch = Stopwatch();
+  GameHistoryLoaderStats(): _watch = Stopwatch();
 
   void start() => _watch.start();
 

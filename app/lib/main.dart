@@ -4,7 +4,7 @@ import 'gender_game_config_page.dart';
 import 'gender_game_history_page.dart';
 import 'vocab_game_config_page.dart';
 import 'backend/dictionary_loader.dart';
-import 'backend/gender_game_history_loader.dart';
+import 'backend/game_history_loader.dart';
 import 'backend/persistence_store.dart';
 import 'backend/utils.dart';
 import 'widgets/center_column.dart';

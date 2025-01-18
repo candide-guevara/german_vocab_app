@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'backend/game_config.dart';
-import 'backend/gender_game_history_loader.dart';
+import 'backend/game_history_loader.dart';
 import 'backend/persistence_store.dart';
 import 'backend/utils.dart';
 import 'widgets/center_column.dart';

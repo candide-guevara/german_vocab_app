@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'backend/dictionary_entry.dart';
 import 'backend/dictionary_loader.dart';
-import 'backend/gender_game_history_loader.dart';
+import 'backend/game_history_loader.dart';
 import 'backend/gender_game_state.dart';
 import 'widgets/center_column.dart';
 import 'widgets/future_builder.dart';
