@@ -36,6 +36,16 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final defStyle = Theme.of(context).filledButtonTheme.style ?? ButtonStyle();
+    final vocabStyle = defStyle.copyWith(backgroundColor: WidgetStateProperty.resolveWith<Color?>(
+      (Set<WidgetState> states) {
+        if (states.contains(WidgetState.pressed)) {
+          return Colors.blue;
+        }
+        return Colors.blue.shade300;
+      },
+    ));
+
     return Scaffold(
       appBar: AppBar(title: Text(kAppTitle)),
       body: CenterColumn(
@@ -55,6 +65,7 @@ class HomePage extends StatelessWidget {
           const Divider(),
           FilledButton(
             child: const Text(VocabGameConfigPage.kPageTitle),
+            style: vocabStyle,
             onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => VocabGameConfigPage())),
           ),
         ],
