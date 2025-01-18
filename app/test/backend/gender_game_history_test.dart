@@ -22,7 +22,7 @@ void main() {
                          + (good_dt >> (HistoryEntry.kBaseShift + HistoryEntry.shifts[2]))
                          + (good_dt >> (HistoryEntry.kBaseShift + HistoryEntry.shifts[3]))
                          + (good_dt >> (HistoryEntry.kBaseShift + HistoryEntry.shifts[4]));
-    final int score = fail_score - (HistoryEntry.kGoodShrink * good_score).round();
+    final int score = (HistoryEntry.kGoodShrink * good_score).round() - fail_score;
     final int rank_expect = (score << HistoryEntry.kStrShift) + (word.hashCode & HistoryEntry.kStrHashMask);
     String ini_json = """{
        "goods" : [ ${good_dt}, ${good_dt}, ${good_dt}, ${good_dt}, ${good_dt} ],
@@ -31,7 +31,34 @@ void main() {
        "lemma" : "${word}"
     }""";
     final entry = HistoryEntry.fromJson(json.decode(ini_json));
+    expect(entry.rank(), lessThan(0));
     expect(entry.rank(), equals(rank_expect));
+  });
+
+  test('HistoryEntry_rank_nogoods', () {
+    final int fail_dt = DateTime.now().millisecondsSinceEpoch;
+    final String word = "chocolat";
+    String ini_json = """{
+       "goods" : [],
+       "fails" : [ ${fail_dt}, ${fail_dt}, ${fail_dt} ],
+       "hidx" : 0,
+       "lemma" : "${word}"
+    }""";
+    final entry = HistoryEntry.fromJson(json.decode(ini_json));
+    expect(entry.rank(), lessThan(0));
+  });
+
+  test('HistoryEntry_rank_nofails', () {
+    final int good_dt = DateTime.now().millisecondsSinceEpoch;
+    final String word = "chocolat";
+    String ini_json = """{
+       "goods" : [ ${good_dt}, ${good_dt} ],
+       "fails" : [],
+       "hidx" : 0,
+       "lemma" : "${word}"
+    }""";
+    final entry = HistoryEntry.fromJson(json.decode(ini_json));
+    expect(entry.rank(), greaterThan(0));
   });
 
   test('HistoryEntry_fromJson_and_toJson', () {

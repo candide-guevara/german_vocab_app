@@ -24,10 +24,11 @@ class HistoryEntry {
     return acc + (dt.millisecondsSinceEpoch >> (kBaseShift + shifts[i]));
   }
   // Best effort uniqueness per word, this is why we fill the lower bits with the hash.
+  // Words which fail often should have a lower rank than words which have been correctly guessed.
   int rank() {
     final int fail_score = fails.indexed.take(kMaxLen).fold(0, _dateToScore);
     final int good_score = goods.indexed.take(kMaxLen).fold(0, _dateToScore);
-    final int shifted_score = (fail_score - (kGoodShrink * good_score).round()) << kStrShift;
+    final int shifted_score = ((kGoodShrink * good_score).round() - fail_score) << kStrShift;
     return shifted_score + (word.hashCode & kStrHashMask);
   }
 
@@ -93,7 +94,7 @@ class GenderGameHistory {
     }
   }
 
-  Iterable<(String, int)> failWordsByRank() => rank_idx.entries.where((kv) => kv.key > 0)
+  Iterable<(String, int)> failWordsByRank() => rank_idx.entries.where((kv) => kv.key < 0)
                                                                .map((kv) => history[kv.value])
                                                                .map((h) => h.key());
 
