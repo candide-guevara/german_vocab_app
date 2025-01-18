@@ -14,6 +14,7 @@ class WordGenderCard extends StatelessWidget {
 
   String get word => state.cur_entry.word;
   String get article_str => state.cur_entry.articles[0].name;
+  int get hidx => state.cur_entry.meaning_idx;
 
   @override
   Widget build(BuildContext context) {
@@ -39,14 +40,17 @@ class WordGenderCard extends StatelessWidget {
 
   Widget buildCardContents(BuildContext context) {
     final TextStyle defStyle = Theme.of(context).textTheme.titleLarge ?? const TextStyle();
-    final double fontSize = defStyle.fontSize! * (word.length > 21 ? 21.0/word.length : 1.0);
 
-    final buildCardText = (BuildContext ctx, Widget? _) => Padding(
-      child: Text(
-        word,
-        style: defStyle.copyWith(fontSize: fontSize),),
-      padding: EdgeInsets.fromLTRB(16, 8, 0, 12),
-    );
+    final buildCardText = (BuildContext ctx, Widget? _) {
+      final double fontSize = defStyle.fontSize! * (word.length > 21 ? 21.0/word.length : 1.0);
+      final word_and_idx = hidx > 1 ? "${word} [${hidx}]" : word;
+      return Padding(
+        child: Text(
+          word_and_idx,
+          style: defStyle.copyWith(fontSize: fontSize),),
+        padding: EdgeInsets.fromLTRB(16, 8, 0, 12),
+      );
+    };
     return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
