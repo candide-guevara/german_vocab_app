@@ -55,6 +55,11 @@ class GenderGameHistoryPage extends StatelessWidget {
 
   Widget builderAfterLoad(BuildContext context, bool _) {
     final past_games = GenderGameHistoryLoader.h.past_games.toList();
+    if(past_games.length < 1) {
+      return CenterColumn(
+        children: <Widget>[ const Text("No previous games"), ],
+      );
+    }
     return CenterColumn(
       children: <Widget>[
         Expanded(flex:2, child: PastGamesTable(kMaxPastGameRows, past_games)),
