@@ -31,9 +31,13 @@ AsyncWidgetBuilder<K> _builderAfterLoad<K>(String loadMsg,
         ],
       );
     }
-    return CenterColumn(
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
-        Text(loadMsg, style: Theme.of(context).textTheme.titleLarge,),
+        Text(
+          loadMsg,
+          textAlign: TextAlign.center,
+          style: Theme.of(context).textTheme.titleMedium,),
         CircularProgressIndicator(semanticsLabel: loadMsg),
       ],
     );
