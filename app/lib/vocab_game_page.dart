@@ -137,10 +137,18 @@ class CorpusText extends StatelessWidget {
   }
   Widget buildCorpusText(BuildContext context, Corpus corpus) {
     final TextStyle defStyle = Theme.of(context).textTheme.bodyMedium ?? const TextStyle();
+    final TextStyle hiStyle = defStyle.copyWith(fontWeight: FontWeight.bold,
+                                                color: Colors.blue.shade600,);
     if (corpus.sentences.isEmpty) { return Text("No corpus sentences found"); }
-    final data = <(String, TextStyle)>[
-      (corpus.sentences.join('\n\n'), defStyle),
-    ];
+    final List<(String, TextStyle)> data = [];
+    for (final (idx,sentence) in corpus.sentences.indexed) {
+      final (start, end) = corpus.token_pos[idx];
+      data.add((sentence.substring(0, start), defStyle));
+      data.add((sentence.substring(start, end), hiStyle));
+      data.add((sentence.substring(end), defStyle));
+      data.add(('\n\n', defStyle));
+    }
+    data.removeLast();
     return ScrollableStyledText(data);
   }
 }
