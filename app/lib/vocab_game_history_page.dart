@@ -7,6 +7,7 @@ import 'backend/utils.dart';
 import 'widgets/center_column.dart';
 import 'widgets/future_builder.dart';
 import 'widgets/past_games_table.dart';
+import 'vocab_game_word_details_page.dart';
 
 class VocabGameHistoryPage extends StatelessWidget {
   static const String kPageTitle = "VocabGameHistory";
@@ -86,38 +87,14 @@ class MostFailedList extends StatelessWidget {
           titleTextStyle: pos_palette[word.pos],
           contentPadding: EdgeInsets.fromLTRB(8,0,0,0),
           onTap: () {
-            showDialog(
-              context: context,
-              builder: dialogBuilder(context, index),
-            );
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (ctx) => VocabGameDetailsPage(word)));
           },
         );
       },
       itemExtent: textHeight + 4,
       padding: EdgeInsets.fromLTRB(0,0,0,0),
-    );
-  }
-
-  WidgetBuilder dialogBuilder(BuildContext context, int index) {
-    final word = words[index];
-    final TextStyle defStyle = Theme.of(context).textTheme.bodySmall ?? const TextStyle();
-    final content = myFutureBuilder<Corpus>(
-      fetchDwdsCorpusFor(word.word),
-      'Loading corpus for "${word.word}" ...',
-      (ctx, corpus) => SingleChildScrollView(
-        child: Text(corpus.sentences.join('\n\n'), style:defStyle)),
-    );
-    return (BuildContext ctx) => AlertDialog(
-      content: Padding(
-        child: content,
-        padding: EdgeInsets.fromLTRB(0,0,0,0),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () { Navigator.of(ctx).pop(); },
-          child: const Text('Close'),
-        ),
-      ],
     );
   }
 

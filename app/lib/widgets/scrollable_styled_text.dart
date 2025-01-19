@@ -13,6 +13,7 @@ class ScrollableStyledText extends StatelessWidget {
     }).toList();
 
     final text_spans = RichText(
+      textAlign: TextAlign.justify,
       text: TextSpan(
         children: spans,
         style: DefaultTextStyle.of(context).style,),
