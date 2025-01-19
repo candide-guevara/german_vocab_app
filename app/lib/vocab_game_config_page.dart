@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'backend/game_config.dart';
+import 'backend/game_history_loader.dart';
 import 'backend/persistence_store.dart';
 import 'backend/utils.dart';
 import 'widgets/center_column.dart';
@@ -108,7 +109,7 @@ class VocabGameConfigPage extends StatelessWidget {
             final bool? confirmed = await showDialog(
               context: context,
               builder: buildConfirmationDialog,);
-            //if (confirmed ?? false) { await GenderGameHistoryLoader.clear(); }
+            if (confirmed ?? false) { await VocabGameHistoryLoader.clear(); }
           },),
       ],
     );
