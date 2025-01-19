@@ -27,6 +27,7 @@ class WebViewScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       //..setJavaScriptMode(JavaScriptMode.disabled)
@@ -39,6 +40,8 @@ class WebViewScreen extends StatelessWidget {
           onNavigationRequest: (_) => NavigationDecision.prevent,
         ))
       ..loadRequest(Uri.parse(url));
+    // Fix attempt for white flash while loading...
+    if (isDarkMode) { controller.setBackgroundColor(Color.fromARGB(1, 0, 0, 0)); }
     return Scaffold(
       appBar: AppBar(title: Text(title)),
       body: ColorFiltered(
