@@ -55,13 +55,13 @@ class VocabGameHistoryPage extends StatelessWidget {
 }
 
 class MostFailedList extends StatelessWidget {
-  final List<Color> kPalette = [
-    Colors.grey.shade400,
-    Colors.cyan.shade600,
-    Colors.indigo.shade400,
-    Colors.lime.shade600,
-    Colors.purple.shade600,
-  ];
+  final Map<PosType, Color> kPalette = {
+    PosType.Substantiv: Colors.grey.shade400,
+    PosType.Adverb:     Colors.cyan.shade600,
+    PosType.Adjektiv:   Colors.indigo.shade400,
+    PosType.Verb:       Colors.lime.shade600,
+    PosType.Unknown:    Colors.purple.shade600,
+  };
   final List<DEntry> words;
   MostFailedList(this.words, {super.key});
 
@@ -69,10 +69,21 @@ class MostFailedList extends StatelessWidget {
   Widget build(BuildContext context) {
     final TextStyle defStyle = Theme.of(context).textTheme.bodyLarge ?? const TextStyle();
     final textHeight = getTextHeight(defStyle);
-    final icon = Icon(Icons.book, size: 0.8*textHeight,);
-    final colorStyles = kPalette.map((c) => defStyle.copyWith(color:c)).toList();
+    final colorStyles = kPalette.values.map((c) => defStyle.copyWith(color:c)).toList();
     final pos_palette = Map<PosType, TextStyle>.fromEntries(
-      words.map((w) => w.pos).toSet().indexed.map((kv) => MapEntry(kv.$2, colorStyles[kv.$1 % kPalette.length]))
+      words.map((w) => w.pos).toSet().map((p) {
+        final style = defStyle.copyWith(color: kPalette[p] ?? kPalette[PosType.Unknown]);
+        return MapEntry(p, style);
+      })
+    );
+    final pos_icon = Map<PosType, Icon>.fromEntries(
+      words.map((w) => w.pos).toSet().map((p) {
+        final icon = Icon(
+          Icons.manage_search,
+          size: 0.9*textHeight,
+          color: kPalette[p] ?? kPalette[PosType.Unknown],);
+        return MapEntry(p, icon);
+      })
     );
 
     return ListView.builder(
@@ -84,7 +95,7 @@ class MostFailedList extends StatelessWidget {
           key: UniqueKey(),
           title: Text(title),
           dense: true,
-          leading: icon,
+          leading: pos_icon[word.pos],
           titleTextStyle: pos_palette[word.pos],
           contentPadding: EdgeInsets.fromLTRB(8,0,0,0),
           onTap: () {
