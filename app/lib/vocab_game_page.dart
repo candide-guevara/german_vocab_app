@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'vocab_game_history_page.dart';
 import 'backend/dictionary_entry.dart';
 import 'backend/dictionary_loader.dart';
 import 'backend/dwds_corpus_rest.dart';
@@ -111,10 +112,11 @@ class VocabGamePage extends StatelessWidget {
     else {
       VocabGameHistoryLoader.h.appendFinishedGame(state);
       VocabGameHistoryLoader.save();
-      //Navigator.pushReplacement(
-      //  context,
-      //  MaterialPageRoute(builder: (ctx) => VocabGameResultPage(VocabGameState.clone(state)))
-      //);
+      await Future<void>.delayed(const Duration(milliseconds: 500));
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (ctx) => VocabGameHistoryPage())
+      );
     }
   }
 }

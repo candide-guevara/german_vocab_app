@@ -29,7 +29,7 @@ class WordVocabCard extends StatelessWidget {
     );
     final backNull = isDarkMode ? Colors.teal.shade900 : Colors.lightGreen.shade800;
     final backGood = isDarkMode ? Colors.teal.shade700 : Colors.lightGreen.shade700;
-    final backFail = isDarkMode ? Colors.lime.shade800 : Colors.red.shade500;
+    final backFail = isDarkMode ? Colors.orange.shade900 : Colors.red.shade500;
 
     return ListenableBuilder(
       listenable: correct,

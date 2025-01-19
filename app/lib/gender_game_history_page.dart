@@ -8,7 +8,7 @@ import 'widgets/future_builder.dart';
 import 'widgets/scrollable_styled_text.dart';
 
 class GenderGameHistoryPage extends StatelessWidget {
-  static const String kPageTitle = "GameHistory";
+  static const String kPageTitle = "GenderGameHistory";
   static const int kMaxFailedWords = 20;
   static const int kMaxPastGameRows = 10;
 

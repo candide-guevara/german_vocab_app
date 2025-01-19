@@ -4,6 +4,7 @@ import 'gender_game_config_page.dart';
 import 'gender_game_history_page.dart';
 import 'vocab_game_page.dart';
 import 'vocab_game_config_page.dart';
+import 'vocab_game_history_page.dart';
 import 'backend/dictionary_loader.dart';
 import 'backend/game_history_loader.dart';
 import 'backend/persistence_store.dart';
@@ -69,6 +70,11 @@ class HomePage extends StatelessWidget {
             child: const Text(VocabGamePage.kPageTitle),
             style: vocabStyle,
             onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => VocabGamePage())),
+          ),
+          FilledButton(
+            child: const Text(VocabGameHistoryPage.kPageTitle),
+            style: vocabStyle,
+            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => VocabGameHistoryPage())),
           ),
           FilledButton(
             child: const Text(VocabGameConfigPage.kPageTitle),
