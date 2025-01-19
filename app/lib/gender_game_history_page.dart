@@ -10,7 +10,6 @@ import 'widgets/scrollable_styled_text.dart';
 class GenderGameHistoryPage extends StatelessWidget {
   static const String kPageTitle = "GenderGameHistory";
   static const int kMaxFailedWords = 20;
-  static const int kMaxPastGameRows = 10;
 
   Future<bool> loadConfAndGame() async {
     await DictionaryLoader.isLoaded();
@@ -62,7 +61,7 @@ class GenderGameHistoryPage extends StatelessWidget {
     }
     return CenterColumn(
       children: <Widget>[
-        Expanded(flex:5, child: PastGamesTable(kMaxPastGameRows, past_games)),
+        Expanded(flex:5, child: PastGamesTable(past_games)),
         const Divider(height: 3, thickness: 3),
         Expanded(flex:9, child: ScrollableStyledText(richTextFailedWords(context))),
       ],

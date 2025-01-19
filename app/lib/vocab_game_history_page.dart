@@ -12,7 +12,6 @@ import 'vocab_game_word_details_page.dart';
 
 class VocabGameHistoryPage extends StatelessWidget {
   static const String kPageTitle = "VocabGameHistory";
-  static const int kMaxPastGameRows = 10;
   static const int kMaxFailedWords = 20;
 
   Future<bool> loadConfAndGame() async {
@@ -46,7 +45,7 @@ class VocabGameHistoryPage extends StatelessWidget {
     }
     return CenterColumn(
       children: <Widget>[
-        Expanded(flex:5, child: PastGamesTable(kMaxPastGameRows, past_games)),
+        Expanded(flex:5, child: PastGamesTable(past_games)),
         const Divider(height: 3, thickness: 3),
         Expanded(flex:9, child: MostFailedList(fail_words)),
       ],

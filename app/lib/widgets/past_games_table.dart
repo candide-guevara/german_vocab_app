@@ -3,9 +3,12 @@ import 'package:german_vocab_app/backend/gender_game_state.dart';
 import 'package:german_vocab_app/widgets/utils.dart';
 
 class PastGamesTable extends StatelessWidget {
-  final int max_rows;
+  static const int kMaxRows = 10;
+  static const int kMaxConsider = kMaxRows * 2;
   final List<PastGame> past_games;
-  PastGamesTable(this.max_rows, this.past_games, {super.key});
+  PastGamesTable(this.past_games, {super.key});
+
+  Iterable<PastGame> get r_games => past_games.reversed;
 
   @override
   Widget build(BuildContext context) {
@@ -20,9 +23,9 @@ class PastGamesTable extends StatelessWidget {
       final d = dt.day.toString().padLeft(2, '0');
       return '${dt.year}-${m}-${d}';
     };
-    final tot_count = past_games.fold(0, (a,g) => a + g.good)
-                    + past_games.fold(0, (a,g) => a + g.fail);
-    final tot_perc = (100 * past_games.fold(0, (a,g) => a + g.good) / tot_count).round();
+    final tot_count = r_games.take(kMaxConsider).fold(0, (a,g) => a + g.good)
+                    + r_games.take(kMaxConsider).fold(0, (a,g) => a + g.fail);
+    final tot_perc = (r_games.take(kMaxConsider).fold(0, (a,g) => a + g.good) * 100/ tot_count).round();
     final List<DataRow> rows = [
       DataRow(cells: [
         DataCell(Text("Total", style:totStyle)),
@@ -30,7 +33,7 @@ class PastGamesTable extends StatelessWidget {
         DataCell(Text('${tot_count}', style:totStyle)),
       ])
     ];
-    rows.addAll(past_games.take(max_rows).map((pg) {
+    rows.addAll(r_games.take(kMaxRows).map((pg) {
       int perc = (100 * pg.good / pg.word_cnt).round();
       return DataRow(cells: [
         DataCell(Text(formatter(pg.date))),
