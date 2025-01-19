@@ -23,21 +23,21 @@ class PastGamesTable extends StatelessWidget {
     final tot_count = past_games.fold(0, (a,g) => a + g.good)
                     + past_games.fold(0, (a,g) => a + g.fail);
     final tot_perc = (100 * past_games.fold(0, (a,g) => a + g.good) / tot_count).round();
-    final rows = past_games.take(max_rows).map((pg) {
+    final List<DataRow> rows = [
+      DataRow(cells: [
+        DataCell(Text("Total", style:totStyle)),
+        DataCell(Text('${tot_perc}%', style:totStyle)),
+        DataCell(Text('${tot_count}', style:totStyle)),
+      ])
+    ];
+    rows.addAll(past_games.take(max_rows).map((pg) {
       int perc = (100 * pg.good / pg.word_cnt).round();
       return DataRow(cells: [
         DataCell(Text(formatter(pg.date))),
         DataCell(Text('${perc}%')),
         DataCell(Text('${pg.word_cnt}')),
       ]);
-    }).toList();
-    rows.add(
-      DataRow(cells: [
-        DataCell(Text("Total", style:totStyle)),
-        DataCell(Text('${tot_perc}%', style:totStyle)),
-        DataCell(Text('${tot_count}', style:totStyle)),
-      ])
-    );
+    }));
     return SingleChildScrollView(
       scrollDirection: Axis.vertical,
       child: DataTable(

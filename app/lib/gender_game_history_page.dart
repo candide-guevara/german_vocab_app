@@ -62,9 +62,9 @@ class GenderGameHistoryPage extends StatelessWidget {
     }
     return CenterColumn(
       children: <Widget>[
-        Expanded(flex:2, child: PastGamesTable(kMaxPastGameRows, past_games)),
+        Expanded(flex:5, child: PastGamesTable(kMaxPastGameRows, past_games)),
         const Divider(height: 3, thickness: 3),
-        Expanded(flex:3, child: ScrollableStyledText(richTextFailedWords(context))),
+        Expanded(flex:9, child: ScrollableStyledText(richTextFailedWords(context))),
       ],
     );
   }
