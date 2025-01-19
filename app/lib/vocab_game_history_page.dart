@@ -4,9 +4,11 @@ import 'backend/dictionary_loader.dart';
 import 'backend/game_history_loader.dart';
 import 'widgets/center_column.dart';
 import 'widgets/future_builder.dart';
+import 'widgets/past_games_table.dart';
 
 class VocabGameHistoryPage extends StatelessWidget {
   static const String kPageTitle = "VocabGameHistory";
+  static const int kMaxPastGameRows = 10;
 
   Future<bool> loadConfAndGame() async {
     await DictionaryLoader.isLoaded();
@@ -35,8 +37,7 @@ class VocabGameHistoryPage extends StatelessWidget {
     }
     return CenterColumn(
       children: <Widget>[
-        Row(),
-        //Expanded(flex:2, child: PastGamesTable(kMaxPastGameRows, past_games)),
+        Expanded(flex:2, child: PastGamesTable(kMaxPastGameRows, past_games)),
         //const Divider(),
         //Expanded(flex:3, child: ScrollableStyledText(richTextFailedWords(context))),
       ],
