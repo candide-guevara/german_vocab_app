@@ -5,14 +5,15 @@ import 'package:german_vocab_app/widgets/future_builder.dart';
 import 'package:german_vocab_app/widgets/scrollable_styled_text.dart';
 
 class CorpusText extends StatelessWidget {
-  final DEntry entry;
-  final ValueNotifier<int> fetch_signal;
-  const CorpusText(this.entry, this.fetch_signal, {super.key});
+  final List<DEntry> entries;
+  final ValueNotifier<int> idx;
+  const CorpusText(this.entries, this.idx, {super.key});
+  DEntry get entry => idx.value >= entries.length ? entries.last : entries[idx.value];
 
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
-      listenable: fetch_signal,
+      listenable: idx,
       builder: (ctx,_) => myFutureBuilder<Corpus>(
         fetchDwdsCorpusFor(entry.word),
         'Loading corpus for "${entry.word}" ...',

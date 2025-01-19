@@ -20,7 +20,7 @@ class VocabGamePage extends StatelessWidget {
   final ValueNotifier<bool> disable_cb;
   final ValueNotifier<int> good_cnt;
   final ValueNotifier<int> fail_cnt;
-  final ValueNotifier<int> fetch_signal;
+  final ValueNotifier<int> corpus_idx;
   final VocabGameState state;
   final VocabGameConfig conf;
 
@@ -29,7 +29,7 @@ class VocabGamePage extends StatelessWidget {
     disable_cb = ValueNotifier<bool>(false),
     good_cnt = ValueNotifier<int>(0),
     fail_cnt = ValueNotifier<int>(0),
-    fetch_signal = ValueNotifier<int>(0),
+    corpus_idx = ValueNotifier<int>(0),
     state = VocabGameState(),
     conf = VocabGameConfig.def();
 
@@ -64,7 +64,7 @@ class VocabGamePage extends StatelessWidget {
         ProgressBar(
           conf.word_cnt, good_cnt, fail_cnt),
         WordVocabCard(state, cur_correct),
-        Expanded(child: CorpusText(state.cur_entry, fetch_signal)),
+        Expanded(child: CorpusText(state.game.toList(), corpus_idx)),
         YesNoButtonBar(context),
         const Divider(),
       ],
@@ -99,9 +99,10 @@ class VocabGamePage extends StatelessWidget {
     good_cnt.value += cur_correct.value! ? 1 : 0;
     fail_cnt.value += cur_correct.value! ? 0 : 1;
 
-    await Future<void>.delayed(const Duration(milliseconds: 250));
+    await Future<void>.delayed(const Duration(milliseconds: 150));
+    corpus_idx.value += 1;
+    await Future<void>.delayed(const Duration(milliseconds: 100));
     state.advance(cur_correct.value!);
-    fetch_signal.value += 1;
 
     if(!state.isDone) {
       cur_correct.value = null;
@@ -109,6 +110,7 @@ class VocabGamePage extends StatelessWidget {
       disable_cb.value = false;
     }
     else {
+      if (corpus_idx.value != state.idx) { throw Exception("State desync: ${state}"); }
       VocabGameHistoryLoader.h.appendFinishedGame(state);
       VocabGameHistoryLoader.save();
       await Future<void>.delayed(const Duration(milliseconds: 500));

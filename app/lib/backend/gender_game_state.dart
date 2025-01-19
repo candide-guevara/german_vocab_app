@@ -34,32 +34,32 @@ class GenderGameState {
   final List<DEntry> game;
   final List<DEntry> good;
   final List<DEntry> fail;
-  int _idx;
+  int idx;
 
   GenderGameState():
     date = DateTime.now(),
     game = [],
     good = [],
     fail = [],
-    _idx = 0;
+    idx = 0;
 
   GenderGameState.clone(GenderGameState other):
     date = other.date,
     game = other.game.toList(),
     good = other.good.toList(),
     fail = other.fail.toList(),
-    _idx = other._idx;
+    idx = other.idx;
 
-  DEntry get cur_entry => game[min(_idx, game.length-1)];
-  bool get isDone => game.length == _idx;
+  DEntry get cur_entry => game[min(idx, game.length-1)];
+  bool get isDone => game.length == idx;
   void setWords(List<DEntry> words) => game.addAll(words);
 
   void advance(bool correct) {
     if (isDone) { throw Exception("cannot advance, already at the end"); }
-    DEntry entry = game[_idx];
+    DEntry entry = game[idx];
     if(correct) { good.add(entry); }
     else { fail.add(entry); }
-    _idx += 1;
+    idx += 1;
   }
 
   PastGame build_past_game() { return PastGame(date, good.length, fail.length); }
