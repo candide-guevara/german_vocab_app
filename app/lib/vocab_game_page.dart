@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'vocab_game_history_page.dart';
 import 'backend/dictionary_entry.dart';
 import 'backend/dictionary_loader.dart';
-import 'backend/dwds_corpus_rest.dart';
 import 'backend/game_config.dart';
 import 'backend/game_history_loader.dart';
 import 'backend/persistence_store.dart';
@@ -10,9 +9,9 @@ import 'backend/utils.dart';
 import 'backend/vocab_game_state.dart';
 import 'widgets/article_choice.dart';
 import 'widgets/center_column.dart';
+import 'widgets/corpus_text.dart';
 import 'widgets/future_builder.dart';
 import 'widgets/progress_bar.dart';
-import 'widgets/scrollable_styled_text.dart';
 import 'widgets/word_vocab_card.dart';
 
 class VocabGamePage extends StatelessWidget {
@@ -65,7 +64,7 @@ class VocabGamePage extends StatelessWidget {
         ProgressBar(
           conf.word_cnt, good_cnt, fail_cnt),
         WordVocabCard(state, cur_correct),
-        Expanded(child: CorpusText(state, fetch_signal)),  
+        Expanded(child: CorpusText(state.cur_entry, fetch_signal)),
         YesNoButtonBar(context),
         const Divider(),
       ],
@@ -118,40 +117,6 @@ class VocabGamePage extends StatelessWidget {
         MaterialPageRoute(builder: (ctx) => VocabGameHistoryPage())
       );
     }
-  }
-}
-
-class CorpusText extends StatelessWidget {
-  final VocabGameState state;
-  final ValueNotifier<int> fetch_signal;
-  const CorpusText(this.state, this.fetch_signal, {super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return ListenableBuilder(
-      listenable: fetch_signal,
-      builder: (ctx,_) => myFutureBuilder<Corpus>(
-        fetchDwdsCorpusFor(state.cur_entry.word),
-        'Loading corpus for "${state.cur_entry.word}" ...',
-        buildCorpusText,
-      ),
-    );
-  }
-  Widget buildCorpusText(BuildContext context, Corpus corpus) {
-    final TextStyle defStyle = Theme.of(context).textTheme.bodyMedium ?? const TextStyle();
-    final TextStyle hiStyle = defStyle.copyWith(fontWeight: FontWeight.bold,
-                                                color: Colors.blue.shade600,);
-    if (corpus.sentences.isEmpty) { return Text("No corpus sentences found"); }
-    final List<(String, TextStyle)> data = [];
-    for (final (idx,sentence) in corpus.sentences.indexed) {
-      final (start, end) = corpus.token_pos[idx];
-      data.add((sentence.substring(0, start), defStyle));
-      data.add((sentence.substring(start, end), hiStyle));
-      data.add((sentence.substring(end), defStyle));
-      data.add(('\n\n', defStyle));
-    }
-    data.removeLast();
-    return ScrollableStyledText(data);
   }
 }
 
