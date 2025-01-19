@@ -21,7 +21,7 @@ class CorpusText extends StatelessWidget {
     );
   }
   Widget buildCorpusText(BuildContext context, Corpus corpus) {
-    final TextStyle defStyle = Theme.of(context).textTheme.bodyMedium ?? const TextStyle();
+    final TextStyle defStyle = Theme.of(context).textTheme.bodyLarge ?? const TextStyle();
     final TextStyle hiStyle = defStyle.copyWith(fontWeight: FontWeight.bold,
                                                 color: Colors.blue.shade600,);
     if (corpus.sentences.isEmpty) { return Text("No corpus sentences found"); }

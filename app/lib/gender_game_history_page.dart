@@ -31,7 +31,7 @@ class GenderGameHistoryPage extends StatelessWidget {
   }
 
   List<(String, TextStyle)> richTextFailedWords(BuildContext context) {
-    final TextStyle defStyle = Theme.of(context).textTheme.bodyMedium ?? const TextStyle();
+    final TextStyle defStyle = Theme.of(context).textTheme.bodyLarge ?? const TextStyle();
     final failStyle = defStyle.copyWith(color: Colors.red.shade600,
                                         fontFamily: 'monospace');
     // BE CAREFUL IT IS A TRAP!

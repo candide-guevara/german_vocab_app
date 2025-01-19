@@ -67,7 +67,7 @@ class MostFailedList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextStyle defStyle = Theme.of(context).textTheme.bodyMedium ?? const TextStyle();
+    final TextStyle defStyle = Theme.of(context).textTheme.bodyLarge ?? const TextStyle();
     final textHeight = getTextHeight(defStyle);
     final icon = Icon(Icons.book, size: 0.8*textHeight,);
     final colorStyles = kPalette.map((c) => defStyle.copyWith(color:c)).toList();
@@ -94,7 +94,7 @@ class MostFailedList extends StatelessWidget {
           },
         );
       },
-      itemExtent: textHeight + 4,
+      itemExtent: textHeight + 6,
       padding: EdgeInsets.fromLTRB(0,0,0,0),
     );
   }

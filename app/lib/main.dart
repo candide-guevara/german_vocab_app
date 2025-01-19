@@ -40,12 +40,21 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final defStyle = Theme.of(context).filledButtonTheme.style ?? ButtonStyle();
+    final txtStyle = TextStyle(color: Colors.grey.shade300);
+    final genderStyle = defStyle.copyWith(backgroundColor: WidgetStateProperty.resolveWith<Color?>(
+      (Set<WidgetState> states) {
+        if (states.contains(WidgetState.pressed)) {
+          return Colors.deepPurple.shade600;
+        }
+        return Colors.deepPurple.shade300;
+      },
+    ));
     final vocabStyle = defStyle.copyWith(backgroundColor: WidgetStateProperty.resolveWith<Color?>(
       (Set<WidgetState> states) {
         if (states.contains(WidgetState.pressed)) {
-          return Colors.blue;
+          return Colors.indigo.shade600;
         }
-        return Colors.blue.shade300;
+        return Colors.indigo.shade300;
       },
     ));
 
@@ -54,30 +63,33 @@ class HomePage extends StatelessWidget {
       body: CenterColumn(
         children: <Widget>[
           FilledButton(
-            child: const Text(GenderGamePage.kPageTitle),
+            child: Text(GenderGamePage.kPageTitle, style: txtStyle),
+            style: genderStyle,
             onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (ctx) => GenderGamePage())),
           ),
           FilledButton(
-            child: const Text(GenderGameHistoryPage.kPageTitle),
+            child: Text(GenderGameHistoryPage.kPageTitle, style: txtStyle),
+            style: genderStyle,
             onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => GenderGameHistoryPage())),
           ),
           FilledButton(
-            child: const Text(GenderGameConfigPage.kPageTitle),
+            child: Text(GenderGameConfigPage.kPageTitle, style: txtStyle),
+            style: genderStyle,
             onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => GenderGameConfigPage())),
           ),
           const Divider(),
           FilledButton(
-            child: const Text(VocabGamePage.kPageTitle),
+            child: Text(VocabGamePage.kPageTitle, style: txtStyle),
             style: vocabStyle,
             onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => VocabGamePage())),
           ),
           FilledButton(
-            child: const Text(VocabGameHistoryPage.kPageTitle),
+            child: Text(VocabGameHistoryPage.kPageTitle, style: txtStyle),
             style: vocabStyle,
             onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => VocabGameHistoryPage())),
           ),
           FilledButton(
-            child: const Text(VocabGameConfigPage.kPageTitle),
+            child: Text(VocabGameConfigPage.kPageTitle, style: txtStyle),
             style: vocabStyle,
             onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => VocabGameConfigPage())),
           ),
