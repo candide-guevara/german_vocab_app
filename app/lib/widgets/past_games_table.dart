@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:german_vocab_app/backend/gender_game_state.dart';
+import 'package:german_vocab_app/widgets/utils.dart';
 
 class PastGamesTable extends StatelessWidget {
   final int max_rows;
@@ -8,9 +9,12 @@ class PastGamesTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextStyle rowStyle = Theme.of(context).textTheme.bodySmall ?? const TextStyle();
+    final hdrStyle = DataTableTheme.of(context).headingTextStyle ?? const TextStyle();
+    final rowStyle = Theme.of(context).textTheme.bodySmall ?? const TextStyle();
     final totStyle = (Theme.of(context).textTheme.bodyMedium ?? const TextStyle())
                    .copyWith(fontWeight: FontWeight.bold);
+    final rowHeight = getTextHeight(totStyle);
+    final hdrHeight = getTextHeight(hdrStyle);
     final formatter = (DateTime dt) {
       final m = dt.month.toString().padLeft(2, '0');
       final d = dt.day.toString().padLeft(2, '0');
@@ -37,8 +41,9 @@ class PastGamesTable extends StatelessWidget {
     return SingleChildScrollView(
       scrollDirection: Axis.vertical,
       child: DataTable(
-        dataRowMinHeight: 28,
-        dataRowMaxHeight: 36,
+        dataRowMinHeight: rowHeight+10,
+        dataRowMaxHeight: rowHeight+10,
+        headingRowHeight: hdrHeight+16,
         dataTextStyle: rowStyle,
         columns: [
           DataColumn(label: Text('Date')),
