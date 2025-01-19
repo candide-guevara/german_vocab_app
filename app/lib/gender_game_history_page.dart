@@ -31,7 +31,7 @@ class GenderGameHistoryPage extends StatelessWidget {
   }
 
   List<(String, TextStyle)> richTextFailedWords(BuildContext context) {
-    final TextStyle defStyle = Theme.of(context).textTheme.bodyLarge ?? const TextStyle();
+    final TextStyle defStyle = Theme.of(context).textTheme.bodyMedium ?? const TextStyle();
     final failStyle = defStyle.copyWith(color: Colors.red.shade600,
                                         fontFamily: 'monospace');
     // BE CAREFUL IT IS A TRAP!
@@ -40,7 +40,7 @@ class GenderGameHistoryPage extends StatelessWidget {
     // The compiler cannot call the extension functions since it does not the type.
     // In this particular case, the `name` getter on enums is an extension.
     // This is why we need all the type hints and a dedicated method for this to work...
-    final to_string = (DEntry e) => "${e.articles[0].name.toUpperCase()}   ${e.word}";
+    final to_string = (DEntry e) => "${e.articles[0].name.toUpperCase()}  ${e.word}";
     final fail_words = GenderGameHistoryLoader.h.failWordsByRank()
                                                 .take(kMaxFailedWords)
                                                 .map<DEntry>((k) => DictionaryLoader.d.byWord(k.$1, k.$2))
@@ -48,7 +48,7 @@ class GenderGameHistoryPage extends StatelessWidget {
                                                 .join('\n');
     return <(String, TextStyle)>[
       ("Most failed", Theme.of(context).textTheme.titleLarge ?? const TextStyle()),
-      ("\n\n", failStyle),
+      ("\n", failStyle),
       (fail_words, failStyle),
     ];
   }
@@ -63,7 +63,7 @@ class GenderGameHistoryPage extends StatelessWidget {
     return CenterColumn(
       children: <Widget>[
         Expanded(flex:2, child: PastGamesTable(kMaxPastGameRows, past_games)),
-        const Divider(),
+        const Divider(height: 3, thickness: 3),
         Expanded(flex:3, child: ScrollableStyledText(richTextFailedWords(context))),
       ],
     );

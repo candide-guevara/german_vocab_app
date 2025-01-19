@@ -12,7 +12,7 @@ class CenterColumn extends StatelessWidget {
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
         return buildColumn(constraints.maxWidth * 0.04,
-                           constraints.maxHeight * 0.02);
+                           constraints.maxHeight * 0.01);
       }
     );
   }

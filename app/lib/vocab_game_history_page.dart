@@ -7,6 +7,7 @@ import 'backend/utils.dart';
 import 'widgets/center_column.dart';
 import 'widgets/future_builder.dart';
 import 'widgets/past_games_table.dart';
+import 'widgets/utils.dart';
 import 'vocab_game_word_details_page.dart';
 
 class VocabGameHistoryPage extends StatelessWidget {
@@ -46,7 +47,7 @@ class VocabGameHistoryPage extends StatelessWidget {
     return CenterColumn(
       children: <Widget>[
         Expanded(flex:2, child: PastGamesTable(kMaxPastGameRows, past_games)),
-        const Divider(),
+        const Divider(height: 3, thickness: 3),
         Expanded(flex:3, child: MostFailedList(fail_words)),
       ],
     );
@@ -96,14 +97,6 @@ class MostFailedList extends StatelessWidget {
       itemExtent: textHeight + 4,
       padding: EdgeInsets.fromLTRB(0,0,0,0),
     );
-  }
-
-  double getTextHeight(TextStyle textStyle) {
-    final textPainter = TextPainter(
-      text: TextSpan(text: 'A', style: textStyle),
-      textDirection: TextDirection.ltr,
-    )..layout();
-    return textPainter.size.height;
   }
 }
 
