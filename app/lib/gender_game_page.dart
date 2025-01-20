@@ -77,7 +77,7 @@ class GenderGamePage extends StatelessWidget {
     fail_cnt.value += cur_correct.value! ? 0 : 1;
 
     await Future<void>.delayed(const Duration(milliseconds: 700));
-    state.advance(cur_correct.value!);
+    state.advance(cur_correct.value!, a);
 
     if(!state.isDone) {
       cur_correct.value = null;

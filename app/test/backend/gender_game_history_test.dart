@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:german_vocab_app/backend/dictionary_entry.dart';
 import 'package:german_vocab_app/backend/gender_game_history.dart';
 import 'package:german_vocab_app/backend/gender_game_state.dart';
+import 'package:german_vocab_app/backend/utils.dart';
 import 'package:test/test.dart';
 import 'package:matcher/expect.dart';
 import 'utils.dart';
@@ -65,6 +66,7 @@ void main() {
     String ini_json = """{
        "goods" : [ ${DateTime.now().millisecondsSinceEpoch} ],
        "fails" : [ ${DateTime.now().millisecondsSinceEpoch} ],
+       "guess" : [ ${Article.das.index} ],
        "hidx" : 2,
        "lemma" : "üppig"
     }""";
@@ -77,6 +79,7 @@ void main() {
     String ini_json = """{
        "goods" : [],
        "fails" : [],
+       "guess" : [],
        "hidx" : 2,
        "lemma" : "üppig"
     }""";
@@ -132,9 +135,9 @@ void main() {
       DEntry.forTest('bar', 0),
       DEntry.forTest('baz', 0),
     ]);
-    ggs.advance(true);
-    ggs.advance(false);
-    ggs.advance(true);
+    ggs.advance(true, Article.Unknown);
+    ggs.advance(false, Article.das);
+    ggs.advance(true, Article.Unknown);
 
     ggh.appendFinishedGame(ggs);
     expect(ggh.history.length, equals(3));
@@ -143,7 +146,7 @@ void main() {
     expect(ggh.past_games.length, equals(2));
 
     ggs.setWords([ DEntry.forTest('new_word', 0), ]);
-    ggs.advance(true);
+    ggs.advance(true, Article.Unknown);
 
     ggh.appendFinishedGame(ggs);
     expect(ggh.history.length, equals(4));

@@ -1,6 +1,7 @@
 import 'dart:collection';
 import 'dictionary_entry.dart';
 import 'gender_game_state.dart';
+import 'utils.dart';
 
 class HistoryEntry {
   static const int kMaxLen = 10;
@@ -12,10 +13,12 @@ class HistoryEntry {
   static const List<int> shifts = [0,0,1,1,1,2,2,2,2,2];
   final List<DateTime> goods;
   final List<DateTime> fails;
+  // For each fail the bad guess.
+  final List<Article> guess;
   final String word;
   final int meaning_idx;
 
-  HistoryEntry.empty(this.word, this.meaning_idx): goods = [], fails = [];
+  HistoryEntry.empty(this.word, this.meaning_idx): goods = [], fails = [], guess = [];
 
   (String, int) key() => (word, meaning_idx);
 
@@ -42,12 +45,14 @@ class HistoryEntry {
   HistoryEntry.fromJson(Map<String, dynamic> json):
     goods = [ for(final d in json['goods'] ?? []) DateTime.fromMillisecondsSinceEpoch(d) ],
     fails = [ for(final d in json['fails'] ?? []) DateTime.fromMillisecondsSinceEpoch(d) ],
+    guess = [ for(final d in json['guess'] ?? []) Article.values[d] ],
     meaning_idx = json['hidx'],
     word = json['lemma'];
 
   Map<String, dynamic> toJson() => {
     'goods' : [ for(final d in goods) d.millisecondsSinceEpoch ],
     'fails' : [ for(final d in fails) d.millisecondsSinceEpoch ],
+    'guess' : [ for(final d in guess) d.index ],
     'hidx' : meaning_idx,
     'lemma' : word,
   };
@@ -56,6 +61,7 @@ class HistoryEntry {
     final buf = StringBuffer();
     buf.writeln("goods: ${goods},");
     buf.writeln("fails: ${fails},");
+    buf.writeln("guess: ${guess},");
     buf.writeln("meaning_idx: ${meaning_idx},");
     buf.writeln("word: ${word},");
     return buf.toString();
@@ -70,8 +76,10 @@ class GenderGameHistory {
   GenderGameHistory.empty():
     history = [], past_games = [], rank_idx = SplayTreeMap<int, int>(), rlook_up = {};
 
-  void appendGamesTo(final bool isCorrect, final DateTime date, final List<DEntry> entries) {
-    for (final e in entries) {
+  void appendGamesTo(final bool isCorrect,
+                     final DateTime date, final List<DEntry> entries,
+                     [final List<Article>? guesses = null]) {
+    for (final (i,e) in entries.indexed) {
       HistoryEntry? h;
       int? idx = rlook_up[e.key()];
       if (idx != null) { h = history[idx]; }
@@ -84,7 +92,10 @@ class GenderGameHistory {
 
       final prev_rank = h!.rank();
       if (isCorrect) { h!.goods.add(date); }
-      else { h!.fails.add(date); }
+      else {
+        h!.guess.add(guesses![i]);
+        h!.fails.add(date);
+      }
       rank_idx.remove(prev_rank);
       rank_idx[h!.rank()] = idx!;
 
@@ -102,7 +113,7 @@ class GenderGameHistory {
     if (!state.isDone) { throw Exception("Appending unfinished game"); }
     past_games.add(state.build_past_game());
     appendGamesTo(true,  state.date, state.good);
-    appendGamesTo(false, state.date, state.fail);
+    appendGamesTo(false, state.date, state.fail, state.guess);
   }
 
   GenderGameHistory.fromJson(Map<String, dynamic> json):
