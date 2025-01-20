@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'backend/dictionary_entry.dart';
 import 'backend/dictionary_loader.dart';
 import 'backend/game_history_loader.dart';
+import 'backend/gender_game_stat_calculator.dart';
 import 'backend/utils.dart';
 import 'widgets/center_column.dart';
 import 'widgets/future_builder.dart';
@@ -68,7 +69,6 @@ class GenderGameHistoryPage extends StatelessWidget {
       children: <Widget>[
         Expanded(flex:5, child: PastGamesTable(past_games)),
         const Divider(height: 3, thickness: 3),
-        Text("Most failed", style: Theme.of(context).textTheme.titleLarge ?? const TextStyle()),
         Expanded(flex:9,
           child: SingleChildScrollView(
             child: Row(
@@ -80,8 +80,47 @@ class GenderGameHistoryPage extends StatelessWidget {
                 ScrollableStyledText(richTextFailedWords(context, fail_words, Article.das)),],),
             scrollDirection: Axis.horizontal,),
         ),
+        OutlinedButton(
+          child: const Text('Even More Stats!'),
+          onPressed: () => showStatsDialog(context),),
       ],
     );
+  }
+
+  void showStatsDialog(final BuildContext context) {
+    final TextStyle titStyle = Theme.of(context).textTheme.titleMedium ?? const TextStyle();
+    final TextStyle defStyle = (Theme.of(context).textTheme.bodyLarge ?? const TextStyle()).copyWith(fontFamily: "monospace");
+    final TextStyle goodStyle = defStyle.copyWith(color: Colors.green.shade600);
+    final TextStyle failStyle = defStyle.copyWith(color: Colors.red.shade600);
+
+    final calc = GenderGameStatCalc(kMaxFailedWords, DictionaryLoader.d, GenderGameHistoryLoader.h);
+    final List<(String, TextStyle)> style_text = [];
+
+    for (final bg in calc.countMissGuesses()) {
+      style_text.add((bg.correct.name, goodStyle));
+      style_text.add((" -> ", defStyle));
+      style_text.add((bg.guessed.name, failStyle));
+      style_text.add((" = ${bg.count}\n", defStyle));
+    }
+    style_text.add(("\n", defStyle));
+    for (final gs in calc.countMissGenders()) {
+      style_text.add(("${gs.a.name}: ${gs.perc}% / ${gs.total}\n", defStyle));
+    }
+
+    showDialog(
+      context: context,
+      builder: (BuildContext ctx) {
+        return AlertDialog(
+          title: Text('More Stats', style: titStyle),
+          content: ScrollableStyledText(style_text),
+          actions: [
+            TextButton(
+              onPressed: () { Navigator.of(ctx).pop(); },
+              child: const Text('Close'),
+            ),
+          ],
+       );
+    });
   }
 }
 
