@@ -36,54 +36,43 @@ class Dictionary {
   String wordUrl(DEntry entry) => "${_d['url_root']}${entry.url}";
 
   List<DEntry> sampleVocabGameWords(VocabGameConfig conf, VocabGameHistory history) {
-    final watch = Stopwatch();
-    watch.start();
     final include_type = [PosType.Substantiv, PosType.Verb, PosType.Adjektiv, PosType.Adverb,];
     final candidates = _i_pos.cloneMatching((k) => include_type.contains(k))
                              .intersectWith<int>(_i_frequency, (i) => i >= conf.min_freq)
-                             .differenceWith<TagType>(_i_tag, (t) => conf.exclude_tags.contains(t))
-                             .toList(growable: false);
-    candidates.shuffle();
-    final failed_idx = history.failWordsByRank().map((k) => _i_word[k]!)
-                                                .take(conf.inc_fail)
-                                                .toSet();
-    final new_idx = candidates.where((i) => !failed_idx.contains(i));
-    final result = failed_idx.followedBy(new_idx)
-                             .map(byIdx)
-                             .take(conf.word_cnt)
-                             .toList(growable: false);
-    result.shuffle();
-    if(result.length < conf.word_cnt) {
-      throw Exception("VocabGameConfig are too restrictive could not get enough candidates");
-    }
-    watch.stop();
-    //print("sampleVocabGameWords took ${watch.elapsedMilliseconds} ms");
-    return result;
+                             .differenceWith<TagType>(_i_tag, (t) => conf.exclude_tags.contains(t));
+    return combineCandidateWithPreviousFails(conf.word_cnt, conf.inc_fail, candidates,
+                                             history.failWordsByRank().map((k) => _i_word[k]!),
+                                             (_) => true);
   }
 
   List<DEntry> sampleGenderGameWords(GenderGameConfig conf, GenderGameHistory history) {
-    final watch = Stopwatch();
-    watch.start();
     final candidates = _i_pos.clone(PosType.Substantiv)
                              .intersectWith<int>(_i_frequency, (i) => i >= conf.min_freq)
-                             .differenceWith<TagType>(_i_tag, (t) => conf.exclude_tags.contains(t))
-                             .toList(growable: false);
+                             .differenceWith<TagType>(_i_tag, (t) => conf.exclude_tags.contains(t));
+    return combineCandidateWithPreviousFails(conf.word_cnt, conf.inc_fail, candidates,
+                                             history.failWordsByRank().map((k) => _i_word[k]!),
+                                             (o) => o.articles.isNotEmpty && o.meaning_idx < 2);
+  }
+
+  List<DEntry> combineCandidateWithPreviousFails(final int word_cnt, final int inc_fail,
+                                                 final Iterable<int> candidate_it, final Iterable<int> fail_it,
+                                                 bool Function(DEntry) filter) {
+    final candidates = candidate_it.toList(growable: false);
     candidates.shuffle();
-    final failed_idx = history.failWordsByRank().map((k) => _i_word[k]!)
-                                                .take(conf.inc_fail)
-                                                .toSet();
+    final failed_idx = fail_it.take(3 * inc_fail)
+                              .toList(growable: false);
+    failed_idx.shuffle();
     final new_idx = candidates.where((i) => !failed_idx.contains(i));
-    final result = failed_idx.followedBy(new_idx)
+    final result = failed_idx.take(inc_fail)
+                             .followedBy(new_idx)
                              .map(byIdx)
-                             .where((o) => o.articles.isNotEmpty && o.meaning_idx < 2)
-                             .take(conf.word_cnt)
+                             .where(filter)
+                             .take(word_cnt)
                              .toList(growable: false);
     result.shuffle();
-    if(result.length < conf.word_cnt) {
-      throw Exception("GenderGameConfig are too restrictive could not get enough candidates");
+    if(result.length < word_cnt) {
+      throw Exception("Could not find enough candidates");
     }
-    watch.stop();
-    //print("sampleGenderGameWords took ${watch.elapsedMilliseconds} ms");
     return result;
   }
 }
