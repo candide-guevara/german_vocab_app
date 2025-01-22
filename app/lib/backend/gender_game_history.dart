@@ -4,13 +4,13 @@ import 'gender_game_state.dart';
 import 'utils.dart';
 
 class HistoryEntry {
-  static const int kMaxLen = 10;
+  static const int kMaxLen = 20;
   static const int kBaseShift = 24;
   static const int kStrShift = 20;
   static const int kStrHashMask = (1 << kStrShift) - 1;
   static const double kGoodShrink = 0.7;
-  // `shifts.length` should be kMaxLen;
-  static const List<int> shifts = [0,0,1,1,1,2,2,2,2,2];
+  static const List<int> kFailShifts = [0,0,1,1,1,2,2,2,2,2];
+  static const List<int> kGoodShifts = [0,0,0,0,1,1,1,1,2,2];
   final List<DateTime> goods;
   final List<DateTime> fails;
   // For each fail the bad guess.
@@ -22,15 +22,18 @@ class HistoryEntry {
 
   (String, int) key() => (word, meaning_idx);
 
-  int _dateToScore(final int acc, final (int, DateTime) t) {
-    final (i,dt) = t;
-    return acc + (dt.millisecondsSinceEpoch >> (kBaseShift + shifts[i]));
+  int _datesToScore(final List<DateTime> dates, final List<int> shifts) {
+    int result = 0;
+    for (final (i,dt) in dates.reversed.take(shifts.length).indexed) {
+      result += (dt.millisecondsSinceEpoch >> (kBaseShift + shifts[i]));
+    }
+    return result;
   }
   // Best effort uniqueness per word, this is why we fill the lower bits with the hash.
   // Words which fail often should have a lower rank than words which have been correctly guessed.
   int rank() {
-    final int fail_score = fails.indexed.take(kMaxLen).fold(0, _dateToScore);
-    final int good_score = goods.indexed.take(kMaxLen).fold(0, _dateToScore);
+    final int fail_score = _datesToScore(fails, kFailShifts);
+    final int good_score = _datesToScore(goods, kGoodShifts);
     final int shifted_score = ((kGoodShrink * good_score).round() - fail_score) << kStrShift;
     return shifted_score + (word.hashCode & kStrHashMask);
   }

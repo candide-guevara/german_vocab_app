@@ -13,16 +13,16 @@ void main() {
     final int good_dt = 123 << HistoryEntry.kBaseShift;
     final int fail_dt = 321 << HistoryEntry.kBaseShift;
     final String word = "chocolat";
-    final int fail_score = (fail_dt >> (HistoryEntry.kBaseShift + HistoryEntry.shifts[0]))
-                         + (fail_dt >> (HistoryEntry.kBaseShift + HistoryEntry.shifts[1]))
-                         + (fail_dt >> (HistoryEntry.kBaseShift + HistoryEntry.shifts[2]))
-                         + (fail_dt >> (HistoryEntry.kBaseShift + HistoryEntry.shifts[3]))
-                         + (fail_dt >> (HistoryEntry.kBaseShift + HistoryEntry.shifts[4]));
-    final int good_score = (good_dt >> (HistoryEntry.kBaseShift + HistoryEntry.shifts[0]))
-                         + (good_dt >> (HistoryEntry.kBaseShift + HistoryEntry.shifts[1]))
-                         + (good_dt >> (HistoryEntry.kBaseShift + HistoryEntry.shifts[2]))
-                         + (good_dt >> (HistoryEntry.kBaseShift + HistoryEntry.shifts[3]))
-                         + (good_dt >> (HistoryEntry.kBaseShift + HistoryEntry.shifts[4]));
+    final int fail_score = (fail_dt >> (HistoryEntry.kBaseShift + HistoryEntry.kFailShifts[0]))
+                         + (fail_dt >> (HistoryEntry.kBaseShift + HistoryEntry.kFailShifts[1]))
+                         + (fail_dt >> (HistoryEntry.kBaseShift + HistoryEntry.kFailShifts[2]))
+                         + (fail_dt >> (HistoryEntry.kBaseShift + HistoryEntry.kFailShifts[3]))
+                         + (fail_dt >> (HistoryEntry.kBaseShift + HistoryEntry.kFailShifts[4]));
+    final int good_score = (good_dt >> (HistoryEntry.kBaseShift + HistoryEntry.kGoodShifts[0]))
+                         + (good_dt >> (HistoryEntry.kBaseShift + HistoryEntry.kGoodShifts[1]))
+                         + (good_dt >> (HistoryEntry.kBaseShift + HistoryEntry.kGoodShifts[2]))
+                         + (good_dt >> (HistoryEntry.kBaseShift + HistoryEntry.kGoodShifts[3]))
+                         + (good_dt >> (HistoryEntry.kBaseShift + HistoryEntry.kGoodShifts[4]));
     final int score = (HistoryEntry.kGoodShrink * good_score).round() - fail_score;
     final int rank_expect = (score << HistoryEntry.kStrShift) + (word.hashCode & HistoryEntry.kStrHashMask);
     String ini_json = """{
