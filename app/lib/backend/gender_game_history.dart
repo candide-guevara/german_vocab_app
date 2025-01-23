@@ -72,12 +72,15 @@ class HistoryEntry {
 }
 
 class GenderGameHistory {
+  static const int kMaxPreviousSampled = 100;
   final List<HistoryEntry> history;
   final List<PastGame> past_games;
+  final List<(String, int)> prev_sampled; // not serialized
   final SplayTreeMap<int, int> rank_idx;
   final Map<(String, int), int> rlook_up;
   GenderGameHistory.empty():
-    history = [], past_games = [], rank_idx = SplayTreeMap<int, int>(), rlook_up = {};
+    history = [], past_games = [], prev_sampled = [],
+    rank_idx = SplayTreeMap<int, int>(), rlook_up = {};
 
   void appendGamesTo(final bool isCorrect,
                      final DateTime date, final List<DEntry> entries,
@@ -118,11 +121,15 @@ class GenderGameHistory {
     past_games.add(state.build_past_game());
     appendGamesTo(true,  state.date, state.good);
     appendGamesTo(false, state.date, state.fail, state.guess);
+    prev_sampled.addAll(state.game.map((e) => e.key()));
+    int until = prev_sampled.length > kMaxPreviousSampled ? (prev_sampled.length-kMaxPreviousSampled) : 0;
+    prev_sampled.removeRange(0, until);
   }
 
   GenderGameHistory.fromJson(Map<String, dynamic> json):
     history = (json?['history'] ?? []).map<HistoryEntry>((d) => HistoryEntry.fromJson(d)).toList(),
     past_games = (json?['past_games'] ?? []).map<PastGame>((d) => PastGame.fromJson(d)).toList(),
+    prev_sampled = [],
     rank_idx = SplayTreeMap<int, int>(),
     rlook_up = {} {
       rank_idx.addEntries(history.indexed.map( (t) => MapEntry(t.$2.rank(), t.$1) ));

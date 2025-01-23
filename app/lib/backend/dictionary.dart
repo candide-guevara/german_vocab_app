@@ -42,6 +42,7 @@ class Dictionary {
                              .differenceWith<TagType>(_i_tag, (t) => conf.exclude_tags.contains(t));
     return combineCandidateWithPreviousFails(conf.word_cnt, conf.inc_fail, candidates,
                                              history.failWordsByRank().map((k) => _i_word[k]!),
+                                             history.prev_sampled,
                                              (_) => true);
   }
 
@@ -51,18 +52,22 @@ class Dictionary {
                              .differenceWith<TagType>(_i_tag, (t) => conf.exclude_tags.contains(t));
     return combineCandidateWithPreviousFails(conf.word_cnt, conf.inc_fail, candidates,
                                              history.failWordsByRank().map((k) => _i_word[k]!),
+                                             history.prev_sampled,
                                              (o) => o.articles.isNotEmpty && o.meaning_idx < 2);
   }
 
   List<DEntry> combineCandidateWithPreviousFails(final int word_cnt, final int inc_fail,
-                                                 final Iterable<int> candidate_it, final Iterable<int> fail_it,
+                                                 final Iterable<int> candidate_it,
+                                                 final Iterable<int> fail_it,
+                                                 final Iterable<(String, int)> prev_sampled,
                                                  bool Function(DEntry) filter) {
+    final prev_set = prev_sampled.map((k) => _i_word[k] ?? 0).toSet();
     final candidates = candidate_it.toList(growable: false);
     candidates.shuffle();
     final failed_idx = fail_it.take(3 * inc_fail)
                               .toList(growable: false);
     failed_idx.shuffle();
-    final new_idx = candidates.where((i) => !failed_idx.contains(i));
+    final new_idx = candidates.where((i) => !failed_idx.contains(i) && !prev_set.contains(i));
     final result = failed_idx.take(inc_fail)
                              .followedBy(new_idx)
                              .map(byIdx)
