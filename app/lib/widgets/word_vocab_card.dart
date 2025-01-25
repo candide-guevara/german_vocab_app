@@ -3,6 +3,7 @@ import 'package:german_vocab_app/backend/dictionary_entry.dart';
 import 'package:german_vocab_app/backend/dictionary_loader.dart';
 import 'package:german_vocab_app/backend/vocab_game_state.dart';
 import 'package:german_vocab_app/backend/utils.dart';
+import 'package:german_vocab_app/widgets/thesaurus_text.dart';
 import 'package:german_vocab_app/widgets/open_web_content.dart';
 
 class WordVocabCard extends StatelessWidget {
@@ -64,6 +65,12 @@ class WordVocabCard extends StatelessWidget {
   Widget buildWebLinks(BuildContext context) {
     final TextStyle defStyle = Theme.of(context).textTheme.labelLarge ?? const TextStyle();
     final textStyle = defStyle.copyWith(color: Colors.blue.shade600);
+    final thesaurus_button = TextButton(
+      onPressed: () => buildThesaurusDialog(context, word),
+      child: Text(
+        'synonyms',
+        style: textStyle),
+    );
     final deepl_button = TextButton(
       onPressed: buildCallDeepLCb(context, word),
       child: Text(
@@ -83,8 +90,26 @@ class WordVocabCard extends StatelessWidget {
       padding: EdgeInsets.fromLTRB(0,0,12,8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
-        children: <Widget>[deepl_button, dwds_button]),
+        children: <Widget>[thesaurus_button, deepl_button, dwds_button]),
     );
+  }
+
+  void buildThesaurusDialog(BuildContext context, String word) {
+    final TextStyle titStyle = Theme.of(context).textTheme.titleMedium ?? const TextStyle();
+    showDialog(
+      context: context,
+      builder: (BuildContext ctx) {
+        return AlertDialog(
+          title: Text('Synonyms for ${word}', style: titStyle),
+          content: ThesaurusText(word),
+          actions: [
+            TextButton(
+              onPressed: () { Navigator.of(ctx).pop(); },
+              child: const Text('Close'),
+            ),
+          ],
+       );
+    });
   }
 }
 
