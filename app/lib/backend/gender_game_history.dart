@@ -111,6 +111,10 @@ class GenderGameHistory {
     }
   }
 
+  Iterable<HistoryEntry> allHistoriesByRank() => rank_idx.entries.map((kv) => history[kv.value]);
+
+  Iterable<(String, int)> allWordsByRank() => allHistoriesByRank().map((h) => h.key());
+
   Iterable<HistoryEntry> failHistoriesByRank() => rank_idx.entries.where((kv) => kv.key < 0)
                                                                   .map((kv) => history[kv.value]);
 

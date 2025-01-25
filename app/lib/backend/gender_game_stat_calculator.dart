@@ -64,11 +64,11 @@ class GenderGameStatCalc {
   final List<DEntry> entries;
   final List<HistoryEntry> hentries;
   GenderGameStatCalc(int take_cnt, final Dictionary d, final GenderGameHistory h):
-    entries = h.failWordsByRank()
+    entries = h.allWordsByRank()
                .map<DEntry>((k) => d.byWord(k.$1, k.$2))
                .take(take_cnt)
                .toList(growable: false),
-    hentries = h.failHistoriesByRank()
+    hentries = h.allHistoriesByRank()
                 .take(take_cnt)
                 .toList(growable: false);
   
@@ -78,7 +78,7 @@ class GenderGameStatCalc {
       final e = entries[i];
       final a = e.articles.isEmpty? Article.Unknown : e.articles[0];
       for (final g in h.guess) {
-        miss_guesses.update((a, g), (int v) => v+1, ifAbsent: () => 0);
+        miss_guesses.update((a, g), (int v) => v+1, ifAbsent: () => 1);
       }
     }
     final result = miss_guesses.entries.map<BadGuess>((kv) => BadGuess(kv.key.$1, kv.key.$2, kv.value))

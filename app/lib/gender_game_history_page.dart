@@ -11,7 +11,7 @@ import 'widgets/scrollable_styled_text.dart';
 
 class GenderGameHistoryPage extends StatelessWidget {
   static const String kPageTitle = "GenderGameHistory";
-  static const int kMaxFailedWords = 300;
+  static const int kMaxFailedWords = 10000;
   static final Map<Article, Color> kPalette = {
     Article.der: Colors.cyan.shade600,
     Article.die: Colors.indigo.shade300,
