@@ -7,34 +7,28 @@ class ArticleChoice extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-   final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
    final Color borderColor = Theme.of(context).colorScheme.outline;
-   final TextStyle defaultTextStyle = Theme.of(context)
-        .textTheme
-        .labelLarge ?? // Default style for buttons
-        const TextStyle();
-   final textStyle = defaultTextStyle.copyWith(fontWeight: FontWeight.bold);
+   final defStyle = Theme.of(context).filledButtonTheme.style ?? ButtonStyle();
+   final buttonStyle = defStyle.copyWith(
+     side: MaterialStateProperty.resolveWith<BorderSide>((s) => BorderSide(color: borderColor, width: 2))
+   );
 
-    return SegmentedButton<Article>(
-      segments: <ButtonSegment<Article>>[
-        buildButton(Article.der),
-        buildButton(Article.die),
-        buildButton(Article.das),
+    return Row(
+      children: [
+        buildButton(Article.der, buttonStyle),
+        buildButton(Article.die, buttonStyle),
+        buildButton(Article.das, buttonStyle),
       ],
-      emptySelectionAllowed: true,
-      selected: <Article>{},
-      onSelectionChanged: (newSelection) => onSelectionChanged(newSelection.first),
-      style: SegmentedButton.styleFrom(
-        backgroundColor: isDarkMode ? Colors.grey[850] : Colors.lightBlue,
-        side: BorderSide(width: 3, color: borderColor),
-        textStyle: textStyle,
-      ),
     );
   }
 
-  ButtonSegment<Article> buildButton(Article a) {
+  Widget buildButton(Article a, ButtonStyle buttonStyle) {
     final String name = "${a.name[0].toUpperCase()}${a.name.substring(1)}";
-    return ButtonSegment<Article>(value: a, label: Text(name),);
+    return Expanded(child: OutlinedButton(
+      child: Text(name),
+      onPressed: () => onSelectionChanged(a),
+      style: buttonStyle,
+    ));
   }
 }
 
