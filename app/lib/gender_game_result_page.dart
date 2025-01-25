@@ -22,9 +22,9 @@ class GenderGameResultPage extends StatelessWidget {
                                         fontFamily: 'monospace');
     final goodStyle = defStyle.copyWith(color: Colors.green.shade600,
                                         fontFamily: 'monospace');
-    final fail_words = sortedEntries(state.fail).map((e) => "${e.articles[0].name.toUpperCase()}   ${e.word}")
+    final fail_words = sortedEntries(state.fail).map((e) => "${e.first_a().name.toUpperCase()}   ${e.word}")
                                                 .join('\n');
-    final good_words = sortedEntries(state.good).map((e) => "${e.articles[0].name.toUpperCase()}   ${e.word}")
+    final good_words = sortedEntries(state.good).map((e) => "${e.first_a().name.toUpperCase()}   ${e.word}")
                                                 .join('\n');
     return <(String, TextStyle)>[
       (fail_words, failStyle),

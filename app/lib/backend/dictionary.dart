@@ -32,8 +32,13 @@ class Dictionary {
   }
 
   DEntry byIdx(int idx) => DEntry.fromJson(_d['entries'][idx]);
-  DEntry byWord(String w, int hidx) => DEntry.fromJson(_d['entries'][_i_word[(w,hidx)]]);
   String wordUrl(DEntry entry) => "${_d['url_root']}${entry.url}";
+
+  DEntry? byWord(String w, int hidx) {
+    final idx = _i_word[(w,hidx)];
+    if (idx == null) { return null; }
+    return DEntry.fromJson(_d['entries'][idx]);
+  }
 
   List<DEntry> sampleVocabGameWords(VocabGameConfig conf, VocabGameHistory history) {
     final include_type = [PosType.Substantiv, PosType.Verb, PosType.Adjektiv, PosType.Adverb,];
@@ -41,7 +46,7 @@ class Dictionary {
                              .intersectWith<int>(_i_frequency, (i) => i >= conf.min_freq)
                              .differenceWith<TagType>(_i_tag, (t) => conf.exclude_tags.contains(t));
     return combineCandidateWithPreviousFails(conf.word_cnt, conf.inc_fail, candidates,
-                                             history.failWordsByRank().map((k) => _i_word[k]!),
+                                             history.failWordsByRank().map((k) => _i_word[k]).nonNulls,
                                              history.prev_sampled,
                                              (_) => true);
   }
@@ -51,7 +56,7 @@ class Dictionary {
                              .intersectWith<int>(_i_frequency, (i) => i >= conf.min_freq)
                              .differenceWith<TagType>(_i_tag, (t) => conf.exclude_tags.contains(t));
     return combineCandidateWithPreviousFails(conf.word_cnt, conf.inc_fail, candidates,
-                                             history.failWordsByRank().map((k) => _i_word[k]!),
+                                             history.failWordsByRank().map((k) => _i_word[k]).nonNulls,
                                              history.prev_sampled,
                                              (o) => o.articles.isNotEmpty && o.meaning_idx < 2);
   }
@@ -61,13 +66,15 @@ class Dictionary {
                                                  final Iterable<int> fail_it,
                                                  final Iterable<(String, int)> prev_sampled,
                                                  bool Function(DEntry) filter) {
-    final prev_set = prev_sampled.map((k) => _i_word[k] ?? 0).toSet();
     final candidates = candidate_it.toList(growable: false);
     candidates.shuffle();
     final failed_idx = fail_it.take(3 * inc_fail)
                               .toList(growable: false);
     failed_idx.shuffle();
-    final new_idx = candidates.where((i) => !failed_idx.contains(i) && !prev_set.contains(i));
+    final filter_set = prev_sampled.map((k) => _i_word[k] ?? -1)
+                                   .followedBy(failed_idx)
+                                   .toSet();
+    final new_idx = candidates.where((i) => !filter_set.contains(i));
     final result = failed_idx.take(inc_fail)
                              .followedBy(new_idx)
                              .map(byIdx)

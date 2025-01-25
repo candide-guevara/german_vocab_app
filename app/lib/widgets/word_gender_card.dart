@@ -13,7 +13,7 @@ class WordGenderCard extends StatelessWidget {
                         required this.correct});
 
   String get word => state.cur_entry.word;
-  String get article_str => state.cur_entry.articles[0].name;
+  String get article_str => state.cur_entry.first_a().name;
   int get hidx => state.cur_entry.meaning_idx;
 
   @override

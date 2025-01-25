@@ -1,3 +1,4 @@
+import 'dart:collection';
 import 'package:flutter/material.dart';
 import 'backend/dictionary_entry.dart';
 import 'backend/dictionary_loader.dart';
@@ -11,7 +12,7 @@ import 'widgets/scrollable_styled_text.dart';
 
 class GenderGameHistoryPage extends StatelessWidget {
   static const String kPageTitle = "GenderGameHistory";
-  static const int kMaxFailedWords = 10000;
+  static const int kMaxFailedWords = 1000;
   static final Map<Article, Color> kPalette = {
     Article.der: Colors.cyan.shade600,
     Article.die: Colors.indigo.shade300,
@@ -45,8 +46,8 @@ class GenderGameHistoryPage extends StatelessWidget {
     // The compiler cannot call the extension functions since it does not the type.
     // In this particular case, the `name` getter on enums is an extension.
     // This is why we need all the type hints and a dedicated method for this to work...
-    final to_string = (DEntry e) => "${e.articles[0].name.toUpperCase()}  ${e.word}";
-    final fail_str = fail_words.where((e) => e.articles.isNotEmpty && e.articles[0] == a)
+    final to_string = (DEntry e) => "${e.first_a().name.toUpperCase()}  ${e.word}";
+    final fail_str = fail_words.where((e) => e.first_a() == a)
                                .map<String>(to_string)
                                .join('\n');
     return <(String, TextStyle)>[
@@ -54,10 +55,16 @@ class GenderGameHistoryPage extends StatelessWidget {
     ];
   }
 
+  Iterable<DEntry?> needThisBecauseOfStupidTypeInferenceImpl() {
+    return GenderGameHistoryLoader.h.failWordsByRank()
+                                    .map<DEntry?>((k) => DictionaryLoader.d.byWord(k.$1, k.$2));
+  }
+
   Widget builderAfterLoad(BuildContext context, bool _) {
-    final past_games = GenderGameHistoryLoader.h.past_games.toList();
-    final fail_words = GenderGameHistoryLoader.h.failWordsByRank()
-                                                .map<DEntry>((k) => DictionaryLoader.d.byWord(k.$1, k.$2))
+    final past_games = GenderGameHistoryLoader.h.past_games
+                                                .toList();
+    final fail_words = needThisBecauseOfStupidTypeInferenceImpl()
+                                                .nonNulls
                                                 .take(kMaxFailedWords)
                                                 .toList(growable: false);
     if(past_games.length < 1) {
@@ -93,7 +100,7 @@ class GenderGameHistoryPage extends StatelessWidget {
     final TextStyle goodStyle = defStyle.copyWith(color: Colors.green.shade600);
     final TextStyle failStyle = defStyle.copyWith(color: Colors.red.shade600);
 
-    final calc = GenderGameStatCalc(kMaxFailedWords, DictionaryLoader.d, GenderGameHistoryLoader.h);
+    final calc = GenderGameStatCalc(10*kMaxFailedWords, DictionaryLoader.d, GenderGameHistoryLoader.h);
     final List<(String, TextStyle)> style_text = [];
 
     for (final bg in calc.countMissGuesses()) {

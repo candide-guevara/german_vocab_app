@@ -72,7 +72,7 @@ class GenderGamePage extends StatelessWidget {
   void onArticleSelected(BuildContext context, Article a) async {
     if (disable_cb.value) { return; }
     disable_cb.value = true;
-    cur_correct.value = state.cur_entry.articles[0] == a;
+    cur_correct.value = state.cur_entry.first_a() == a;
     good_cnt.value += cur_correct.value! ? 1 : 0;
     fail_cnt.value += cur_correct.value! ? 0 : 1;
 

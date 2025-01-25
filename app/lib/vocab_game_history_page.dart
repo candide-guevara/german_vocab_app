@@ -1,3 +1,4 @@
+import 'dart:collection';
 import 'package:flutter/material.dart';
 import 'backend/dictionary_entry.dart';
 import 'backend/dictionary_loader.dart';
@@ -12,7 +13,7 @@ import 'vocab_game_word_details_page.dart';
 
 class VocabGameHistoryPage extends StatelessWidget {
   static const String kPageTitle = "VocabGameHistory";
-  static const int kMaxFailedWords = 20;
+  static const int kMaxFailedWords = 1000;
 
   Future<bool> loadConfAndGame() async {
     await DictionaryLoader.isLoaded();
@@ -32,11 +33,16 @@ class VocabGameHistoryPage extends StatelessWidget {
     );
   }
 
+  Iterable<DEntry?> needThisBecauseOfStupidTypeInferenceImpl() {
+    return VocabGameHistoryLoader.h.failWordsByRank()
+                                   .map<DEntry?>((k) => DictionaryLoader.d.byWord(k.$1, k.$2));
+  }
+
   Widget builderAfterLoad(BuildContext context, bool _) {
     final past_games = VocabGameHistoryLoader.h.past_games.toList();
-    final fail_words = VocabGameHistoryLoader.h.failWordsByRank()
+    final fail_words = needThisBecauseOfStupidTypeInferenceImpl()
+                                               .nonNulls
                                                .take(kMaxFailedWords)
-                                               .map<DEntry>((k) => DictionaryLoader.d.byWord(k.$1, k.$2))
                                                .toList();
     if(past_games.length < 1) {
       return CenterColumn(

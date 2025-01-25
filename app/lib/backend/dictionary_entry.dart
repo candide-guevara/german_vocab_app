@@ -13,6 +13,8 @@ class DEntry {
 
   (String, int) key() => (word, meaning_idx);
 
+  Article first_a() => articles.isEmpty? Article.Unknown : articles[0];
+
   @visibleForTesting
   DEntry.forTest(lemma, hidx)
     : articles = [],

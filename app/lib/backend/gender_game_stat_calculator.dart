@@ -1,3 +1,4 @@
+import 'dart:collection';
 import 'dictionary_entry.dart';
 import 'dictionary.dart';
 import 'gender_game_history.dart';
@@ -65,7 +66,8 @@ class GenderGameStatCalc {
   final List<HistoryEntry> hentries;
   GenderGameStatCalc(int take_cnt, final Dictionary d, final GenderGameHistory h):
     entries = h.allWordsByRank()
-               .map<DEntry>((k) => d.byWord(k.$1, k.$2))
+               .map<DEntry?>((k) => d.byWord(k.$1, k.$2))
+               .nonNulls
                .take(take_cnt)
                .toList(growable: false),
     hentries = h.allHistoriesByRank()
@@ -76,7 +78,7 @@ class GenderGameStatCalc {
     final Map<(Article, Article), int> miss_guesses = {};
     for (final (i,h) in hentries.indexed) {
       final e = entries[i];
-      final a = e.articles.isEmpty? Article.Unknown : e.articles[0];
+      final a = e.first_a();
       for (final g in h.guess) {
         miss_guesses.update((a, g), (int v) => v+1, ifAbsent: () => 1);
       }
@@ -91,7 +93,7 @@ class GenderGameStatCalc {
     final Map<Article, GenderStat> miss_genders = {};
     for (final (i,h) in hentries.indexed) {
       final e = entries[i];
-      final a = e.articles.isEmpty? Article.Unknown : e.articles[0];
+      final a = e.first_a();
       final gs = miss_genders.putIfAbsent(a, () => GenderStat(a, 0, 0));
       gs.add(h);
     }
