@@ -12,10 +12,10 @@ class GenderGameConfigPage extends StatelessWidget {
   static const String kPageTitle = "GenderGameConfig";
   static final int kFailCntMin = 0;
   static final int kFailCntMax = 10;
-  final GenderGameConfig conf;
+  final GameConfig conf;
 
   GenderGameConfigPage({super.key}):
-    conf = GenderGameConfig.def();
+    conf = GameConfig.def();
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +34,7 @@ class GenderGameConfigPage extends StatelessWidget {
       Persistence.isLoaded(),
       GenderGameHistoryLoader.isLoaded(),
     ]);
-    conf.setFrom(await GenderGameConfig.load());
+    conf.setFrom(await GameConfig.load(GameConfig.kGenderKey));
     return true;
   }
 
@@ -51,7 +51,7 @@ class GenderGameConfigPage extends StatelessWidget {
         min: kGameRoundsMin,
         max: kGameRoundsMax,
         ini_val: conf.word_cnt,
-        onChanged: (v) async { conf.word_cnt = v; await conf.save(); }),
+        onChanged: (v) async { conf.word_cnt = v; await conf.save(GameConfig.kGenderKey); }),
     );
     final frq_slider = ListenableBuilder(
       listenable: notify,
@@ -60,7 +60,7 @@ class GenderGameConfigPage extends StatelessWidget {
         min: kFreqMin,
         max: kFreqMax,
         ini_val: conf.min_freq,
-        onChanged: (v) async { conf.min_freq = v; await conf.save(); }),
+        onChanged: (v) async { conf.min_freq = v; await conf.save(GameConfig.kGenderKey); }),
     );
     final fal_slider = ListenableBuilder(
       listenable: notify,
@@ -69,7 +69,7 @@ class GenderGameConfigPage extends StatelessWidget {
         min: kFailCntMin,
         max: kFailCntMax,
         ini_val: conf.inc_fail,
-        onChanged: (v) async { conf.inc_fail = v; await conf.save(); }),
+        onChanged: (v) async { conf.inc_fail = v; await conf.save(GameConfig.kGenderKey); }),
     );
     final trv_switch = ListenableBuilder(
       listenable: notify,
@@ -79,7 +79,7 @@ class GenderGameConfigPage extends StatelessWidget {
         label: "Ignore words with trivial gender:",
         onChanged: (v) async {
           conf.set(TagType.TrivialGender, remove:!v);
-          await conf.save();
+          await conf.save(GameConfig.kGenderKey);
         }),
     );
     final fem_switch = ListenableBuilder(
@@ -90,7 +90,7 @@ class GenderGameConfigPage extends StatelessWidget {
         label: "Ignore feminine professions:",
         onChanged: (v) async {
           conf.set(TagType.FemProfession, remove:!v);
-          await conf.save();
+          await conf.save(GameConfig.kGenderKey);
         }),
     );
     final eng_switch = ListenableBuilder(
@@ -101,7 +101,7 @@ class GenderGameConfigPage extends StatelessWidget {
         label: "Ignore english words (approx):",
         onChanged: (v) async {
           conf.set(TagType.LikelyEnglish, remove:!v);
-          await conf.save();
+          await conf.save(GameConfig.kGenderKey);
         }),
     );
     final fky_switch = ListenableBuilder(
@@ -112,7 +112,7 @@ class GenderGameConfigPage extends StatelessWidget {
         label: "Ignore funky words:",
         onChanged: (v) async {
           conf.set(TagType.Funky, remove:!v);
-          await conf.save();
+          await conf.save(GameConfig.kGenderKey);
         }),
     );
     final rst_buttons = Row(
@@ -122,7 +122,7 @@ class GenderGameConfigPage extends StatelessWidget {
           child: const Text("Reset config"),
           onPressed: () async {
             conf.reset();
-            await conf.save();
+            await conf.save(GameConfig.kGenderKey);
             notify.value++;
           },),
         FilledButton(

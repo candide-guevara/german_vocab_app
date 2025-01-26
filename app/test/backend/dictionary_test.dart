@@ -128,7 +128,7 @@ void main() {
     final Map<String, dynamic> histJson = json.decode(kHistJson);
     final history = GenderGameHistory.fromJson(histJson);
 
-    final conf = GenderGameConfig(tot_nouns-1, 0, fail_words.length, []);
+    final conf = GameConfig(tot_nouns-1, 0, fail_words.length, []);
     final d = Dictionary(dictJson);
 
     // Try several samples.
@@ -145,7 +145,7 @@ void main() {
     final Map<String, dynamic> histJson = json.decode(kHistJson);
     final history = VocabGameHistory.fromJson(histJson);
 
-    final conf = VocabGameConfig(3, 0, 0, []);
+    final conf = GameConfig(3, 0, 0, []);
     final d = Dictionary(dictJson);
 
     var containDiffType = false;

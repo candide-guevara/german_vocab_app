@@ -22,7 +22,7 @@ class VocabGamePage extends StatelessWidget {
   final ValueNotifier<int> fail_cnt;
   final ValueNotifier<int> corpus_idx;
   final VocabGameState state;
-  final VocabGameConfig conf;
+  final GameConfig conf;
 
   VocabGamePage({super.key}):
     cur_correct = ValueNotifier<bool?>(null),
@@ -31,7 +31,7 @@ class VocabGamePage extends StatelessWidget {
     fail_cnt = ValueNotifier<int>(0),
     corpus_idx = ValueNotifier<int>(0),
     state = VocabGameState(),
-    conf = VocabGameConfig.def();
+    conf = GameConfig.def();
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +51,7 @@ class VocabGamePage extends StatelessWidget {
       Persistence.isLoaded(),
       VocabGameHistoryLoader.isLoaded(),
     ]);
-    conf.setFrom(await VocabGameConfig.load());
+    conf.setFrom(await GameConfig.load(GameConfig.kVocabKey));
     state.setWords(
       DictionaryLoader.d.sampleVocabGameWords(conf, VocabGameHistoryLoader.h));
     return true;

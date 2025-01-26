@@ -7,7 +7,7 @@ class PastGame {
   final DateTime date;
   final int good;
   final int fail;
-  final GenderGameConfig conf;
+  final GameConfig conf;
   PastGame(this.date, this.good, this.fail, this.conf);
 
   int get word_cnt => good+fail;
@@ -16,7 +16,7 @@ class PastGame {
     date = unmarshallDt(json['date'] ?? 0),
     good = json['good'] ?? 0,
     fail = json['fail'] ?? 0,
-    conf = GenderGameConfig.fromJson(json['conf'] ?? <String, dynamic>{});
+    conf = GameConfig.fromJson(json['conf'] ?? <String, dynamic>{});
 
   Map<String, dynamic> toJson() => {
     'date' : marshallDt(date),
@@ -74,7 +74,7 @@ class GenderGameState {
     idx += 1;
   }
 
-  PastGame build_past_game(final GenderGameConfig conf) {
+  PastGame build_past_game(final GameConfig conf) {
     return PastGame(date, good.length, fail.length, conf);
   }
 

@@ -40,7 +40,7 @@ class Dictionary {
     return DEntry.fromJson(_d['entries'][idx]);
   }
 
-  List<DEntry> sampleVocabGameWords(VocabGameConfig conf, VocabGameHistory history) {
+  List<DEntry> sampleVocabGameWords(GameConfig conf, VocabGameHistory history) {
     final include_type = [PosType.Substantiv, PosType.Verb, PosType.Adjektiv, PosType.Adverb,];
     final candidates = _i_pos.cloneMatching((k) => include_type.contains(k))
                              .intersectWith<int>(_i_frequency, (i) => i >= conf.min_freq)
@@ -51,7 +51,7 @@ class Dictionary {
                                              (_) => true);
   }
 
-  List<DEntry> sampleGenderGameWords(GenderGameConfig conf, GenderGameHistory history) {
+  List<DEntry> sampleGenderGameWords(GameConfig conf, GenderGameHistory history) {
     final candidates = _i_pos.clone(PosType.Substantiv)
                              .intersectWith<int>(_i_frequency, (i) => i >= conf.min_freq)
                              .differenceWith<TagType>(_i_tag, (t) => conf.exclude_tags.contains(t));

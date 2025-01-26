@@ -121,7 +121,7 @@ class GenderGameHistory {
 
   Iterable<(String, int)> failWordsByRank() => failHistoriesByRank().map((h) => h.key());
 
-  void appendFinishedGame(final GenderGameState state, final GenderGameConfig conf) {
+  void appendFinishedGame(final GenderGameState state, final GameConfig conf) {
     if (!state.isDone) { throw Exception("Appending unfinished game"); }
     past_games.add(state.build_past_game(conf));
     appendGamesTo(true,  state.date, state.good);

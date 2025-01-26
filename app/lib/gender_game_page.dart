@@ -20,7 +20,7 @@ class GenderGamePage extends StatelessWidget {
   final ValueNotifier<int> good_cnt;
   final ValueNotifier<int> fail_cnt;
   final GenderGameState state;
-  final GenderGameConfig conf;
+  final GameConfig conf;
 
   GenderGamePage({super.key}):
     cur_correct = ValueNotifier<bool?>(null),
@@ -28,7 +28,7 @@ class GenderGamePage extends StatelessWidget {
     good_cnt = ValueNotifier<int>(0),
     fail_cnt = ValueNotifier<int>(0),
     state = GenderGameState(),
-    conf = GenderGameConfig.def();
+    conf = GameConfig.def();
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +48,7 @@ class GenderGamePage extends StatelessWidget {
       Persistence.isLoaded(),
       GenderGameHistoryLoader.isLoaded(),
     ]);
-    conf.setFrom(await GenderGameConfig.load());
+    conf.setFrom(await GameConfig.load(GameConfig.kGenderKey));
     state.setWords(
       DictionaryLoader.d.sampleGenderGameWords(conf, GenderGameHistoryLoader.h));
     return true;
