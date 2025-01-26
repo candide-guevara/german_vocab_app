@@ -13,13 +13,13 @@ class PastGame {
   int get word_cnt => good+fail;
 
   PastGame.fromJson(Map<String, dynamic> json):
-    date = DateTime.fromMillisecondsSinceEpoch(json['date']),
+    date = unmarshallDt(json['date'] ?? 0),
     good = json['good'] ?? 0,
     fail = json['fail'] ?? 0,
     conf = GenderGameConfig.fromJson(json['conf'] ?? <String, dynamic>{});
 
   Map<String, dynamic> toJson() => {
-    'date' : date.millisecondsSinceEpoch,
+    'date' : marshallDt(date),
     'good' : good,
     'fail'  : fail,
     'conf'  : conf.toJson(),

@@ -62,3 +62,12 @@ final int kFreqMin = 0;
 final int kGameRoundsMin = 10;
 final int kGameRoundsMax = 100;
 
+int marshallDt(DateTime dt) {
+  return dt.millisecondsSinceEpoch >> 26;
+}
+DateTime unmarshallDt(int ts) {
+  // old format
+  if ((ts >> 16) > 0) { return DateTime.fromMillisecondsSinceEpoch(ts); }
+  return DateTime.fromMillisecondsSinceEpoch(ts << 26);
+}
+

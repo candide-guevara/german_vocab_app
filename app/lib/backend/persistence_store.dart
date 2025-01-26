@@ -54,9 +54,13 @@ extension UnmarshallFromList on SharedPreferencesWithCache {
   Map<String, dynamic>? getJson(String key) {
     String? base64Encoded = this.getString(key);
     if (base64Encoded == null) { return null; }
+    //print("getJson ${key} = ${base64Encoded.length}");
     final decodedBytes = base64.decode(base64Encoded!);
+    //print("getJson ${key} = ${decodedBytes.length}");
     final decompressedBytes = gzip.decode(decodedBytes);
+    //print("getJson ${key} = ${decompressedBytes.length}");
     final jsonString = utf8.decode(decompressedBytes);
+    //print("getJson ${key} = ${jsonString.length}");
     return json.decode(jsonString);
   }
   Future<void> setJson(String key, Map<String, dynamic> jsonObj) {
