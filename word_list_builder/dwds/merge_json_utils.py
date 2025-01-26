@@ -12,6 +12,7 @@ periodic_elt_rx = re.compile(r'^(A[cglmrstu]|B[aehikr]|C[adelorsu]|D[syb]|E[rsu]
 
 # If a word contains chars outside of this set, then it is likely not important.
 german_chars_rx = re.compile(u'^[a-zA-ZäöüÄÖÜß0-9 \-_]+$')
+german_chars_strict_rx = re.compile(u'^[a-zA-ZäöüÄÖÜß-]+$')
 def is_funky(word):
   return len(word) < 2 or word.isupper() or not german_chars_rx.search(word)
 
