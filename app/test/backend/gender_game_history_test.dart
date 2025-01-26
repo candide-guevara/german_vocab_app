@@ -38,7 +38,7 @@ void main() {
   });
 
   test('HistoryEntry_rank_nogoods', () {
-    final int fail_dt = marshallDt(DateTime.now());
+    final int fail_dt = marshallLowResolutionDt(DateTime.now());
     final String word = "chocolat";
     String ini_json = """{
        "goods" : [],
@@ -51,7 +51,7 @@ void main() {
   });
 
   test('HistoryEntry_rank_nofails', () {
-    final int good_dt = marshallDt(DateTime.now());
+    final int good_dt = marshallLowResolutionDt(DateTime.now());
     final String word = "chocolat";
     String ini_json = """{
        "goods" : [ ${good_dt}, ${good_dt} ],
@@ -65,8 +65,8 @@ void main() {
 
   test('HistoryEntry_fromJson_and_toJson', () {
     String ini_json = """{
-       "goods" : [ ${marshallDt(DateTime.now())} ],
-       "fails" : [ ${marshallDt(DateTime.now())} ],
+       "goods" : [ ${marshallLowResolutionDt(DateTime.now())} ],
+       "fails" : [ ${marshallLowResolutionDt(DateTime.now())} ],
        "guess" : [ ${Article.das.index} ],
        "hidx" : 2,
        "lemma" : "üppig"
@@ -103,7 +103,7 @@ void main() {
 
   test('GenderGameHistory_fromJson_and_toJson', () {
     final ggh = GenderGameHistory.empty();
-    final dt = unmarshallDt(marshallDt(DateTime(2020, 12, 12)));
+    final dt = unmarshallLowResolutionDt(marshallLowResolutionDt(DateTime(2020, 12, 12)));
     ggh.history.add(HistoryEntry.empty('bla', 4));
     ggh.past_games.add(PastGame(dt, 6, 7, GameConfig.def()));
     final jsonObj = ggh.toJson();

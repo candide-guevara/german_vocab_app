@@ -16,7 +16,7 @@ void main() {
     await GenderGameHistoryLoader.isLoaded();
 
     final ggh = GenderGameHistoryLoader.h;
-    final dt = unmarshallDt(marshallDt(DateTime(2020, 12, 12)));
+    final dt = unmarshallLowResolutionDt(marshallLowResolutionDt(DateTime(2020, 12, 12)));
     ggh.history.add(HistoryEntry.empty('word', 3));
     ggh.past_games.add(PastGame(dt, 6, 7, GameConfig.def()));
     final gghStr = ggh.toString();

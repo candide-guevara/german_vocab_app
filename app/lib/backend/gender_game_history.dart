@@ -47,15 +47,15 @@ class HistoryEntry {
   }
 
   HistoryEntry.fromJson(Map<String, dynamic> json):
-    goods = [ for(final d in json['goods'] ?? []) unmarshallDt(d) ],
-    fails = [ for(final d in json['fails'] ?? []) unmarshallDt(d) ],
+    goods = [ for(final d in json['goods'] ?? []) unmarshallLowResolutionDt(d) ],
+    fails = [ for(final d in json['fails'] ?? []) unmarshallLowResolutionDt(d) ],
     guess = [ for(final d in json['guess'] ?? []) Article.values[d] ],
     meaning_idx = json['hidx'],
     word = json['lemma'];
 
   Map<String, dynamic> toJson() => {
-    'goods' : [ for(final d in goods) marshallDt(d) ],
-    'fails' : [ for(final d in fails) marshallDt(d) ],
+    'goods' : [ for(final d in goods) marshallLowResolutionDt(d) ],
+    'fails' : [ for(final d in fails) marshallLowResolutionDt(d) ],
     'guess' : [ for(final d in guess) d.index ],
     'hidx' : meaning_idx,
     'lemma' : word,

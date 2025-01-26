@@ -10,8 +10,7 @@ import 'utils.dart';
 void main() {
   test('PastGame_fromJson_and_toJson', () {
     final conf = GameConfig(10, 3, 9, []);
-    final dt = unmarshallDt(marshallDt(DateTime(2020, 12, 12)));
-    final pg = PastGame(dt, 6, 7, conf);
+    final pg = PastGame(DateTime(2020, 12, 12), 6, 7, conf);
     final jsonObj = pg.toJson();
     final jsonStr = json.encode(jsonObj);
     final new_pg = PastGame.fromJson(json.decode(jsonStr));
