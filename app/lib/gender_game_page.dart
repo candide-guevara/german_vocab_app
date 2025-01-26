@@ -85,7 +85,7 @@ class GenderGamePage extends StatelessWidget {
       disable_cb.value = false;
     }
     else {
-      GenderGameHistoryLoader.h.appendFinishedGame(state);
+      GenderGameHistoryLoader.h.appendFinishedGame(state, conf);
       GenderGameHistoryLoader.save();
       Navigator.pushReplacement(
         context,

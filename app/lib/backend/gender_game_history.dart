@@ -1,5 +1,6 @@
 import 'dart:collection';
 import 'dictionary_entry.dart';
+import 'game_config.dart';
 import 'gender_game_state.dart';
 import 'utils.dart';
 
@@ -120,9 +121,9 @@ class GenderGameHistory {
 
   Iterable<(String, int)> failWordsByRank() => failHistoriesByRank().map((h) => h.key());
 
-  void appendFinishedGame(final GenderGameState state) {
+  void appendFinishedGame(final GenderGameState state, final GenderGameConfig conf) {
     if (!state.isDone) { throw Exception("Appending unfinished game"); }
-    past_games.add(state.build_past_game());
+    past_games.add(state.build_past_game(conf));
     appendGamesTo(true,  state.date, state.good);
     appendGamesTo(false, state.date, state.fail, state.guess);
     prev_sampled.addAll(state.game.map((e) => e.key()));

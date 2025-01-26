@@ -1,6 +1,7 @@
 import 'package:test/test.dart';
 import 'package:matcher/expect.dart';
 import 'package:german_vocab_app/backend/gender_game_history.dart';
+import 'package:german_vocab_app/backend/game_config.dart';
 import 'package:german_vocab_app/backend/game_history_loader.dart';
 import 'package:german_vocab_app/backend/gender_game_state.dart';
 import 'package:german_vocab_app/backend/persistence_store.dart';
@@ -15,7 +16,7 @@ void main() {
 
     final ggh = GenderGameHistoryLoader.h;
     ggh.history.add(HistoryEntry.empty('word', 3));
-    ggh.past_games.add(PastGame(DateTime(2020, 12, 12), 6, 7));
+    ggh.past_games.add(PastGame(DateTime(2020, 12, 12), 6, 7, GenderGameConfig.def()));
     final gghStr = ggh.toString();
 
     await GenderGameHistoryLoader.save();

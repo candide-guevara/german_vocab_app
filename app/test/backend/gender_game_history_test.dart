@@ -1,6 +1,7 @@
 import 'dart:collection';
 import 'dart:convert';
 import 'package:german_vocab_app/backend/dictionary_entry.dart';
+import 'package:german_vocab_app/backend/game_config.dart';
 import 'package:german_vocab_app/backend/gender_game_history.dart';
 import 'package:german_vocab_app/backend/gender_game_state.dart';
 import 'package:german_vocab_app/backend/utils.dart';
@@ -103,7 +104,7 @@ void main() {
   test('GenderGameHistory_fromJson_and_toJson', () {
     final ggh = GenderGameHistory.empty();
     ggh.history.add(HistoryEntry.empty('bla', 4));
-    ggh.past_games.add(PastGame(DateTime(2020, 12, 12), 6, 7));
+    ggh.past_games.add(PastGame(DateTime(2020, 12, 12), 6, 7, GenderGameConfig.def()));
     final jsonObj = ggh.toJson();
     final jsonStr = json.encode(jsonObj);
     final new_ggh = GenderGameHistory.fromJson(json.decode(jsonStr));
@@ -124,7 +125,7 @@ void main() {
     final ggh = GenderGameHistory.empty();
     final ggs = GenderGameState();
 
-    ggh.appendFinishedGame(ggs);
+    ggh.appendFinishedGame(ggs, GenderGameConfig.def());
     expect(ggh.history.length, equals(0));
     expect(ggh.rlook_up.length, equals(0));
     expect(ggh.rank_idx.length, equals(0));
@@ -139,7 +140,7 @@ void main() {
     ggs.advance(false, Article.das);
     ggs.advance(true, Article.Unknown);
 
-    ggh.appendFinishedGame(ggs);
+    ggh.appendFinishedGame(ggs, GenderGameConfig.def());
     expect(ggh.history.length, equals(3));
     expect(ggh.rlook_up.length, equals(3));
     expect(ggh.rank_idx.length, equals(3));
@@ -148,7 +149,7 @@ void main() {
     ggs.setWords([ DEntry.forTest('new_word', 0), ]);
     ggs.advance(true, Article.Unknown);
 
-    ggh.appendFinishedGame(ggs);
+    ggh.appendFinishedGame(ggs, GenderGameConfig.def());
     expect(ggh.history.length, equals(4));
     expect(ggh.rlook_up.length, equals(4));
     expect(ggh.rlook_up.values, everyElement(inInclusiveRange(0,3)));

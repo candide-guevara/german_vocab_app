@@ -1,4 +1,5 @@
 import 'dictionary_entry.dart';
+import 'game_config.dart';
 import 'utils.dart';
 import 'dart:math';
 
@@ -6,19 +7,22 @@ class PastGame {
   final DateTime date;
   final int good;
   final int fail;
-  PastGame(this.date, this.good, this.fail);
+  final GenderGameConfig conf;
+  PastGame(this.date, this.good, this.fail, this.conf);
 
   int get word_cnt => good+fail;
 
   PastGame.fromJson(Map<String, dynamic> json):
     date = DateTime.fromMillisecondsSinceEpoch(json['date']),
-    good = json['good'],
-    fail  = json['fail'];
+    good = json['good'] ?? 0,
+    fail = json['fail'] ?? 0,
+    conf = GenderGameConfig.fromJson(json['conf'] ?? <String, dynamic>{});
 
   Map<String, dynamic> toJson() => {
     'date' : date.millisecondsSinceEpoch,
     'good' : good,
     'fail'  : fail,
+    'conf'  : conf.toJson(),
   };
 
   String toString() {
@@ -26,6 +30,7 @@ class PastGame {
     buf.writeln("date: ${date},");
     buf.writeln("good: ${good},");
     buf.writeln("fail: ${fail},");
+    buf.writeln("conf: ${conf},");
     return buf.toString();
   }
 }
@@ -69,7 +74,9 @@ class GenderGameState {
     idx += 1;
   }
 
-  PastGame build_past_game() { return PastGame(date, good.length, fail.length); }
+  PastGame build_past_game(final GenderGameConfig conf) {
+    return PastGame(date, good.length, fail.length, conf);
+  }
 
   String toString() {
     final buf = StringBuffer();

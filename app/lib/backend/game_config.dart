@@ -7,8 +7,9 @@ class VocabGameConfig extends _GameConfig {
   VocabGameConfig(int word_cnt, int min_freq, int inc_fail, List<TagType> tags)
     : super(KPrefix, word_cnt, min_freq, inc_fail, tags);
 
-  VocabGameConfig.def()
-    : this(_GameConfig.kWordCnt, _GameConfig.kMinFreq, _GameConfig.kIncludeFailed, _GameConfig.kExcludeTags);
+  VocabGameConfig.def(): super.def(KPrefix);
+  VocabGameConfig.clone(VocabGameConfig other): super.clone(other);
+  VocabGameConfig.fromJson(final Map<String, dynamic> jsonObj): super.fromJson(KPrefix, jsonObj);
 
   static Future<_GameConfig> load() async => _GameConfig._load(KPrefix);
 }
@@ -18,8 +19,9 @@ class GenderGameConfig extends _GameConfig {
   GenderGameConfig(int word_cnt, int min_freq, int inc_fail, List<TagType> tags)
     : super(KPrefix, word_cnt, min_freq, inc_fail, tags);
 
-  GenderGameConfig.def()
-    : this(_GameConfig.kWordCnt, _GameConfig.kMinFreq, _GameConfig.kIncludeFailed, _GameConfig.kExcludeTags);
+  GenderGameConfig.def(): super.def(KPrefix);
+  GenderGameConfig.clone(GenderGameConfig other): super.clone(other);
+  GenderGameConfig.fromJson(final Map<String, dynamic> jsonObj): super.fromJson(KPrefix, jsonObj);
 
   static Future<_GameConfig> load() async => _GameConfig._load(KPrefix);
 }
@@ -35,8 +37,28 @@ class _GameConfig {
   int inc_fail;
   Set<TagType> exclude_tags;
 
-  _GameConfig(this._prefix, this.word_cnt, this.min_freq, this.inc_fail, List<TagType> tags)
+  _GameConfig(this._prefix, this.word_cnt, this.min_freq, this.inc_fail, Iterable<TagType> tags)
     : exclude_tags = Set<TagType>.of(tags);
+
+  _GameConfig.def(final String prefix)
+    : this(prefix, kWordCnt, kMinFreq, kIncludeFailed, kExcludeTags);
+
+  _GameConfig.clone(final _GameConfig other)
+    : this(other._prefix, other.word_cnt, other.min_freq, other.inc_fail, other.exclude_tags);
+
+  _GameConfig.fromJson(final String prefix, final Map<String, dynamic> jsonObj)
+    : _prefix = prefix,
+      word_cnt = jsonObj['word_cnt'] ?? kWordCnt,
+      min_freq = jsonObj['min_freq'] ?? kMinFreq,
+      inc_fail = jsonObj['inc_fail'] ?? kIncludeFailed,
+      exclude_tags = (jsonObj['exclude_tags'] ?? []).map<TagType>((i) => TagType.values[i]).toSet();
+
+  Map<String, dynamic> toJson() => {
+    'word_cnt': word_cnt,
+    'min_freq': min_freq,
+    'inc_fail': inc_fail,
+    'exclude_tags': exclude_tags.map((t) => t.index).toList(growable:false),
+  };
 
   void setFrom(_GameConfig other) {
     word_cnt = other.word_cnt;
@@ -93,12 +115,12 @@ class _GameConfig {
   }
 
   String toString() {
-    return """
-    word_cnt: ${word_cnt}
-    min_freq: ${min_freq}
-    inc_fail: ${inc_fail}
-    exclude_tags: ${exclude_tags.map((e) => e.toString()).toList()}
-    """;
+    final buf = StringBuffer();
+    buf.writeln("word_cnt: ${word_cnt}");
+    buf.writeln("min_freq: ${min_freq}");
+    buf.writeln("inc_fail: ${inc_fail}");
+    buf.writeln("exclude_tags: ${exclude_tags.map((e) => e.toString()).toList()}");
+    return buf.toString();
   }
 }
 
