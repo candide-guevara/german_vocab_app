@@ -70,4 +70,7 @@ DateTime unmarshallLowResolutionDt(int ts) {
   if ((ts >> 16) > 0) { return DateTime.fromMillisecondsSinceEpoch(ts); }
   return DateTime.fromMillisecondsSinceEpoch(ts << 26);
 }
+DateTime LowResDtForTest() {
+  return unmarshallLowResolutionDt(marshallLowResolutionDt(DateTime.now()));
+}
 

@@ -11,82 +11,67 @@ import 'utils.dart';
 
 void main() {
   test('HistoryEntry_rank', () {
-    final int good_dt = 123 << HistoryEntry.kBaseShift;
-    final int fail_dt = 321 << HistoryEntry.kBaseShift;
+    final good_dt = DateTime(2012, 12, 12);
+    final fail_dt = DateTime(2014, 12, 14);
     final String word = "chocolat";
-    final int fail_score = (fail_dt >> (HistoryEntry.kBaseShift + HistoryEntry.kFailShifts[0]))
-                         + (fail_dt >> (HistoryEntry.kBaseShift + HistoryEntry.kFailShifts[1]))
-                         + (fail_dt >> (HistoryEntry.kBaseShift + HistoryEntry.kFailShifts[2]))
-                         + (fail_dt >> (HistoryEntry.kBaseShift + HistoryEntry.kFailShifts[3]))
-                         + (fail_dt >> (HistoryEntry.kBaseShift + HistoryEntry.kFailShifts[4]));
-    final int good_score = (good_dt >> (HistoryEntry.kBaseShift + HistoryEntry.kGoodShifts[0]))
-                         + (good_dt >> (HistoryEntry.kBaseShift + HistoryEntry.kGoodShifts[1]))
-                         + (good_dt >> (HistoryEntry.kBaseShift + HistoryEntry.kGoodShifts[2]))
-                         + (good_dt >> (HistoryEntry.kBaseShift + HistoryEntry.kGoodShifts[3]))
-                         + (good_dt >> (HistoryEntry.kBaseShift + HistoryEntry.kGoodShifts[4]));
+    final int fail_score = (fail_dt.millisecondsSinceEpoch >> (HistoryEntry.kBaseShift + HistoryEntry.kFailShifts[0]))
+                         + (fail_dt.millisecondsSinceEpoch >> (HistoryEntry.kBaseShift + HistoryEntry.kFailShifts[1]))
+                         + (fail_dt.millisecondsSinceEpoch >> (HistoryEntry.kBaseShift + HistoryEntry.kFailShifts[2]))
+                         + (fail_dt.millisecondsSinceEpoch >> (HistoryEntry.kBaseShift + HistoryEntry.kFailShifts[3]))
+                         + (fail_dt.millisecondsSinceEpoch >> (HistoryEntry.kBaseShift + HistoryEntry.kFailShifts[4]));
+    final int good_score = (good_dt.millisecondsSinceEpoch >> (HistoryEntry.kBaseShift + HistoryEntry.kGoodShifts[0]))
+                         + (good_dt.millisecondsSinceEpoch >> (HistoryEntry.kBaseShift + HistoryEntry.kGoodShifts[1]))
+                         + (good_dt.millisecondsSinceEpoch >> (HistoryEntry.kBaseShift + HistoryEntry.kGoodShifts[2]))
+                         + (good_dt.millisecondsSinceEpoch >> (HistoryEntry.kBaseShift + HistoryEntry.kGoodShifts[3]))
+                         + (good_dt.millisecondsSinceEpoch >> (HistoryEntry.kBaseShift + HistoryEntry.kGoodShifts[4]));
     final int score = (HistoryEntry.kGoodShrink * good_score).round() - fail_score;
     final int rank_expect = (score << HistoryEntry.kStrShift) + (word.hashCode & HistoryEntry.kStrHashMask);
-    String ini_json = """{
-       "goods" : [ ${good_dt}, ${good_dt}, ${good_dt}, ${good_dt}, ${good_dt} ],
-       "fails" : [ ${fail_dt}, ${fail_dt}, ${fail_dt}, ${fail_dt}, ${fail_dt} ],
-       "hidx" : 2,
-       "lemma" : "${word}"
-    }""";
-    final entry = HistoryEntry.fromJson(json.decode(ini_json));
+    final entry = HistoryEntry.forTest(word, 2,
+                                       [ good_dt, good_dt, good_dt, good_dt, good_dt ],
+                                       [ fail_dt, fail_dt, fail_dt, fail_dt, fail_dt ],
+                                       []);
     expect(entry.rank(), lessThan(0));
     expect(entry.rank(), equals(rank_expect));
   });
 
   test('HistoryEntry_rank_nogoods', () {
-    final int fail_dt = marshallLowResolutionDt(DateTime.now());
+    final fail_dt = DateTime(2014, 12, 14);
     final String word = "chocolat";
-    String ini_json = """{
-       "goods" : [],
-       "fails" : [ ${fail_dt}, ${fail_dt}, ${fail_dt} ],
-       "hidx" : 0,
-       "lemma" : "${word}"
-    }""";
-    final entry = HistoryEntry.fromJson(json.decode(ini_json));
+    final entry = HistoryEntry.forTest(word, 0,
+                                       [],
+                                       [ fail_dt, fail_dt, fail_dt ],
+                                       []);
     expect(entry.rank(), lessThan(0));
   });
 
   test('HistoryEntry_rank_nofails', () {
-    final int good_dt = marshallLowResolutionDt(DateTime.now());
+    final good_dt = DateTime(2012, 12, 12);
     final String word = "chocolat";
-    String ini_json = """{
-       "goods" : [ ${good_dt}, ${good_dt} ],
-       "fails" : [],
-       "hidx" : 0,
-       "lemma" : "${word}"
-    }""";
-    final entry = HistoryEntry.fromJson(json.decode(ini_json));
+    final entry = HistoryEntry.forTest(word, 0,
+                                       [ good_dt, good_dt ],
+                                       [],
+                                       []);
     expect(entry.rank(), greaterThan(0));
   });
 
   test('HistoryEntry_fromJson_and_toJson', () {
-    String ini_json = """{
-       "goods" : [ ${marshallLowResolutionDt(DateTime.now())} ],
-       "fails" : [ ${marshallLowResolutionDt(DateTime.now())} ],
-       "guess" : [ ${Article.das.index} ],
-       "hidx" : 2,
-       "lemma" : "üppig"
-    }""";
-    final entry = HistoryEntry.fromJson(json.decode(ini_json));
+    final entry = HistoryEntry.forTest("üppig", 2,
+                                       [ LowResDtForTest() ],
+                                       [ LowResDtForTest() ],
+                                       [ Article.das ]);
     final new_json = json.encode(entry.toJson());
-    compareJsonStr(new_json, ini_json);
+    final new_entry = HistoryEntry.fromJson(entry.toJson());
+    expect(entry.toString(), equals(new_entry.toString()));
   });
 
   test('HistoryEntryEmptyArrays_fromJson_and_toJson', () {
-    String ini_json = """{
-       "goods" : [],
-       "fails" : [],
-       "guess" : [],
-       "hidx" : 2,
-       "lemma" : "üppig"
-    }""";
-    final entry = HistoryEntry.fromJson(json.decode(ini_json));
+    final entry = HistoryEntry.forTest("üppig", 2,
+                                       [],
+                                       [],
+                                       []);
     final new_json = json.encode(entry.toJson());
-    compareJsonStr(new_json, ini_json);
+    final new_entry = HistoryEntry.fromJson(entry.toJson());
+    expect(entry.toString(), equals(new_entry.toString()));
   });
 
   test('HistoryEntry_truncate', () {

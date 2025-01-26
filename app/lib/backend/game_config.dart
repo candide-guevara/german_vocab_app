@@ -24,16 +24,16 @@ class GameConfig {
     : this(other.word_cnt, other.min_freq, other.inc_fail, other.exclude_tags);
 
   GameConfig.fromJson(final Map<String, dynamic> jsonObj)
-    : word_cnt = jsonObj['word_cnt'] ?? kWordCnt,
-      min_freq = jsonObj['min_freq'] ?? kMinFreq,
-      inc_fail = jsonObj['inc_fail'] ?? kIncludeFailed,
-      exclude_tags = (jsonObj['exclude_tags'] ?? []).map<TagType>((i) => TagType.values[i]).toSet();
+    : word_cnt = jsonObj['w'] ?? jsonObj['word_cnt'] ?? kWordCnt,
+      min_freq = jsonObj['m'] ?? jsonObj['min_freq'] ?? kMinFreq,
+      inc_fail = jsonObj['i'] ?? jsonObj['inc_fail'] ?? kIncludeFailed,
+      exclude_tags = (jsonObj['e'] ?? jsonObj['exclude_tags'] ?? []).map<TagType>((i) => TagType.values[i]).toSet();
 
   Map<String, dynamic> toJson() => {
-    'word_cnt': word_cnt,
-    'min_freq': min_freq,
-    'inc_fail': inc_fail,
-    'exclude_tags': exclude_tags.map((t) => t.index).toList(growable:false),
+    'w': word_cnt,
+    'm': min_freq,
+    'i': inc_fail,
+    'e': exclude_tags.map((t) => t.index).toList(growable:false),
   };
 
   void setFrom(GameConfig other) {

@@ -20,6 +20,7 @@ class HistoryEntry {
   final int meaning_idx;
 
   HistoryEntry.empty(this.word, this.meaning_idx): goods = [], fails = [], guess = [];
+  HistoryEntry.forTest(this.word, this.meaning_idx, this.goods, this.fails, this.guess);
 
   (String, int) key() => (word, meaning_idx);
 
@@ -47,18 +48,18 @@ class HistoryEntry {
   }
 
   HistoryEntry.fromJson(Map<String, dynamic> json):
-    goods = [ for(final d in json['goods'] ?? []) unmarshallLowResolutionDt(d) ],
-    fails = [ for(final d in json['fails'] ?? []) unmarshallLowResolutionDt(d) ],
-    guess = [ for(final d in json['guess'] ?? []) Article.values[d] ],
-    meaning_idx = json['hidx'],
-    word = json['lemma'];
+    goods = [ for(final d in json['g'] ?? json['goods'] ?? []) unmarshallLowResolutionDt(d) ],
+    fails = [ for(final d in json['f'] ?? json['fails'] ?? []) unmarshallLowResolutionDt(d) ],
+    guess = [ for(final d in json['u'] ?? json['guess'] ?? []) Article.values[d] ],
+    meaning_idx = json['h'] ?? json['hidx'] ?? 0,
+    word        = json['l'] ?? json['lemma'] ?? '<no_word?>';
 
   Map<String, dynamic> toJson() => {
-    'goods' : [ for(final d in goods) marshallLowResolutionDt(d) ],
-    'fails' : [ for(final d in fails) marshallLowResolutionDt(d) ],
-    'guess' : [ for(final d in guess) d.index ],
-    'hidx' : meaning_idx,
-    'lemma' : word,
+    'g' : [ for(final d in goods) marshallLowResolutionDt(d) ],
+    'f' : [ for(final d in fails) marshallLowResolutionDt(d) ],
+    'u' : [ for(final d in guess) d.index ],
+    'h'  : meaning_idx,
+    'l' : word,
   };
 
   String toString() {
